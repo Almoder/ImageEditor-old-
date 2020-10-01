@@ -53,6 +53,7 @@ namespace Lab1 {
 #pragma region Windows Form Designer generated code
 
 		void InitializeComponent(void) {
+			System::ComponentModel::ComponentResourceManager^  resources = (gcnew System::ComponentModel::ComponentResourceManager(MainForm::typeid));
 			this->menuStrip = (gcnew System::Windows::Forms::MenuStrip());
 			this->fileMI = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->openMI = (gcnew System::Windows::Forms::ToolStripMenuItem());
@@ -564,6 +565,7 @@ namespace Lab1 {
 			this->ClientSize = System::Drawing::Size(724, 417);
 			this->Controls->Add(this->tabControl);
 			this->Controls->Add(this->menuStrip);
+			this->Icon = (cli::safe_cast<System::Drawing::Icon^>(resources->GetObject(L"$this.Icon")));
 			this->MainMenuStrip = this->menuStrip;
 			this->MinimumSize = System::Drawing::Size(214, 456);
 			this->Name = L"MainForm";
