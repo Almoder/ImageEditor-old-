@@ -5,6 +5,7 @@ namespace Lab1 {
 	using namespace System::Windows::Forms;
 	using namespace System::Data;
 	using namespace System::Drawing;
+	using namespace System::Threading;
 
 	ref class MainForm;
 	ref class Entry;
@@ -38,12 +39,14 @@ namespace Lab1 {
 		Windows::Forms::TextBox^  binaryBoxTextBox1, ^binaryBoxTextBox2, ^binaryBoxTextBox3, ^powerBoxTextBox1, ^powerBoxTextBox2;
 		Windows::Forms::TrackBar^  binaryBoxTrackBar1, ^binaryBoxTrackBar2, ^binaryBoxTrackBar3, ^powerBoxTrackBar1, ^powerBoxTrackBar2;
 		Windows::Forms::ListBox^  logBox;
-		System::ComponentModel::Container ^components;
+		System::ComponentModel::BackgroundWorker^ backgroundWorker;
+		System::ComponentModel::Container^ components;
 		array<Bitmap^>^ images;
 		array<Entry^>^ log;
-		int size, logsize, current, sFDindex, t, b0, b1;
+		int size, logsize, current, sFDindex, t, b0, b1, type;
 		double c, g;
-		String^ fileName;
+	private: System::Windows::Forms::ProgressBar^  progressBar1;
+			 String^ fileName;
 
 	public:
 		MainForm(void);
@@ -53,7 +56,6 @@ namespace Lab1 {
 #pragma region Windows Form Designer generated code
 
 		void InitializeComponent(void) {
-			System::ComponentModel::ComponentResourceManager^  resources = (gcnew System::ComponentModel::ComponentResourceManager(MainForm::typeid));
 			this->menuStrip = (gcnew System::Windows::Forms::MenuStrip());
 			this->fileMI = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->openMI = (gcnew System::Windows::Forms::ToolStripMenuItem());
@@ -100,6 +102,8 @@ namespace Lab1 {
 			this->pictureBox = (gcnew System::Windows::Forms::PictureBox());
 			this->logPage = (gcnew System::Windows::Forms::TabPage());
 			this->logBox = (gcnew System::Windows::Forms::ListBox());
+			this->backgroundWorker = (gcnew System::ComponentModel::BackgroundWorker());
+			this->progressBar1 = (gcnew System::Windows::Forms::ProgressBar());
 			this->menuStrip->SuspendLayout();
 			this->tabControl->SuspendLayout();
 			this->editorPage->SuspendLayout();
@@ -556,16 +560,23 @@ namespace Lab1 {
 			this->logBox->Location = System::Drawing::Point(3, 3);
 			this->logBox->Name = L"logBox";
 			this->logBox->ScrollAlwaysVisible = true;
-			this->logBox->Size = System::Drawing::Size(670, 345);
+			this->logBox->Size = System::Drawing::Size(710, 330);
 			this->logBox->TabIndex = 0;
+			this->backgroundWorker->WorkerReportsProgress = true;
+			this->backgroundWorker->WorkerSupportsCancellation = true;
+			this->progressBar1->Location = System::Drawing::Point(240, 6);
+			this->progressBar1->Name = L"progressBar1";
+			this->progressBar1->Size = System::Drawing::Size(480, 10);
+			this->progressBar1->Style = System::Windows::Forms::ProgressBarStyle::Marquee;
+			this->progressBar1->TabIndex = 1;
 			this->AutoScaleDimensions = System::Drawing::SizeF(6, 13);
 			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
 			this->BackColor = System::Drawing::Color::FromArgb(static_cast<System::Int32>(static_cast<System::Byte>(45)), static_cast<System::Int32>(static_cast<System::Byte>(43)),
 				static_cast<System::Int32>(static_cast<System::Byte>(45)));
 			this->ClientSize = System::Drawing::Size(724, 417);
+			this->Controls->Add(this->progressBar1);
 			this->Controls->Add(this->tabControl);
 			this->Controls->Add(this->menuStrip);
-			this->Icon = (cli::safe_cast<System::Drawing::Icon^>(resources->GetObject(L"$this.Icon")));
 			this->MainMenuStrip = this->menuStrip;
 			this->MinimumSize = System::Drawing::Size(214, 456);
 			this->Name = L"MainForm";
@@ -595,6 +606,7 @@ namespace Lab1 {
 			this->PerformLayout();
 
 		}
+		void InitializeBackgoundWorker();
 #pragma endregion
 	private: 
 		Void openClick(Object^, EventArgs^);
@@ -621,6 +633,8 @@ namespace Lab1 {
 		Void binaryBoxTrackBar3ValueChanged(Object^, EventArgs^);
 		Void powerBoxTrackBar1ValueChanged(Object^, EventArgs^);
 		Void powerBoxTrackBar2ValueChanged(Object^, EventArgs^);
+		Void backgroundWorker_DoWork(Object^, DoWorkEventArgs^);
+		Void backgroundWorker_RunWorkerCompleted(Object^, RunWorkerCompletedEventArgs^);
 	public:
 		Void dialogBinar(int, int, int);
 		Void dialogPower(double, double);

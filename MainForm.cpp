@@ -3,7 +3,7 @@
 
 using namespace Lab1;
 
-[STAThreadAttribute]
+[STAThread]
 void main() {
 	MainForm ^form = gcnew MainForm();
 	Application::Run(form);
@@ -60,10 +60,11 @@ Entry::Entry(int type, double c, double g) {
 //MainForm
 MainForm::MainForm(void) {
 	InitializeComponent();
-	size = 0; logsize = 0;
-	current = 0; sFDindex = 0;
-	t = 0; b0 = 0; b1 = 0;
-	c = 1.0; g = 1.0;
+	InitializeBackgoundWorker();
+	size = logsize = 0;
+	current = sFDindex = type = 0;
+	t = b0 = b1 = 0;
+	c = g = 1.0;
 	images = nullptr;
 	log = nullptr;
 	fileName = nullptr;
@@ -77,6 +78,11 @@ MainForm::~MainForm() {
 	if (images != nullptr) delete[] images;
 	if (log != nullptr) delete[] log;
 	if (fileName != nullptr) delete fileName;
+}
+
+void MainForm::InitializeBackgoundWorker() {
+	backgroundWorker->DoWork += gcnew DoWorkEventHandler(this, &MainForm::backgroundWorker_DoWork);
+	backgroundWorker->RunWorkerCompleted += gcnew RunWorkerCompletedEventHandler(this, &MainForm::backgroundWorker_RunWorkerCompleted);
 }
 
 //File items
@@ -163,26 +169,22 @@ Void MainForm::exitMIClick(Object^  sender, EventArgs^  e) {
 //lab functions
 Void MainForm::negativeClick(Object^  sender, EventArgs^  e) {
 	if (images == nullptr) return;
-	Array::Resize(images, size + 1);
+	type = 1;
+	backgroundWorker->RunWorkerAsync();
 	Array::Resize(log, logsize + 1);
-	images[size] = negative(images[current]);
 	log[logsize] = gcnew Entry(1);
 	logBox->Items->Add(log[logsize]->data);
-	size++; logsize++;
-	current++;
-	pictureBox->Image = images[current];
+	logsize++;
 }
 
 Void MainForm::halftoneClick(Object^  sender, EventArgs^  e) {
 	if (images == nullptr) return;
-	Array::Resize(images, size + 1);
+	type = 2;
+	backgroundWorker->RunWorkerAsync();
 	Array::Resize(log, logsize + 1);
-	images[size] = halftone(images[current]);
 	log[logsize] = gcnew Entry(2);
 	logBox->Items->Add(log[logsize]->data);
-	size++; logsize++;
-	current++;
-	pictureBox->Image = images[current];
+	logsize++;
 }
 
 Void MainForm::binarClick(Object^  sender, EventArgs^  e) {
@@ -389,22 +391,72 @@ Void MainForm::powerBoxTrackBar2ValueChanged(Object^  sender, EventArgs^  e) {
 	dialogPower(c, g);
 }
 
+//backgroundWorker
+Void MainForm::backgroundWorker_DoWork(Object^ sender, DoWorkEventArgs^ e) {
+	BackgroundWorker^ worker = dynamic_cast<BackgroundWorker^>(sender);
+	switch (type) {
+	case 1:
+		e->Result = negative(images[current]);
+		break;
+	case 2:
+		e->Result = halftone(images[current]);
+		break;
+	case 3:
+		e->Result = binar(images[current], t, b0, b1);
+		break;
+	case 4:
+		e->Result = power(images[current], c, g);
+		break;
+	default:
+		e->Result = nullptr;
+		break;
+	}
+}
+
+Void MainForm::backgroundWorker_RunWorkerCompleted(Object^ sender, RunWorkerCompletedEventArgs^ e) {
+	if (e->Error != nullptr) {
+		MessageBox::Show(e->Error->Message, L"Error!");
+	}
+	else
+	if (e->Cancelled) {
+		MessageBox::Show(L"Thread is canceled!", L"Attention!", MessageBoxButtons::OK, MessageBoxIcon::Asterisk);
+	}
+	else {
+	pictureBox->Image = dynamic_cast<Bitmap^>(e->Result);
+	backUpFromPictureBox();
+	}
+}
+
+//fromDialog
 Void MainForm::dialogBinar(int t, int b0, int b1) {
 	if (images == nullptr) return;
-	pictureBox->Image = binar(images[current], t, b0, b1);
 	Array::Resize(log, logsize + 1);
 	log[logsize] = gcnew Entry(3, t, b0, b1);
 	logBox->Items->Add(log[logsize]->data);
+	if (logsize > 1) {
+		if (log[logsize - 1]->type != 3) backUpFromPictureBox();
+	}
 	logsize++;
+	this->t = t;
+	this->b0 = b0;
+	this->b1 = b1;
+	type = 3;
+	backgroundWorker->RunWorkerAsync();
 }
 
 Void MainForm::dialogPower(double c, double g) {
 	if (images == nullptr) return;
-	pictureBox->Image = power(images[current], c, g);
 	Array::Resize(log, logsize + 1);
 	log[logsize] = gcnew Entry(4, c, g);
 	logBox->Items->Add(log[logsize]->data);
+	if (logsize > 1) {
+		if (log[logsize - 1]->type != 3) backUpFromPictureBox();
+	}
 	logsize++;
+	this->c = c;
+	this->g = g;
+	type = 4;
+	backgroundWorker->RunWorkerAsync();
 }
 
 Void MainForm::backUpFromPictureBox() {
