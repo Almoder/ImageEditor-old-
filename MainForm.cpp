@@ -60,9 +60,8 @@ Entry::Entry(int type, double c, double g) {
 //MainForm
 MainForm::MainForm(void) {
 	InitializeComponent();
-	InitializeBackgoundWorker();
 	size = logsize = 0;
-	current = sFDindex = 0;
+	current = curBP = sFDindex = 0;
 	t = b0 = b1 = 0;
 	c = g = 1.0;
 	images = nullptr;
@@ -78,11 +77,6 @@ MainForm::~MainForm() {
 	if (images != nullptr) delete[] images;
 	if (log != nullptr) delete[] log;
 	if (fileName != nullptr) delete fileName;
-}
-
-void MainForm::InitializeBackgoundWorker() {
-	backgroundWorker->DoWork += gcnew DoWorkEventHandler(this, &MainForm::backgroundWorkerDoWork);
-	backgroundWorker->RunWorkerCompleted += gcnew RunWorkerCompletedEventHandler(this, &MainForm::backgroundWorkerRunWorkerCompleted);
 }
 
 //File items
@@ -172,7 +166,13 @@ Void MainForm::exitMIClick(Object^  sender, EventArgs^  e) {
 Void MainForm::negativeClick(Object^  sender, EventArgs^  e) {
 	if (images == nullptr) return;
 	buttonsEnable(false);
-	backgroundWorker->RunWorkerAsync(1);
+	progressBar->Maximum = images[current]->Size.Width;
+	progressBar->Value = 0;
+	progressBar->Visible = true;
+	transformThread = gcnew Thread(gcnew ThreadStart(this, &MainForm::negative));
+	transformThread->IsBackground = true;
+	transformThread->Priority = ThreadPriority::Highest;
+	transformThread->Start();
 	Array::Resize(log, logsize + 1);
 	log[logsize] = gcnew Entry(1);
 	logBox->Items->Add(log[logsize]->data);
@@ -182,7 +182,13 @@ Void MainForm::negativeClick(Object^  sender, EventArgs^  e) {
 Void MainForm::halftoneClick(Object^  sender, EventArgs^  e) {
 	if (images == nullptr) return;
 	buttonsEnable(false);
-	backgroundWorker->RunWorkerAsync(2);
+	progressBar->Maximum = images[current]->Size.Width;
+	progressBar->Value = 0;
+	progressBar->Visible = true;
+	transformThread = gcnew Thread(gcnew ThreadStart(this, &MainForm::halftone));
+	transformThread->IsBackground = true;
+	transformThread->Priority = ThreadPriority::Highest;
+	transformThread->Start();
 	Array::Resize(log, logsize + 1);
 	log[logsize] = gcnew Entry(2);
 	logBox->Items->Add(log[logsize]->data);
@@ -209,47 +215,104 @@ Void MainForm::powerClick(Object^, EventArgs^) {
 	dialog->Show();
 }
 
-//lab functions
-Bitmap^ MainForm::negative(Bitmap^ image, BackgroundWorker^ worker) {
-	Bitmap^ ret = gcnew Bitmap(image->Width, image->Height);
-	int completePercentage = 0;
-	for (int row = 0; row < image->Width; row++) {
-		for (int col = 0; col < image->Height; col++) {
-			ret->SetPixel(row, col, Color::FromArgb(
-				255 - Convert::ToInt32(image->GetPixel(row, col).R),
-				255 - Convert::ToInt32(image->GetPixel(row, col).G),
-				255 - Convert::ToInt32(image->GetPixel(row, col).B)));
-		}
+Void MainForm::binaryButtonClick(Object^ sender, EventArgs^ e) {
+	if (images == nullptr) return;
+	if (binaryBoxTextBox1->Text == String::Empty ||
+		binaryBoxTextBox2->Text == String::Empty ||
+		binaryBoxTextBox3->Text == String::Empty) return;
+	buttonsEnable(false);
+	progressBar->Maximum = images[current]->Size.Width;
+	progressBar->Value = 0;
+	progressBar->Visible = true;
+	if (log != nullptr) {
+		if(log[logsize - 1]->type != 3) curBP = current;
 	}
-	return ret;
+	else curBP = current;
+	transformThread = gcnew Thread(gcnew ThreadStart(this, &MainForm::binar));
+	transformThread->IsBackground = true;
+	transformThread->Priority = ThreadPriority::Highest;
+	transformThread->Start();
+	Array::Resize(log, logsize + 1);
+	log[logsize] = gcnew Entry(3);
+	logBox->Items->Add(log[logsize]->data);
+	logsize++;
 }
 
-Bitmap^ MainForm::halftone(Bitmap^ image, BackgroundWorker^ worker) {
-	Bitmap^ ret = gcnew Bitmap(image->Width, image->Height);
-	for (int row = 0; row < image->Width; row++) {
-		for (int col = 0; col < image->Height; col++) {
-			int Y = (int)(0.3 * image->GetPixel(row, col).R)
-				+ (int)(0.59 * image->GetPixel(row, col).G)
-				+ (int)(0.11 * image->GetPixel(row, col).B);
+Void MainForm::powerButtonClick(Object^ sender, EventArgs^ e) {
+	if (images == nullptr) return;
+	if (binaryBoxTextBox1->Text == String::Empty ||
+		binaryBoxTextBox2->Text == String::Empty ||
+		binaryBoxTextBox3->Text == String::Empty) return;
+	buttonsEnable(false);
+	progressBar->Maximum = images[current]->Size.Width;
+	progressBar->Value = 0;
+	progressBar->Visible = true;
+	if (log != nullptr) {
+		if (log[logsize - 1]->type != 4) curBP = current;
+	}
+	else curBP = current;
+	transformThread = gcnew Thread(gcnew ThreadStart(this, &MainForm::power));
+	transformThread->IsBackground = true;
+	transformThread->Priority = ThreadPriority::Highest;
+	transformThread->Start();
+	Array::Resize(log, logsize + 1);
+	log[logsize] = gcnew Entry(4);
+	logBox->Items->Add(log[logsize]->data);
+	logsize++;
+}
+
+//lab functions
+Void MainForm::negative() {
+	Bitmap^ image = gcnew Bitmap(images[current]);
+	Bitmap^ ret = gcnew Bitmap(image->Size.Width, image->Size.Height);
+	int completePercentage = 0;
+	for (int row = 0; row < ret->Width; row++) {
+		for (int col = 0; col < ret->Height; col++) {
+			Color temp = image->GetPixel(row, col);
+			ret->SetPixel(row, col, Color::FromArgb(255 - temp.R, 255 - temp.G, 255 - temp.B));
+		}
+		completePercentage++;
+		progressBar->BeginInvoke(gcnew ProgressBarChangeValue(this, &MainForm::progressBarChangeValue), completePercentage);
+	}
+	pictureBox->BeginInvoke(gcnew PictureBoxChangeImage(this, &MainForm::pictureBoxChangeImage), ret);
+}
+
+Void MainForm::halftone() {
+	Bitmap^ image = gcnew Bitmap(images[current]);
+	Bitmap^ ret = gcnew Bitmap(image->Size.Width, image->Size.Height);
+	int completePercentage = 0;
+	for (int row = 0; row < ret->Width; row++) {
+		for (int col = 0; col < ret->Height; col++) {
+			Color temp = image->GetPixel(row, col);
+			int Y = (int)(0.3 * temp.R + 0.59 * temp.G + 0.11 * temp.B);
 			ret->SetPixel(row, col, Color::FromArgb(Y, Y, Y));
 		}
+		completePercentage++;
+		progressBar->BeginInvoke(gcnew ProgressBarChangeValue(this, &MainForm::progressBarChangeValue), completePercentage);
 	}
-	return ret;
+	pictureBox->BeginInvoke(gcnew PictureBoxChangeImage(this, &MainForm::pictureBoxChangeImage), ret);
 }
 
-Bitmap^ MainForm::binar(Bitmap^ image, int t, int b0, int b1) {
-	Bitmap^ ret = gcnew Bitmap(image->Width, image->Height);
+Void MainForm::binar() {
+	Bitmap^ image = gcnew Bitmap(images[curBP]);
+	Bitmap^ ret = gcnew Bitmap(image->Size.Width, image->Size.Height);
+	int completePercentage = 0, t = this->t, b0 = this->b0, b1 = this->b1;
 	for (int row = 0; row < image->Width; row++) {
 		for (int col = 0; col < image->Height; col++) {
 			Color b = image->GetPixel(row, col);
 			ret->SetPixel(row, col, Color::FromArgb((b.R <= t ? b0 : b1), (b.G <= t ? b0 : b1), (b.B <= t ? b0 : b1)));
 		}
+		completePercentage++;
+		progressBar->BeginInvoke(gcnew ProgressBarChangeValue(this, &MainForm::progressBarChangeValue), completePercentage);
 	}
-	return ret;
+	pictureBox->BeginInvoke(gcnew PictureBoxChangeImage(this, &MainForm::pictureBoxChangeImage), ret);
 }
 
-Bitmap^ MainForm::power(Bitmap^ image, double c, double g) {
-	Bitmap^ ret = gcnew Bitmap(image->Width, image->Height);
+Void MainForm::power() {
+	Bitmap^ image = gcnew Bitmap(images[curBP]);
+	Bitmap^ ret = gcnew Bitmap(image->Size.Width, image->Size.Height);
+	int completePercentage = 0;
+	double c = this->c, g = this->g;
 	for (int row = 0; row < image->Width; row++) {
 		for (int col = 0; col < image->Height; col++) {
 			Color a = image->GetPixel(row, col);
@@ -259,8 +322,10 @@ Bitmap^ MainForm::power(Bitmap^ image, double c, double g) {
 				(int)pow(a.B * c, g) >= 255 ? 255 : (int)pow(a.B * c, g));
 			ret->SetPixel(row, col, b);
 		}
+		completePercentage++;
+		progressBar->BeginInvoke(gcnew ProgressBarChangeValue(this, &MainForm::progressBarChangeValue), completePercentage);
 	}
-	return ret;
+	pictureBox->BeginInvoke(gcnew PictureBoxChangeImage(this, &MainForm::pictureBoxChangeImage), ret);
 }
 
 //UI
@@ -294,6 +359,8 @@ Void MainForm::progressBar_SizeChanged(Object^ sender, EventArgs^ e) {
 Void MainForm::buttonsEnable(bool state) {
 	negativeButton->Enabled = state;
 	halftoneButton->Enabled = state;
+	binaryButton->Enabled = state;
+	powerButton->Enabled = state;
 }
 
 //toolpanel textBoxes
@@ -415,41 +482,20 @@ Void MainForm::powerBoxTrackBar2ValueChanged(Object^  sender, EventArgs^  e) {
 	g = (double)powerBoxTrackBar2->Value / 25.0;
 }
 
-//backgroundWorker
-Void MainForm::backgroundWorkerDoWork(Object^ sender, DoWorkEventArgs^ e) {
-	BackgroundWorker^ worker = dynamic_cast<BackgroundWorker^>(sender);
-	switch (Convert::ToInt32(e->Argument)) {
-	case 1:
-		e->Result = negative(images[current], worker);
-		break;
-	case 2:
-		e->Result = halftone(images[current], worker);
-		break;
-	case 3:
-		e->Result = binar(images[current], t, b0, b1);
-		break;
-	case 4:
-		e->Result = power(images[current], c, g);
-		break;
-	default:
-		e->Result = nullptr;
-		break;
-	}
+//threading
+Bitmap^ MainForm::getCurrentImage() {
+	return images[current];
 }
 
-Void MainForm::backgroundWorkerRunWorkerCompleted(Object^ sender, RunWorkerCompletedEventArgs^ e) {
-	if (e->Error != nullptr) {
-		MessageBox::Show(e->Error->Message, L"Error!");
-	}
-	else
-	if (e->Cancelled) {
-		MessageBox::Show(L"Thread is canceled!", L"Attention!", MessageBoxButtons::OK, MessageBoxIcon::Asterisk);
-	}
-	else {
-	pictureBox->Image = dynamic_cast<Bitmap^>(e->Result);
+Void MainForm::pictureBoxChangeImage(Bitmap^ image) {
+	pictureBox->Image = image;
 	backUpFromPictureBox();
-	}
+	progressBar->Visible = false;
 	buttonsEnable(true);
+}
+
+Void MainForm::progressBarChangeValue(int value) {
+	progressBar->Value = value;
 }
 
 //fromDialog
@@ -465,7 +511,6 @@ Void MainForm::dialogBinar(int t, int b0, int b1) {
 	this->t = t;
 	this->b0 = b0;
 	this->b1 = b1;
-	backgroundWorker->RunWorkerAsync(3);
 }
 
 Void MainForm::dialogPower(double c, double g) {
@@ -479,7 +524,6 @@ Void MainForm::dialogPower(double c, double g) {
 	logsize++;
 	this->c = c;
 	this->g = g;
-	backgroundWorker->RunWorkerAsync(4);
 }
 
 Void MainForm::backUpFromPictureBox() {
