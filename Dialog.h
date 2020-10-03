@@ -104,7 +104,7 @@ namespace Lab1 {
 					 textBox1->TabIndex = 3;
 					 textBox1->TextAlign = System::Windows::Forms::HorizontalAlignment::Center;
 					 textBox1->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &Dialog::textBox1_KeyDown);
-					 textBox1->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &Dialog::textBox_KeyPress);
+					 textBox1->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &Dialog::textBox_KeyPressInt);
 					 // 
 					 // textBox2
 					 // 
@@ -121,7 +121,7 @@ namespace Lab1 {
 					 textBox2->TabIndex = 4;
 					 textBox2->TextAlign = System::Windows::Forms::HorizontalAlignment::Center;
 					 textBox2->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &Dialog::textBox2_KeyDown);
-					 textBox2->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &Dialog::textBox_KeyPress);
+					 textBox2->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &Dialog::textBox_KeyPressInt);
 					 // 
 					 // textBox3
 					 // 
@@ -138,7 +138,7 @@ namespace Lab1 {
 					 textBox3->TabIndex = 5;
 					 textBox3->TextAlign = System::Windows::Forms::HorizontalAlignment::Center;
 					 textBox3->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &Dialog::textBox3_KeyDown);
-					 textBox3->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &Dialog::textBox_KeyPress);
+					 textBox3->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &Dialog::textBox_KeyPressInt);
 					 // 
 					 // trackBar1
 					 // 
@@ -258,7 +258,7 @@ namespace Lab1 {
 					 textBox1->TextAlign = System::Windows::Forms::HorizontalAlignment::Center;
 					 textBox1->Text = L"1";
 					 textBox1->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &Dialog::textBox1_KeyDown);
-					 textBox1->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &Dialog::textBox_KeyPress);
+					 textBox1->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &Dialog::textBox_KeyPressDouble);
 					 // 
 					 // textBox2
 					 // 
@@ -275,7 +275,7 @@ namespace Lab1 {
 					 textBox2->TextAlign = System::Windows::Forms::HorizontalAlignment::Center;
 					 textBox2->Text = L"1";
 					 textBox2->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &Dialog::textBox2_KeyDown);
-					 textBox2->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &Dialog::textBox_KeyPress);
+					 textBox2->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &Dialog::textBox_KeyPressDouble);
 					 // 
 					 // trackBar1
 					 // 
@@ -336,7 +336,8 @@ namespace Lab1 {
 		Void textBox1_KeyDown(Object^, KeyEventArgs^);
 		Void textBox2_KeyDown(Object^, KeyEventArgs^);
 		Void textBox3_KeyDown(Object^, KeyEventArgs^);
-		Void textBox_KeyPress(Object^, KeyPressEventArgs^);
+		Void textBox_KeyPressInt(Object^, KeyPressEventArgs^);
+		Void textBox_KeyPressDouble(Object^, KeyPressEventArgs^);
 		Void trackBar1_ValueChanged(Object^, EventArgs^);
 		Void trackBar2_ValueChanged(Object^, EventArgs^);
 		Void trackBar3_ValueChanged(Object^, EventArgs^);

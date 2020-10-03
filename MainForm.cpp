@@ -62,7 +62,7 @@ MainForm::MainForm(void) {
 	InitializeComponent();
 	InitializeBackgoundWorker();
 	size = logsize = 0;
-	current = sFDindex = type = 0;
+	current = sFDindex = 0;
 	t = b0 = b1 = 0;
 	c = g = 1.0;
 	images = nullptr;
@@ -81,12 +81,12 @@ MainForm::~MainForm() {
 }
 
 void MainForm::InitializeBackgoundWorker() {
-	backgroundWorker->DoWork += gcnew DoWorkEventHandler(this, &MainForm::backgroundWorker_DoWork);
-	backgroundWorker->RunWorkerCompleted += gcnew RunWorkerCompletedEventHandler(this, &MainForm::backgroundWorker_RunWorkerCompleted);
+	backgroundWorker->DoWork += gcnew DoWorkEventHandler(this, &MainForm::backgroundWorkerDoWork);
+	backgroundWorker->RunWorkerCompleted += gcnew RunWorkerCompletedEventHandler(this, &MainForm::backgroundWorkerRunWorkerCompleted);
 }
 
 //File items
-Void MainForm::openClick(Object^  sender, EventArgs^  e) {
+Void MainForm::openMIClick(Object^  sender, EventArgs^  e) {
 	System::IO::Stream^ temp;
 	OpenFileDialog^ openFileDialog = gcnew OpenFileDialog;
 	openFileDialog->Filter = "BMP (*.bmp)|*.bmp|JPEG (*.jpeg)|*.jpeg|PNG (*.png)|*.png|All files (*.*)|*.*";
@@ -106,9 +106,11 @@ Void MainForm::openClick(Object^  sender, EventArgs^  e) {
 	}
 	temp->Close();
 	delete openFileDialog;
+	toolPanelShowHide(sender, e);
+	toolPanelShowHide(sender, e);
 }
 
-Void MainForm::saveMI_Click(Object^ sender, EventArgs^ e) {
+Void MainForm::saveMIClick(Object^ sender, EventArgs^ e) {
 	if (fileName != nullptr) {
 		backUpFromPictureBox();
 		SaveFileDialog^ saveFileDialog = gcnew SaveFileDialog;
@@ -128,10 +130,10 @@ Void MainForm::saveMI_Click(Object^ sender, EventArgs^ e) {
 		fs->Close();
 		delete saveFileDialog;
 	}
-	else saveAsMI_Click(sender, e);
+	else saveAsMIClick(sender, e);
 }
 
-Void MainForm::saveAsMI_Click(Object^ sender, EventArgs^ e) {
+Void MainForm::saveAsMIClick(Object^ sender, EventArgs^ e) {
 	if (images == nullptr) return;
 	backUpFromPictureBox();
 	SaveFileDialog^ saveFileDialog = gcnew SaveFileDialog;
@@ -169,8 +171,8 @@ Void MainForm::exitMIClick(Object^  sender, EventArgs^  e) {
 //lab functions
 Void MainForm::negativeClick(Object^  sender, EventArgs^  e) {
 	if (images == nullptr) return;
-	type = 1;
-	backgroundWorker->RunWorkerAsync();
+	buttonsEnable(false);
+	backgroundWorker->RunWorkerAsync(1);
 	Array::Resize(log, logsize + 1);
 	log[logsize] = gcnew Entry(1);
 	logBox->Items->Add(log[logsize]->data);
@@ -179,8 +181,8 @@ Void MainForm::negativeClick(Object^  sender, EventArgs^  e) {
 
 Void MainForm::halftoneClick(Object^  sender, EventArgs^  e) {
 	if (images == nullptr) return;
-	type = 2;
-	backgroundWorker->RunWorkerAsync();
+	buttonsEnable(false);
+	backgroundWorker->RunWorkerAsync(2);
 	Array::Resize(log, logsize + 1);
 	log[logsize] = gcnew Entry(2);
 	logBox->Items->Add(log[logsize]->data);
@@ -207,8 +209,10 @@ Void MainForm::powerClick(Object^, EventArgs^) {
 	dialog->Show();
 }
 
-Bitmap^ MainForm::negative(Bitmap^ image) {
+//lab functions
+Bitmap^ MainForm::negative(Bitmap^ image, BackgroundWorker^ worker) {
 	Bitmap^ ret = gcnew Bitmap(image->Width, image->Height);
+	int completePercentage = 0;
 	for (int row = 0; row < image->Width; row++) {
 		for (int col = 0; col < image->Height; col++) {
 			ret->SetPixel(row, col, Color::FromArgb(
@@ -220,7 +224,7 @@ Bitmap^ MainForm::negative(Bitmap^ image) {
 	return ret;
 }
 
-Bitmap^ MainForm::halftone(Bitmap^ image) {
+Bitmap^ MainForm::halftone(Bitmap^ image, BackgroundWorker^ worker) {
 	Bitmap^ ret = gcnew Bitmap(image->Width, image->Height);
 	for (int row = 0; row < image->Width; row++) {
 		for (int col = 0; col < image->Height; col++) {
@@ -259,6 +263,7 @@ Bitmap^ MainForm::power(Bitmap^ image, double c, double g) {
 	return ret;
 }
 
+//UI
 Void MainForm::toolPanelShowHide(Object^ sender, EventArgs^ e) {
 	if (toolPanel->Visible == true){
 		toolPanel->Visible = false;
@@ -270,15 +275,33 @@ Void MainForm::toolPanelShowHide(Object^ sender, EventArgs^ e) {
 	}
 }
 
-Void MainForm::textBox_KeyPress(Object^  sender, KeyPressEventArgs^  e) {
+Void MainForm::textBox_KeyPressInt(Object^  sender, KeyPressEventArgs^  e) {
+	if (!Char::IsControl(e->KeyChar) && !Char::IsDigit(e->KeyChar)) {
+		e->Handled = true;
+	}
+}
+
+Void MainForm::textBox_KeyPressDouble(Object^  sender, KeyPressEventArgs^  e) {
 	if (!Char::IsControl(e->KeyChar) && !Char::IsDigit(e->KeyChar) && (e->KeyChar != '.')) {
 		e->Handled = true;
 	}
 }
 
+Void MainForm::progressBar_SizeChanged(Object^ sender, EventArgs^ e) {
+	this->progressBar->Size.Height = 10;
+}
+
+Void MainForm::buttonsEnable(bool state) {
+	negativeButton->Enabled = state;
+	halftoneButton->Enabled = state;
+}
+
 //toolpanel textBoxes
 Void MainForm::binaryBoxTextBox1KeyDown(Object^  sender, KeyEventArgs^  e) {
-	t = Convert::ToInt32(binaryBoxTextBox1->Text);
+	if (binaryBoxTextBox1->Text != String::Empty && Convert::ToInt32(binaryBoxTextBox1->Text) <= 255) {
+		binaryBoxTrackBar1->Value = Convert::ToInt32(binaryBoxTextBox1->Text);
+		t = Convert::ToInt32(binaryBoxTextBox1->Text);
+	}
 	switch (e->KeyCode) {
 	case Keys::Up:
 		binaryBoxTextBox3->Focus();
@@ -287,14 +310,16 @@ Void MainForm::binaryBoxTextBox1KeyDown(Object^  sender, KeyEventArgs^  e) {
 		binaryBoxTextBox2->Focus();
 		break;
 	case Keys::Enter:
-		dialogBinar(t, b0, b1);
 		e->SuppressKeyPress = true;
 		break;
 	}
 }
 
 Void MainForm::binaryBoxTextBox2KeyDown(Object^  sender, KeyEventArgs^  e) {
-	b0 = Convert::ToInt32(binaryBoxTextBox2->Text);
+	if (binaryBoxTextBox2->Text != String::Empty && Convert::ToInt32(binaryBoxTextBox1->Text) <= 255) {
+		binaryBoxTrackBar2->Value = Convert::ToInt32(binaryBoxTextBox2->Text);
+		b0 = Convert::ToInt32(binaryBoxTextBox2->Text);
+	}
 	switch (e->KeyCode) {
 	case Keys::Up:
 		binaryBoxTextBox1->Focus();
@@ -303,14 +328,16 @@ Void MainForm::binaryBoxTextBox2KeyDown(Object^  sender, KeyEventArgs^  e) {
 		binaryBoxTextBox3->Focus();
 		break;
 	case Keys::Enter:
-		dialogBinar(t, b0, b1);
 		e->SuppressKeyPress = true;
 		break;
 	}
 }
 
 Void MainForm::binaryBoxTextBox3KeyDown(Object^  sender, KeyEventArgs^  e) {
-	b1 = Convert::ToInt32(binaryBoxTextBox1->Text);
+	if (binaryBoxTextBox3->Text != String::Empty && Convert::ToInt32(binaryBoxTextBox1->Text) <= 255) {
+		binaryBoxTrackBar3->Value = Convert::ToInt32(binaryBoxTextBox3->Text);
+		b1 = Convert::ToInt32(binaryBoxTextBox1->Text);
+	}
 	switch (e->KeyCode) {
 	case Keys::Up:
 		binaryBoxTextBox2->Focus();
@@ -319,31 +346,36 @@ Void MainForm::binaryBoxTextBox3KeyDown(Object^  sender, KeyEventArgs^  e) {
 		binaryBoxTextBox1->Focus();
 		break;
 	case Keys::Enter:
-		dialogBinar(t, b0, b1);
 		e->SuppressKeyPress = true;
 		break;
 	}
 }
 
 Void MainForm::powerBoxTextBox1KeyDown(Object^  sender, KeyEventArgs^  e) {
-	c = Convert::ToInt32(powerBoxTextBox1->Text);
+	if (powerBoxTextBox1->Text != String::Empty) {
+		if (Convert::ToDouble(powerBoxTextBox1->Text) * 25.0 >= 100.0) powerBoxTrackBar1->Value = 50;
+		else powerBoxTrackBar1->Value = (int)(Convert::ToDouble(powerBoxTextBox1->Text) * 25);
+		c = (double)powerBoxTrackBar1->Value / 25.0;
+	}
 	switch (e->KeyCode) {
 	case Keys::Up:
 		powerBoxTextBox2->Focus();
 		break;
+	case Keys::Down:
 		powerBoxTextBox2->Focus();
 		break;
 	case Keys::Enter:
-		if (Convert::ToDouble(powerBoxTextBox1->Text) * 25.0 >= 100.0) powerBoxTrackBar1->Value = 50;
-		else powerBoxTrackBar1->Value = (int)(Convert::ToDouble(powerBoxTextBox1->Text) * 25);
-		dialogPower(c, g);
 		e->SuppressKeyPress = true;
 		break;
 	}
 }
 
 Void MainForm::powerBoxTextBox2KeyDown(Object^  sender, KeyEventArgs^  e) {
-	g = Convert::ToInt32(powerBoxTextBox2->Text);
+	if (powerBoxTextBox2->Text != String::Empty) {
+		if (Convert::ToDouble(powerBoxTextBox2->Text) * 25.0 >= 100.0) powerBoxTrackBar2->Value = 50;
+		else powerBoxTrackBar2->Value = (int)(Convert::ToDouble(powerBoxTextBox2->Text) * 25);
+		g = (double)powerBoxTrackBar2->Value / 25.0;
+	}
 	switch (e->KeyCode) {
 	case Keys::Up:
 		powerBoxTextBox1->Focus();
@@ -352,9 +384,6 @@ Void MainForm::powerBoxTextBox2KeyDown(Object^  sender, KeyEventArgs^  e) {
 		powerBoxTextBox1->Focus();
 		break;
 	case Keys::Enter:
-		if (Convert::ToDouble(powerBoxTextBox2->Text) * 25.0 >= 100.0) powerBoxTrackBar2->Value = 50;
-		else powerBoxTrackBar2->Value = (int)(Convert::ToDouble(powerBoxTextBox2->Text) * 25);
-		dialogPower(c, g);
 		e->SuppressKeyPress = true;
 		break;
 	}
@@ -364,42 +393,37 @@ Void MainForm::powerBoxTextBox2KeyDown(Object^  sender, KeyEventArgs^  e) {
 Void MainForm::binaryBoxTrackBar1ValueChanged(Object^  sender, EventArgs^  e) {
 	binaryBoxTextBox1->Text = binaryBoxTrackBar1->Value.ToString();
 	t = binaryBoxTrackBar1->Value;
-	dialogBinar(t, b0, b1);
 }
 
 Void MainForm::binaryBoxTrackBar2ValueChanged(Object^  sender, EventArgs^  e) {
 	binaryBoxTextBox2->Text = binaryBoxTrackBar2->Value.ToString();
 	b0 = binaryBoxTrackBar2->Value;
-	dialogBinar(t, b0, b1);
 }
 
 Void MainForm::binaryBoxTrackBar3ValueChanged(Object^  sender, EventArgs^  e) {
 	binaryBoxTextBox3->Text = binaryBoxTrackBar3->Value.ToString();
 	b1 = binaryBoxTrackBar3->Value;
-	dialogBinar(t, b0, b1);
 }
 
 Void MainForm::powerBoxTrackBar1ValueChanged(Object^  sender, EventArgs^  e) {
 	powerBoxTextBox1->Text = Convert::ToString((double)powerBoxTrackBar1->Value / 25.0);
 	c = (double)powerBoxTrackBar1->Value / 25.0;
-	dialogPower(c, g);
 }
 
 Void MainForm::powerBoxTrackBar2ValueChanged(Object^  sender, EventArgs^  e) {
 	powerBoxTextBox2->Text = Convert::ToString((double)powerBoxTrackBar2->Value / 25.0);
 	g = (double)powerBoxTrackBar2->Value / 25.0;
-	dialogPower(c, g);
 }
 
 //backgroundWorker
-Void MainForm::backgroundWorker_DoWork(Object^ sender, DoWorkEventArgs^ e) {
+Void MainForm::backgroundWorkerDoWork(Object^ sender, DoWorkEventArgs^ e) {
 	BackgroundWorker^ worker = dynamic_cast<BackgroundWorker^>(sender);
-	switch (type) {
+	switch (Convert::ToInt32(e->Argument)) {
 	case 1:
-		e->Result = negative(images[current]);
+		e->Result = negative(images[current], worker);
 		break;
 	case 2:
-		e->Result = halftone(images[current]);
+		e->Result = halftone(images[current], worker);
 		break;
 	case 3:
 		e->Result = binar(images[current], t, b0, b1);
@@ -413,7 +437,7 @@ Void MainForm::backgroundWorker_DoWork(Object^ sender, DoWorkEventArgs^ e) {
 	}
 }
 
-Void MainForm::backgroundWorker_RunWorkerCompleted(Object^ sender, RunWorkerCompletedEventArgs^ e) {
+Void MainForm::backgroundWorkerRunWorkerCompleted(Object^ sender, RunWorkerCompletedEventArgs^ e) {
 	if (e->Error != nullptr) {
 		MessageBox::Show(e->Error->Message, L"Error!");
 	}
@@ -425,6 +449,7 @@ Void MainForm::backgroundWorker_RunWorkerCompleted(Object^ sender, RunWorkerComp
 	pictureBox->Image = dynamic_cast<Bitmap^>(e->Result);
 	backUpFromPictureBox();
 	}
+	buttonsEnable(true);
 }
 
 //fromDialog
@@ -440,8 +465,7 @@ Void MainForm::dialogBinar(int t, int b0, int b1) {
 	this->t = t;
 	this->b0 = b0;
 	this->b1 = b1;
-	type = 3;
-	backgroundWorker->RunWorkerAsync();
+	backgroundWorker->RunWorkerAsync(3);
 }
 
 Void MainForm::dialogPower(double c, double g) {
@@ -455,8 +479,7 @@ Void MainForm::dialogPower(double c, double g) {
 	logsize++;
 	this->c = c;
 	this->g = g;
-	type = 4;
-	backgroundWorker->RunWorkerAsync();
+	backgroundWorker->RunWorkerAsync(4);
 }
 
 Void MainForm::backUpFromPictureBox() {
