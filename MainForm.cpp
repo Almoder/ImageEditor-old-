@@ -80,25 +80,38 @@ MainForm::~MainForm() {
 }
 
 //File items
-Void MainForm::openMIClick(Object^  sender, EventArgs^  e) {
+Void MainForm::openMIClick(Object^ sender, EventArgs^ e) {
+	if (fileName != nullptr || logsize != 0) {
+		String^ text = L"Последние изменения не сохранены!\nПродолжить?", ^caption = L"Внимание!";
+		MessageBoxButtons mbb = MessageBoxButtons::YesNo;
+		MessageBoxIcon mbi = MessageBoxIcon::Warning;
+		if (MessageBox::Show(text, caption, mbb, mbi) == Windows::Forms::DialogResult::No) return;
+	}
 	System::IO::Stream^ temp;
 	OpenFileDialog^ openFileDialog = gcnew OpenFileDialog;
 	openFileDialog->Filter = "BMP (*.bmp)|*.bmp|JPEG (*.jpeg)|*.jpeg|PNG (*.png)|*.png|All files (*.*)|*.*";
 	openFileDialog->FilterIndex = 4;
 	openFileDialog->RestoreDirectory = true;
 	if (openFileDialog->ShowDialog() == System::Windows::Forms::DialogResult::OK) {
-		if ((temp = openFileDialog->OpenFile()) != nullptr)
-		{
+		if ((temp = openFileDialog->OpenFile()) != nullptr)	{
 			if (images != nullptr) delete[] images;
+			if (log != nullptr) {
+				delete[] log;
+				logBox->Items->Clear();
+			}
+			fileName = nullptr;
 			size = 1;
-			current = 0;
+			logsize = current = 0;
 			images = gcnew array<Bitmap^>(size);
 			images[0] = gcnew Bitmap(temp);
+			if (openFileDialog->FileName->Contains(L".bmp")) sFDindex = 1;
+			if (openFileDialog->FileName->Contains(L".jpeg")) sFDindex = 2;
+			if (openFileDialog->FileName->Contains(L".png")) sFDindex = 3;
 			pictureBox->Image = dynamic_cast<Image^>(images[0]);
 			editorPanel->Size = Drawing::Size(editorPanel->Size.Width + toolPanel->Size.Width + 4, this->Size.Height - 100);
+			temp->Close();
 		}
 	}
-	temp->Close();
 	delete openFileDialog;
 	toolPanelShowHide(sender, e);
 	toolPanelShowHide(sender, e);
@@ -132,22 +145,25 @@ Void MainForm::saveAsMIClick(Object^ sender, EventArgs^ e) {
 	backUpFromPictureBox();
 	SaveFileDialog^ saveFileDialog = gcnew SaveFileDialog;
 	saveFileDialog->Filter = "BMP (*.bmp)|*.bmp|JPEG (*.jpeg)|*.jpeg|PNG (*.png)|*.png";
-	saveFileDialog->FilterIndex = 2;
+	saveFileDialog->FilterIndex = sFDindex;
 	saveFileDialog->RestoreDirectory = true;
 	if (saveFileDialog->ShowDialog() == Windows::Forms::DialogResult::Cancel) return;
 	if (saveFileDialog->FileName != "") {
-		if (saveFileDialog->FileName->Contains(L".bmp")) saveFileDialog->FileName->Concat(saveFileDialog->FileName, ".bmp");
-		if (saveFileDialog->FileName->Contains(L".jpeg")) saveFileDialog->FileName->Concat(saveFileDialog->FileName, ".jpeg");
-		if (saveFileDialog->FileName->Contains(L".png")) saveFileDialog->FileName->Concat(saveFileDialog->FileName, ".png");
-		System::IO::FileStream^ fs = safe_cast<System::IO::FileStream^>(saveFileDialog->OpenFile());
+		System::IO::FileStream^ fs;
 		switch (saveFileDialog->FilterIndex) {
 		case 1:
+			saveFileDialog->FileName->Concat(saveFileDialog->FileName, ".bmp");
+			fs = safe_cast<System::IO::FileStream^>(saveFileDialog->OpenFile());
 			images[current]->Save(fs, System::Drawing::Imaging::ImageFormat::Bmp);
 			break;
 		case 2:
+			saveFileDialog->FileName->Concat(saveFileDialog->FileName, ".jpeg");
+			fs = safe_cast<System::IO::FileStream^>(saveFileDialog->OpenFile());
 			images[current]->Save(fs, System::Drawing::Imaging::ImageFormat::Jpeg);
 			break;
 		case 3:
+			saveFileDialog->FileName->Concat(saveFileDialog->FileName, ".png");
+			fs = safe_cast<System::IO::FileStream^>(saveFileDialog->OpenFile());
 			images[current]->Save(fs, System::Drawing::Imaging::ImageFormat::Png);
 			break;
 		}
@@ -158,12 +174,12 @@ Void MainForm::saveAsMIClick(Object^ sender, EventArgs^ e) {
 	}
 }
 
-Void MainForm::exitMIClick(Object^  sender, EventArgs^  e) {
+Void MainForm::exitMIClick(Object^ sender, EventArgs^ e) {
 	Application::Exit();
 }
 
 //lab functions
-Void MainForm::negativeClick(Object^  sender, EventArgs^  e) {
+Void MainForm::negativeClick(Object^ sender, EventArgs^ e) {
 	if (images == nullptr) return;
 	buttonsEnable(false);
 	progressBar->Maximum = images[current]->Size.Width;
@@ -179,7 +195,7 @@ Void MainForm::negativeClick(Object^  sender, EventArgs^  e) {
 	logsize++;
 }
 
-Void MainForm::halftoneClick(Object^  sender, EventArgs^  e) {
+Void MainForm::halftoneClick(Object^ sender, EventArgs^ e) {
 	if (images == nullptr) return;
 	buttonsEnable(false);
 	progressBar->Maximum = images[current]->Size.Width;
@@ -195,7 +211,7 @@ Void MainForm::halftoneClick(Object^  sender, EventArgs^  e) {
 	logsize++;
 }
 
-Void MainForm::binarClick(Object^  sender, EventArgs^  e) {
+Void MainForm::binarClick(Object^  sender, EventArgs^ e) {
 	for (int i = 0; i < Application::OpenForms->Count; i++) {
 		if (Application::OpenForms[i]->Name == "Dialog") {
 			Application::OpenForms[i]->Close();
@@ -205,7 +221,7 @@ Void MainForm::binarClick(Object^  sender, EventArgs^  e) {
 	dialog->Show();
 }
 
-Void MainForm::powerClick(Object^, EventArgs^) {
+Void MainForm::powerClick(Object^ sender, EventArgs^ e) {
 	for (int i = 0; i < Application::OpenForms->Count; i++) {
 		if (Application::OpenForms[i]->Name == "Dialog") {
 			Application::OpenForms[i]->Close();
@@ -213,6 +229,21 @@ Void MainForm::powerClick(Object^, EventArgs^) {
 	}
 	Dialog^ dialog = gcnew Dialog(this, 2);
 	dialog->Show();
+}
+
+Void MainForm::undoClick(Object^ sender, EventArgs^ e) {
+	if (current > 0) {
+		current--;
+		pictureBox->Image = images[current];
+	}
+
+}
+
+Void MainForm::redoClick(Object^ sender, EventArgs^ e) {
+	if (current < size - 1) {
+		current++;
+		pictureBox->Image = images[current];
+	}
 }
 
 Void MainForm::binaryButtonClick(Object^ sender, EventArgs^ e) {
@@ -340,13 +371,13 @@ Void MainForm::toolPanelShowHide(Object^ sender, EventArgs^ e) {
 	}
 }
 
-Void MainForm::textBox_KeyPressInt(Object^  sender, KeyPressEventArgs^  e) {
+Void MainForm::textBox_KeyPressInt(Object^ sender, KeyPressEventArgs^ e) {
 	if (!Char::IsControl(e->KeyChar) && !Char::IsDigit(e->KeyChar)) {
 		e->Handled = true;
 	}
 }
 
-Void MainForm::textBox_KeyPressDouble(Object^  sender, KeyPressEventArgs^  e) {
+Void MainForm::textBox_KeyPressDouble(Object^ sender, KeyPressEventArgs^ e) {
 	if (!Char::IsControl(e->KeyChar) && !Char::IsDigit(e->KeyChar) && (e->KeyChar != '.')) {
 		e->Handled = true;
 	}
@@ -364,7 +395,7 @@ Void MainForm::buttonsEnable(bool state) {
 }
 
 //toolpanel textBoxes
-Void MainForm::binaryBoxTextBox1KeyDown(Object^  sender, KeyEventArgs^  e) {
+Void MainForm::binaryBoxTextBox1KeyDown(Object^ sender, KeyEventArgs^ e) {
 	if (binaryBoxTextBox1->Text != String::Empty && Convert::ToInt32(binaryBoxTextBox1->Text) <= 255) {
 		binaryBoxTrackBar1->Value = Convert::ToInt32(binaryBoxTextBox1->Text);
 		t = Convert::ToInt32(binaryBoxTextBox1->Text);
@@ -382,7 +413,7 @@ Void MainForm::binaryBoxTextBox1KeyDown(Object^  sender, KeyEventArgs^  e) {
 	}
 }
 
-Void MainForm::binaryBoxTextBox2KeyDown(Object^  sender, KeyEventArgs^  e) {
+Void MainForm::binaryBoxTextBox2KeyDown(Object^ sender, KeyEventArgs^ e) {
 	if (binaryBoxTextBox2->Text != String::Empty && Convert::ToInt32(binaryBoxTextBox1->Text) <= 255) {
 		binaryBoxTrackBar2->Value = Convert::ToInt32(binaryBoxTextBox2->Text);
 		b0 = Convert::ToInt32(binaryBoxTextBox2->Text);
@@ -400,7 +431,7 @@ Void MainForm::binaryBoxTextBox2KeyDown(Object^  sender, KeyEventArgs^  e) {
 	}
 }
 
-Void MainForm::binaryBoxTextBox3KeyDown(Object^  sender, KeyEventArgs^  e) {
+Void MainForm::binaryBoxTextBox3KeyDown(Object^ sender, KeyEventArgs^ e) {
 	if (binaryBoxTextBox3->Text != String::Empty && Convert::ToInt32(binaryBoxTextBox1->Text) <= 255) {
 		binaryBoxTrackBar3->Value = Convert::ToInt32(binaryBoxTextBox3->Text);
 		b1 = Convert::ToInt32(binaryBoxTextBox1->Text);
@@ -418,7 +449,7 @@ Void MainForm::binaryBoxTextBox3KeyDown(Object^  sender, KeyEventArgs^  e) {
 	}
 }
 
-Void MainForm::powerBoxTextBox1KeyDown(Object^  sender, KeyEventArgs^  e) {
+Void MainForm::powerBoxTextBox1KeyDown(Object^ sender, KeyEventArgs^ e) {
 	if (powerBoxTextBox1->Text != String::Empty) {
 		if (Convert::ToDouble(powerBoxTextBox1->Text) * 25.0 >= 100.0) powerBoxTrackBar1->Value = 50;
 		else powerBoxTrackBar1->Value = (int)(Convert::ToDouble(powerBoxTextBox1->Text) * 25);
@@ -437,7 +468,7 @@ Void MainForm::powerBoxTextBox1KeyDown(Object^  sender, KeyEventArgs^  e) {
 	}
 }
 
-Void MainForm::powerBoxTextBox2KeyDown(Object^  sender, KeyEventArgs^  e) {
+Void MainForm::powerBoxTextBox2KeyDown(Object^ sender, KeyEventArgs^ e) {
 	if (powerBoxTextBox2->Text != String::Empty) {
 		if (Convert::ToDouble(powerBoxTextBox2->Text) * 25.0 >= 100.0) powerBoxTrackBar2->Value = 50;
 		else powerBoxTrackBar2->Value = (int)(Convert::ToDouble(powerBoxTextBox2->Text) * 25);
@@ -457,29 +488,29 @@ Void MainForm::powerBoxTextBox2KeyDown(Object^  sender, KeyEventArgs^  e) {
 }
 
 //toolpanel trackbars
-Void MainForm::binaryBoxTrackBar1ValueChanged(Object^  sender, EventArgs^  e) {
+Void MainForm::binaryBoxTrackBar1ValueChanged(Object^ sender, EventArgs^ e) {
 	binaryBoxTextBox1->Text = binaryBoxTrackBar1->Value.ToString();
 	t = binaryBoxTrackBar1->Value;
 }
 
-Void MainForm::binaryBoxTrackBar2ValueChanged(Object^  sender, EventArgs^  e) {
+Void MainForm::binaryBoxTrackBar2ValueChanged(Object^ sender, EventArgs^ e) {
 	binaryBoxTextBox2->Text = binaryBoxTrackBar2->Value.ToString();
 	b0 = binaryBoxTrackBar2->Value;
 }
 
-Void MainForm::binaryBoxTrackBar3ValueChanged(Object^  sender, EventArgs^  e) {
+Void MainForm::binaryBoxTrackBar3ValueChanged(Object^ sender, EventArgs^ e) {
 	binaryBoxTextBox3->Text = binaryBoxTrackBar3->Value.ToString();
 	b1 = binaryBoxTrackBar3->Value;
 }
 
-Void MainForm::powerBoxTrackBar1ValueChanged(Object^  sender, EventArgs^  e) {
+Void MainForm::powerBoxTrackBar1ValueChanged(Object^ sender, EventArgs^ e) {
 	powerBoxTextBox1->Text = Convert::ToString((double)powerBoxTrackBar1->Value / 25.0);
 	c = (double)powerBoxTrackBar1->Value / 25.0;
 }
 
-Void MainForm::powerBoxTrackBar2ValueChanged(Object^  sender, EventArgs^  e) {
+Void MainForm::powerBoxTrackBar2ValueChanged(Object^ sender, EventArgs^ e) {
 	powerBoxTextBox2->Text = Convert::ToString((double)powerBoxTrackBar2->Value / 25.0);
-	g = (double)powerBoxTrackBar2->Value / 25.0;
+	g = (double)(powerBoxTrackBar2->Value / 25.0);
 }
 
 //threading
@@ -497,6 +528,7 @@ Void MainForm::pictureBoxChangeImage(Bitmap^ image) {
 Void MainForm::progressBarChangeValue(int value) {
 	progressBar->Value = value;
 }
+
 
 //fromDialog
 Void MainForm::dialogBinar(int t, int b0, int b1) {

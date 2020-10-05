@@ -48,7 +48,9 @@ namespace Lab1 {
 		Thread^ transformThread;
 		System::Windows::Forms::Button^  powerButton;
 		System::Windows::Forms::Button^  binaryButton;
-		System::Windows::Forms::ProgressBar^  progressBar;
+	private: System::Windows::Forms::ToolStripMenuItem^  undoMI;
+	private: System::Windows::Forms::ToolStripMenuItem^  redoMI;
+			 System::Windows::Forms::ProgressBar^  progressBar;
 
 	public:
 		MainForm(void);
@@ -78,6 +80,7 @@ namespace Lab1 {
 			this->editorPage = (gcnew System::Windows::Forms::TabPage());
 			this->toolPanel = (gcnew System::Windows::Forms::Panel());
 			this->powerBox = (gcnew System::Windows::Forms::GroupBox());
+			this->powerButton = (gcnew System::Windows::Forms::Button());
 			this->powerBoxTrackBar2 = (gcnew System::Windows::Forms::TrackBar());
 			this->powerBoxTrackBar1 = (gcnew System::Windows::Forms::TrackBar());
 			this->powerBoxTextBox2 = (gcnew System::Windows::Forms::TextBox());
@@ -85,6 +88,7 @@ namespace Lab1 {
 			this->label3_2 = (gcnew System::Windows::Forms::Label());
 			this->label3_1 = (gcnew System::Windows::Forms::Label());
 			this->binaryBox = (gcnew System::Windows::Forms::GroupBox());
+			this->binaryButton = (gcnew System::Windows::Forms::Button());
 			this->binaryBoxTrackBar3 = (gcnew System::Windows::Forms::TrackBar());
 			this->binaryBoxTrackBar2 = (gcnew System::Windows::Forms::TrackBar());
 			this->binaryBoxTrackBar1 = (gcnew System::Windows::Forms::TrackBar());
@@ -105,8 +109,8 @@ namespace Lab1 {
 			this->logPage = (gcnew System::Windows::Forms::TabPage());
 			this->logBox = (gcnew System::Windows::Forms::ListBox());
 			this->progressBar = (gcnew System::Windows::Forms::ProgressBar());
-			this->binaryButton = (gcnew System::Windows::Forms::Button());
-			this->powerButton = (gcnew System::Windows::Forms::Button());
+			this->undoMI = (gcnew System::Windows::Forms::ToolStripMenuItem());
+			this->redoMI = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->menuStrip->SuspendLayout();
 			this->tabControl->SuspendLayout();
 			this->editorPage->SuspendLayout();
@@ -176,7 +180,10 @@ namespace Lab1 {
 			this->exitMI->Size = System::Drawing::Size(229, 22);
 			this->exitMI->Text = L"Выход";
 			this->exitMI->Click += gcnew System::EventHandler(this, &MainForm::exitMIClick);
-			this->actionsMI->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(2) { this->transformMI, this->changeBrightMI });
+			this->actionsMI->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(4) {
+				this->transformMI, this->changeBrightMI,
+					this->undoMI, this->redoMI
+			});
 			this->actionsMI->Name = L"actionsMI";
 			this->actionsMI->Size = System::Drawing::Size(72, 20);
 			this->actionsMI->Text = L"Действия";
@@ -296,6 +303,17 @@ namespace Lab1 {
 			this->powerBox->TabIndex = 3;
 			this->powerBox->TabStop = false;
 			this->powerBox->Text = L"Степенное";
+			this->powerButton->FlatStyle = System::Windows::Forms::FlatStyle::System;
+			this->powerButton->Font = (gcnew System::Drawing::Font(L"Arial", 8));
+			this->powerButton->ForeColor = System::Drawing::SystemColors::WindowFrame;
+			this->powerButton->Location = System::Drawing::Point(8, 49);
+			this->powerButton->Margin = System::Windows::Forms::Padding(0, 3, 3, 3);
+			this->powerButton->Name = L"powerButton";
+			this->powerButton->Size = System::Drawing::Size(169, 17);
+			this->powerButton->TabIndex = 12;
+			this->powerButton->Text = L"Применить";
+			this->powerButton->UseVisualStyleBackColor = true;
+			this->powerButton->Click += gcnew System::EventHandler(this, &MainForm::powerButtonClick);
 			this->powerBoxTrackBar2->AutoSize = false;
 			this->powerBoxTrackBar2->Location = System::Drawing::Point(63, 33);
 			this->powerBoxTrackBar2->Maximum = 50;
@@ -375,6 +393,20 @@ namespace Lab1 {
 			this->binaryBox->TabIndex = 2;
 			this->binaryBox->TabStop = false;
 			this->binaryBox->Text = L"Бинаризация";
+			this->binaryButton->FlatStyle = System::Windows::Forms::FlatStyle::System;
+			this->binaryButton->Font = (gcnew System::Drawing::Font(L"Arial", 8));
+			this->binaryButton->ForeColor = System::Drawing::SystemColors::WindowFrame;
+			this->binaryButton->Location = System::Drawing::Point(8, 65);
+			this->binaryButton->Margin = System::Windows::Forms::Padding(0, 3, 3, 3);
+			this->binaryButton->Name = L"binaryButton";
+			this->binaryButton->Size = System::Drawing::Size(169, 17);
+			this->binaryButton->TabIndex = 11;
+			this->binaryButton->Text = L"Применить";
+			this->binaryButton->UseVisualStyleBackColor = true;
+			this->binaryButton->Click += gcnew System::EventHandler(this, &MainForm::binaryButtonClick);
+			this->binaryBoxTrackBar3->Anchor = static_cast<System::Windows::Forms::AnchorStyles>((((System::Windows::Forms::AnchorStyles::Top | System::Windows::Forms::AnchorStyles::Bottom)
+				| System::Windows::Forms::AnchorStyles::Left)
+				| System::Windows::Forms::AnchorStyles::Right));
 			this->binaryBoxTrackBar3->AutoSize = false;
 			this->binaryBoxTrackBar3->Location = System::Drawing::Point(63, 49);
 			this->binaryBoxTrackBar3->Maximum = 255;
@@ -383,6 +415,9 @@ namespace Lab1 {
 			this->binaryBoxTrackBar3->TabIndex = 10;
 			this->binaryBoxTrackBar3->TickStyle = System::Windows::Forms::TickStyle::None;
 			this->binaryBoxTrackBar3->ValueChanged += gcnew System::EventHandler(this, &MainForm::binaryBoxTrackBar3ValueChanged);
+			this->binaryBoxTrackBar2->Anchor = static_cast<System::Windows::Forms::AnchorStyles>((((System::Windows::Forms::AnchorStyles::Top | System::Windows::Forms::AnchorStyles::Bottom)
+				| System::Windows::Forms::AnchorStyles::Left)
+				| System::Windows::Forms::AnchorStyles::Right));
 			this->binaryBoxTrackBar2->AutoSize = false;
 			this->binaryBoxTrackBar2->Location = System::Drawing::Point(63, 33);
 			this->binaryBoxTrackBar2->Maximum = 255;
@@ -391,6 +426,9 @@ namespace Lab1 {
 			this->binaryBoxTrackBar2->TabIndex = 9;
 			this->binaryBoxTrackBar2->TickStyle = System::Windows::Forms::TickStyle::None;
 			this->binaryBoxTrackBar2->ValueChanged += gcnew System::EventHandler(this, &MainForm::binaryBoxTrackBar2ValueChanged);
+			this->binaryBoxTrackBar1->Anchor = static_cast<System::Windows::Forms::AnchorStyles>((((System::Windows::Forms::AnchorStyles::Top | System::Windows::Forms::AnchorStyles::Bottom)
+				| System::Windows::Forms::AnchorStyles::Left)
+				| System::Windows::Forms::AnchorStyles::Right));
 			this->binaryBoxTrackBar1->AutoSize = false;
 			this->binaryBoxTrackBar1->Location = System::Drawing::Point(63, 17);
 			this->binaryBoxTrackBar1->Maximum = 255;
@@ -570,28 +608,18 @@ namespace Lab1 {
 			this->progressBar->Style = System::Windows::Forms::ProgressBarStyle::Continuous;
 			this->progressBar->TabIndex = 1;
 			this->progressBar->Visible = false;
-			this->binaryButton->FlatStyle = System::Windows::Forms::FlatStyle::System;
-			this->binaryButton->Font = (gcnew System::Drawing::Font(L"Arial", 8));
-			this->binaryButton->ForeColor = System::Drawing::SystemColors::WindowFrame;
-			this->binaryButton->Location = System::Drawing::Point(8, 65);
-			this->binaryButton->Margin = System::Windows::Forms::Padding(0, 3, 3, 3);
-			this->binaryButton->Name = L"binaryButton";
-			this->binaryButton->Size = System::Drawing::Size(169, 17);
-			this->binaryButton->TabIndex = 11;
-			this->binaryButton->Text = L"Применить";
-			this->binaryButton->UseVisualStyleBackColor = true;
-			this->binaryButton->Click += gcnew System::EventHandler(this, &MainForm::binaryButtonClick);
-			this->powerButton->FlatStyle = System::Windows::Forms::FlatStyle::System;
-			this->powerButton->Font = (gcnew System::Drawing::Font(L"Arial", 8));
-			this->powerButton->ForeColor = System::Drawing::SystemColors::WindowFrame;
-			this->powerButton->Location = System::Drawing::Point(8, 49);
-			this->powerButton->Margin = System::Windows::Forms::Padding(0, 3, 3, 3);
-			this->powerButton->Name = L"powerButton";
-			this->powerButton->Size = System::Drawing::Size(169, 17);
-			this->powerButton->TabIndex = 12;
-			this->powerButton->Text = L"Применить";
-			this->powerButton->UseVisualStyleBackColor = true;
-			this->powerButton->Click += gcnew System::EventHandler(this, &MainForm::powerButtonClick);
+			this->undoMI->Name = L"undoMI";
+			this->undoMI->ShortcutKeys = static_cast<System::Windows::Forms::Keys>((System::Windows::Forms::Keys::Control | System::Windows::Forms::Keys::Z));
+			this->undoMI->Size = System::Drawing::Size(185, 22);
+			this->undoMI->Text = L"Undo";
+			this->undoMI->Visible = false;
+			this->undoMI->Click += gcnew System::EventHandler(this, &MainForm::undoClick);
+			this->redoMI->Name = L"redoMI";
+			this->redoMI->ShortcutKeys = static_cast<System::Windows::Forms::Keys>((System::Windows::Forms::Keys::Control | System::Windows::Forms::Keys::X));
+			this->redoMI->Size = System::Drawing::Size(185, 22);
+			this->redoMI->Text = L"Redo";
+			this->redoMI->Visible = false;
+			this->redoMI->Click += gcnew System::EventHandler(this, &MainForm::redoClick);
 			this->AutoScaleDimensions = System::Drawing::SizeF(6, 13);
 			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
 			this->BackColor = System::Drawing::Color::FromArgb(static_cast<System::Int32>(static_cast<System::Byte>(45)), static_cast<System::Int32>(static_cast<System::Byte>(43)),
@@ -639,6 +667,8 @@ namespace Lab1 {
 		Void halftoneClick(Object^, EventArgs^);
 		Void binarClick(Object^, EventArgs^);
 		Void powerClick(Object^, EventArgs^);
+		Void undoClick(Object^, EventArgs^);
+		Void redoClick(Object^, EventArgs^);
 		Void binaryButtonClick(Object^, EventArgs^);
 		Void powerButtonClick(Object^, EventArgs^);
 		Void negative();
