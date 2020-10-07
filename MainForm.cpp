@@ -92,8 +92,8 @@ Void MainForm::openMIClick(Object^ sender, EventArgs^ e) {
 	}
 	System::IO::Stream^ temp;
 	OpenFileDialog^ openFileDialog = gcnew OpenFileDialog;
-	openFileDialog->Filter = "BMP (*.bmp)|*.bmp|JPEG (*.jpeg)|*.jpeg|PNG (*.png)|*.png|All files (*.*)|*.*";
-	openFileDialog->FilterIndex = 4;
+	openFileDialog->Filter = "BMP (*.bmp)|*.bmp|JPEG (*.jpeg)|*.jpeg|PNG (*.png)|*.png";
+	openFileDialog->FilterIndex = 1;
 	openFileDialog->RestoreDirectory = true;
 	if (openFileDialog->ShowDialog() == System::Windows::Forms::DialogResult::OK) {
 		if ((temp = openFileDialog->OpenFile()) != nullptr)	{
@@ -106,7 +106,17 @@ Void MainForm::openMIClick(Object^ sender, EventArgs^ e) {
 			size = 1;
 			logsize = current = 0;
 			images = gcnew array<Bitmap^>(size);
-			images[0] = gcnew Bitmap(temp);
+			try {
+				images[0] = gcnew Bitmap(temp);
+			}
+			catch (System::ArgumentException^ exc) {
+				delete[] images;
+				images = nullptr;
+				size = 0;
+				MessageBox::Show(exc->Message, "Error", MessageBoxButtons::OK, MessageBoxIcon::Error);
+				delete exc;
+				return;
+			}
 			this->Text = openFileDialog->FileName;
 			if (openFileDialog->FileName->Contains(L".bmp")) sFDindex = 1;
 			if (openFileDialog->FileName->Contains(L".jpeg")) sFDindex = 2;
@@ -145,7 +155,7 @@ Void MainForm::saveMIClick(Object^ sender, EventArgs^ e) {
 
 Void MainForm::saveAsMIClick(Object^ sender, EventArgs^ e) {
 	if (images == nullptr) return;
-	backUpFromPictureBox();
+	//backUpFromPictureBox();
 	SaveFileDialog^ saveFileDialog = gcnew SaveFileDialog;
 	saveFileDialog->Filter = "BMP (*.bmp)|*.bmp|JPEG (*.jpeg)|*.jpeg|PNG (*.png)|*.png";
 	saveFileDialog->FilterIndex = sFDindex;
@@ -258,9 +268,9 @@ Void MainForm::binaryButtonClick(Object^ sender, EventArgs^ e) {
 	if (binaryBoxTextBox1->Text == String::Empty ||
 		binaryBoxTextBox2->Text == String::Empty ||
 		binaryBoxTextBox3->Text == String::Empty) return;
-	t = Convert::ToInt32(binaryBoxTextBox1->Text);
-	b0 = Convert::ToInt32(binaryBoxTextBox2->Text);
-	b1 = Convert::ToInt32(binaryBoxTextBox1->Text);
+	t = binaryBoxTrackBar1->Value;
+	b0 = binaryBoxTrackBar2->Value;
+	b1 = binaryBoxTrackBar3->Value;
 	buttonsEnable(false);
 	progressBar->Maximum = images[current]->Size.Width;
 	progressBar->Value = 0;
@@ -274,7 +284,7 @@ Void MainForm::binaryButtonClick(Object^ sender, EventArgs^ e) {
 	transformThread->Priority = ThreadPriority::Highest;
 	transformThread->Start();
 	Array::Resize(log, logsize + 1);
-	log[logsize] = gcnew Entry(3);
+	log[logsize] = gcnew Entry(3, t, b0, b1);
 	logBox->Items->Add(log[logsize]->data);
 	logsize++;
 }
@@ -283,7 +293,7 @@ Void MainForm::powerButtonClick(Object^ sender, EventArgs^ e) {
 	if (images == nullptr) return;
 	if (powerBoxTextBox1->Text == String::Empty ||
 		powerBoxTextBox2->Text == String::Empty) return;
-	c = (double)powerBoxTrackBar1->Value / 100.0;
+	c = (double)(powerBoxTrackBar1->Value / 100.0);
 	g = (double)(powerBoxTrackBar2->Value / 100.0);
 	buttonsEnable(false);
 	progressBar->Maximum = images[current]->Size.Width;
@@ -298,7 +308,7 @@ Void MainForm::powerButtonClick(Object^ sender, EventArgs^ e) {
 	transformThread->Priority = ThreadPriority::Highest;
 	transformThread->Start();
 	Array::Resize(log, logsize + 1);
-	log[logsize] = gcnew Entry(4);
+	log[logsize] = gcnew Entry(4, c, g);
 	logBox->Items->Add(log[logsize]->data);
 	logsize++;
 }
@@ -364,9 +374,9 @@ Void MainForm::power() {
 		for (int col = 0; col < image->Height; col++) {
 			Color a = image->GetPixel(row, col);
 			Color b = Color::FromArgb(
-				(int)pow(a.R * c, g) >= 255 ? 255 : (int)pow(a.R * c, g),
-				(int)pow(a.G * c, g) >= 255 ? 255 : (int)pow(a.G * c, g),
-				(int)pow(a.B * c, g) >= 255 ? 255 : (int)pow(a.B * c, g));
+				(long long int)pow(a.R * c, g) >= 255 ? 255 : (int)pow(a.R * c, g),
+				(long long int)pow(a.G * c, g) >= 255 ? 255 : (int)pow(a.G * c, g),
+				(long long int)pow(a.B * c, g) >= 255 ? 255 : (int)pow(a.B * c, g));
 			ret->SetPixel(row, col, b);
 		}
 		completePercentage++;
@@ -483,13 +493,13 @@ Void MainForm::binaryBoxTextBox1TextChanged(Object^ sender, EventArgs^ e) {
 }
 
 Void MainForm::binaryBoxTextBox2TextChanged(Object^ sender, EventArgs^ e) {
-	if (binaryBoxTextBox2->Text != String::Empty && Convert::ToInt32(binaryBoxTextBox1->Text) <= 255) {
+	if (binaryBoxTextBox2->Text != String::Empty && Convert::ToInt32(binaryBoxTextBox2->Text) <= 255) {
 		binaryBoxTrackBar2->Value = Convert::ToInt32(binaryBoxTextBox2->Text);
 	}
 }
 
 Void MainForm::binaryBoxTextBox3TextChanged(Object^ sender, EventArgs^ e) {
-	if (binaryBoxTextBox3->Text != String::Empty && Convert::ToInt32(binaryBoxTextBox1->Text) <= 255) {
+	if (binaryBoxTextBox3->Text != String::Empty && Convert::ToInt32(binaryBoxTextBox3->Text) <= 255) {
 		binaryBoxTrackBar3->Value = Convert::ToInt32(binaryBoxTextBox3->Text);
 	}
 }
