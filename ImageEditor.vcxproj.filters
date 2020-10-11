@@ -35,12 +35,4 @@
       <Filter>Resource Files</Filter>
     </EmbeddedResource>
   </ItemGroup>
-  <ItemGroup>
-    <Image Include="fix.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="Icon.ico">
-      <Filter>Resource Files</Filter>
-    </Image>
-  </ItemGroup>
 </Project>

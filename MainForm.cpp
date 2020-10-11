@@ -1,7 +1,7 @@
 #include "Dialog.h"
 #include <math.h>
 
-using namespace Lab1;
+using namespace ImageEditor;
 
 [STAThread]
 void main() {
@@ -67,10 +67,6 @@ MainForm::MainForm(void) {
 	images = nullptr;
 	log = nullptr;
 	fileName = nullptr;
-	toolPanel->Visible = false;
-	binaryFixButton->BackgroundImage = gcnew System::Drawing::Bitmap("fix.png");
-	powerFixButton->BackgroundImage = gcnew System::Drawing::Bitmap("fix.png");
-	Icon = gcnew System::Drawing::Icon("Icon.ico");
 }
 
 MainForm::~MainForm() {

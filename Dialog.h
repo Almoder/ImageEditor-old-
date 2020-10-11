@@ -1,6 +1,6 @@
 #include "MainForm.h"
 
-namespace Lab1 {
+namespace ImageEditor {
 
 	using namespace System;
 	using namespace System::ComponentModel;
@@ -322,7 +322,7 @@ namespace Lab1 {
 					 Name = L"Dialog";
 					 StartPosition = System::Windows::Forms::FormStartPosition::CenterScreen;
 					 Text = L"Степенное";
-					 FormClosing += gcnew System::Windows::Forms::FormClosingEventHandler(this, &Lab1::Dialog::OnFormClosing);
+					 FormClosing += gcnew System::Windows::Forms::FormClosingEventHandler(this, &ImageEditor::Dialog::OnFormClosing);
 					 (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(trackBar1))->EndInit();
 					 (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(trackBar2))->EndInit();
 					 ResumeLayout(false);

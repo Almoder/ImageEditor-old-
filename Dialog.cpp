@@ -1,6 +1,6 @@
 #include "Dialog.h"
 
-using namespace Lab1;
+using namespace ImageEditor;
 
 Dialog::Dialog(MainForm^ ptr, int type) 	{
 	InitializeComponent(type);

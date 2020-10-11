@@ -1,4 +1,4 @@
-namespace Lab1 {
+namespace ImageEditor {
 	using namespace System;
 	using namespace System::ComponentModel;
 	using namespace System::Collections;
@@ -7,6 +7,7 @@ namespace Lab1 {
 	using namespace System::Drawing;
 	using namespace System::Threading;
 	using namespace System::Reflection;
+	using namespace System::Resources;
 	using namespace System::IO;
 
 	ref class MainForm;
@@ -61,6 +62,7 @@ namespace Lab1 {
 #pragma region Windows Form Designer generated code
 
 		void InitializeComponent(void) {
+			System::ComponentModel::ComponentResourceManager^  resources = (gcnew System::ComponentModel::ComponentResourceManager(MainForm::typeid));
 			this->menuStrip = (gcnew System::Windows::Forms::MenuStrip());
 			this->fileMI = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->openMI = (gcnew System::Windows::Forms::ToolStripMenuItem());
@@ -338,7 +340,6 @@ namespace Lab1 {
 			this->powerBoxTrackBar2->Size = System::Drawing::Size(115, 15);
 			this->powerBoxTrackBar2->TabIndex = 9;
 			this->powerBoxTrackBar2->TickStyle = System::Windows::Forms::TickStyle::None;
-			this->powerBoxTrackBar2->Value = 0;
 			this->powerBoxTrackBar2->ValueChanged += gcnew System::EventHandler(this, &MainForm::powerBoxTrackBar2ValueChanged);
 			this->powerBoxTrackBar1->AutoSize = false;
 			this->powerBoxTrackBar1->Location = System::Drawing::Point(63, 17);
@@ -347,7 +348,6 @@ namespace Lab1 {
 			this->powerBoxTrackBar1->Size = System::Drawing::Size(115, 15);
 			this->powerBoxTrackBar1->TabIndex = 8;
 			this->powerBoxTrackBar1->TickStyle = System::Windows::Forms::TickStyle::None;
-			this->powerBoxTrackBar1->Value = 0;
 			this->powerBoxTrackBar1->ValueChanged += gcnew System::EventHandler(this, &MainForm::powerBoxTrackBar1ValueChanged);
 			this->powerBoxTextBox2->BackColor = System::Drawing::SystemColors::WindowFrame;
 			this->powerBoxTextBox2->BorderStyle = System::Windows::Forms::BorderStyle::None;
@@ -648,6 +648,7 @@ namespace Lab1 {
 			this->Controls->Add(this->progressBar);
 			this->Controls->Add(this->tabControl);
 			this->Controls->Add(this->menuStrip);
+			this->Icon = (cli::safe_cast<System::Drawing::Icon^>(resources->GetObject(L"$this.Icon")));
 			this->MainMenuStrip = this->menuStrip;
 			this->Name = L"MainForm";
 			this->StartPosition = System::Windows::Forms::FormStartPosition::CenterScreen;
