@@ -9,338 +9,319 @@ namespace ImageEditor {
 	using namespace System::Data;
 	using namespace System::Drawing;
 
-
-	public ref class Dialog : public System::Windows::Forms::Form
-	{
-	private: 
-		Windows::Forms::Label^  label1, ^label2, ^label3;
-		Windows::Forms::TextBox^  textBox1, ^textBox2, ^textBox3;
-		Windows::Forms::TrackBar^  trackBar1, ^trackBar2, ^trackBar3;
-		System::ComponentModel::Container ^components;
-		int t, b0, b1;
-		double c, g;
-		MainForm^ ptr;
-	public:  
-		int type;
+	/// <summary>
+	/// Summary for Dialog
+	/// </summary>
+	public ref class Dialog : public System::Windows::Forms::Form {
+	public:
+		int type = 0;
+		ImageEditor::MainForm^ ptr = nullptr;
 
 		Dialog(MainForm^, int);
+
 	protected:
+		/// <summary>
+		/// Clean up any resources being used.
+		/// </summary>
 		~Dialog();
+	private: 
+		System::Windows::Forms::Label^ label1, ^label2, ^label3, ^label4, ^label5;
+		System::Windows::Forms::TextBox^ textBox1, ^textBox2, ^textBox3, ^textBox4, ^textBox5;
+		System::Windows::Forms::TrackBar^ trackBar1, ^trackBar2, ^trackBar3, ^trackBar4, ^trackBar5;
+		System::Windows::Forms::Button^ confirmButton;
+
+	private:
+		/// <summary>
+		/// Required designer variable.
+		/// </summary>
+		System::ComponentModel::Container ^components;
 
 #pragma region Windows Form Designer generated code
+		/// <summary>
+		/// Required method for Designer support - do not modify
+		/// the contents of this method with the code editor.
+		/// </summary>
+		void InitializeComponent(void) {
+			this->label1 = (gcnew System::Windows::Forms::Label());
+			this->label2 = (gcnew System::Windows::Forms::Label());
+			this->label3 = (gcnew System::Windows::Forms::Label());
+			this->label4 = (gcnew System::Windows::Forms::Label());
+			this->label5 = (gcnew System::Windows::Forms::Label());
+			this->textBox1 = (gcnew System::Windows::Forms::TextBox());
+			this->textBox2 = (gcnew System::Windows::Forms::TextBox());
+			this->textBox3 = (gcnew System::Windows::Forms::TextBox());
+			this->textBox4 = (gcnew System::Windows::Forms::TextBox());
+			this->textBox5 = (gcnew System::Windows::Forms::TextBox());
+			this->confirmButton = (gcnew System::Windows::Forms::Button());
+			this->trackBar1 = (gcnew System::Windows::Forms::TrackBar());
+			this->trackBar2 = (gcnew System::Windows::Forms::TrackBar());
+			this->trackBar3 = (gcnew System::Windows::Forms::TrackBar());
+			this->trackBar4 = (gcnew System::Windows::Forms::TrackBar());
+			this->trackBar5 = (gcnew System::Windows::Forms::TrackBar());
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->trackBar1))->BeginInit();
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->trackBar2))->BeginInit();
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->trackBar3))->BeginInit();
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->trackBar4))->BeginInit();
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->trackBar5))->BeginInit();
+			this->SuspendLayout();
+			// 
+			// label1
+			// 
+			this->label1->AutoSize = true;
+			this->label1->Font = (gcnew System::Drawing::Font(L"Arial", 9, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(204)));
+			this->label1->ForeColor = System::Drawing::SystemColors::HighlightText;
+			this->label1->Location = System::Drawing::Point(12, 9);
+			this->label1->Name = L"label1";
+			this->label1->Size = System::Drawing::Size(11, 15);
+			this->label1->TabIndex = 0;
+			this->label1->Text = L"t";
+			// 
+			// label2
+			// 
+			this->label2->AutoSize = true;
+			this->label2->Font = (gcnew System::Drawing::Font(L"Arial", 9, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(204)));
+			this->label2->ForeColor = System::Drawing::SystemColors::HighlightText;
+			this->label2->Location = System::Drawing::Point(12, 24);
+			this->label2->Name = L"label2";
+			this->label2->Size = System::Drawing::Size(21, 15);
+			this->label2->TabIndex = 1;
+			this->label2->Text = L"b0";
+			// 
+			// label3
+			// 
+			this->label3->AutoSize = true;
+			this->label3->Font = (gcnew System::Drawing::Font(L"Arial", 9, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(204)));
+			this->label3->ForeColor = System::Drawing::SystemColors::HighlightText;
+			this->label3->Location = System::Drawing::Point(12, 39);
+			this->label3->Name = L"label3";
+			this->label3->Size = System::Drawing::Size(21, 15);
+			this->label3->TabIndex = 2;
+			this->label3->Text = L"b1";
+			// 
+			// label4
+			// 
+			this->label4->AutoSize = true;
+			this->label4->Font = (gcnew System::Drawing::Font(L"Arial", 9, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(204)));
+			this->label4->ForeColor = System::Drawing::SystemColors::HighlightText;
+			this->label4->Location = System::Drawing::Point(12, 54);
+			this->label4->Name = L"label4";
+			this->label4->Size = System::Drawing::Size(14, 15);
+			this->label4->TabIndex = 3;
+			this->label4->Text = L"c";
+			// 
+			// label5
+			// 
+			this->label5->AutoSize = true;
+			this->label5->Font = (gcnew System::Drawing::Font(L"Arial", 9, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(204)));
+			this->label5->ForeColor = System::Drawing::SystemColors::HighlightText;
+			this->label5->Location = System::Drawing::Point(12, 69);
+			this->label5->Name = L"label5";
+			this->label5->Size = System::Drawing::Size(14, 15);
+			this->label5->TabIndex = 4;
+			this->label5->Text = L"g";
+			// 
+			// textBox1
+			// 
+			this->textBox1->BackColor = System::Drawing::SystemColors::WindowFrame;
+			this->textBox1->BorderStyle = System::Windows::Forms::BorderStyle::None;
+			this->textBox1->Font = (gcnew System::Drawing::Font(L"Arial", 9, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(204)));
+			this->textBox1->ForeColor = System::Drawing::SystemColors::HighlightText;
+			this->textBox1->Location = System::Drawing::Point(40, 9);
+			this->textBox1->MaxLength = 3;
+			this->textBox1->Name = L"textBox1";
+			this->textBox1->Size = System::Drawing::Size(40, 14);
+			this->textBox1->TabIndex = 5;
+			this->textBox1->TextAlign = System::Windows::Forms::HorizontalAlignment::Center;
+			this->textBox1->TextChanged += gcnew System::EventHandler(this, &Dialog::textBoxTextChanged);
+			this->textBox1->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &Dialog::textBoxKeyDown);
+			this->textBox1->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &Dialog::textBoxKeyPress);
+			// 
+			// textBox2
+			// 
+			this->textBox2->BackColor = System::Drawing::SystemColors::WindowFrame;
+			this->textBox2->BorderStyle = System::Windows::Forms::BorderStyle::None;
+			this->textBox2->Font = (gcnew System::Drawing::Font(L"Arial", 9, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(204)));
+			this->textBox2->ForeColor = System::Drawing::SystemColors::HighlightText;
+			this->textBox2->Location = System::Drawing::Point(40, 24);
+			this->textBox2->MaxLength = 3;
+			this->textBox2->Name = L"textBox2";
+			this->textBox2->Size = System::Drawing::Size(40, 14);
+			this->textBox2->TabIndex = 6;
+			this->textBox2->TextAlign = System::Windows::Forms::HorizontalAlignment::Center;
+			this->textBox2->TextChanged += gcnew System::EventHandler(this, &Dialog::textBoxTextChanged);
+			this->textBox2->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &Dialog::textBoxKeyDown);
+			this->textBox2->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &Dialog::textBoxKeyPress);
+			// 
+			// textBox3
+			// 
+			this->textBox3->BackColor = System::Drawing::SystemColors::WindowFrame;
+			this->textBox3->BorderStyle = System::Windows::Forms::BorderStyle::None;
+			this->textBox3->Font = (gcnew System::Drawing::Font(L"Arial", 9, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(204)));
+			this->textBox3->ForeColor = System::Drawing::SystemColors::HighlightText;
+			this->textBox3->Location = System::Drawing::Point(40, 39);
+			this->textBox3->MaxLength = 3;
+			this->textBox3->Name = L"textBox3";
+			this->textBox3->Size = System::Drawing::Size(40, 14);
+			this->textBox3->TabIndex = 7;
+			this->textBox3->TextAlign = System::Windows::Forms::HorizontalAlignment::Center;
+			this->textBox3->TextChanged += gcnew System::EventHandler(this, &Dialog::textBoxTextChanged);
+			this->textBox3->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &Dialog::textBoxKeyDown);
+			this->textBox3->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &Dialog::textBoxKeyPress);
+			// 
+			// textBox4
+			// 
+			this->textBox4->BackColor = System::Drawing::SystemColors::WindowFrame;
+			this->textBox4->BorderStyle = System::Windows::Forms::BorderStyle::None;
+			this->textBox4->Font = (gcnew System::Drawing::Font(L"Arial", 9, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(204)));
+			this->textBox4->ForeColor = System::Drawing::SystemColors::HighlightText;
+			this->textBox4->Location = System::Drawing::Point(40, 54);
+			this->textBox4->MaxLength = 4;
+			this->textBox4->Name = L"textBox4";
+			this->textBox4->Size = System::Drawing::Size(40, 14);
+			this->textBox4->TabIndex = 8;
+			this->textBox4->TextAlign = System::Windows::Forms::HorizontalAlignment::Center;
+			this->textBox4->TextChanged += gcnew System::EventHandler(this, &Dialog::textBoxTextChanged);
+			this->textBox4->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &Dialog::textBoxKeyDown);
+			this->textBox4->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &Dialog::textBoxKeyPress);
+			// 
+			// textBox5
+			// 
+			this->textBox5->BackColor = System::Drawing::SystemColors::WindowFrame;
+			this->textBox5->BorderStyle = System::Windows::Forms::BorderStyle::None;
+			this->textBox5->Font = (gcnew System::Drawing::Font(L"Arial", 9, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(204)));
+			this->textBox5->ForeColor = System::Drawing::SystemColors::HighlightText;
+			this->textBox5->Location = System::Drawing::Point(40, 69);
+			this->textBox5->MaxLength = 4;
+			this->textBox5->Name = L"textBox5";
+			this->textBox5->Size = System::Drawing::Size(40, 14);
+			this->textBox5->TabIndex = 9;
+			this->textBox5->TextAlign = System::Windows::Forms::HorizontalAlignment::Center;
+			this->textBox5->TextChanged += gcnew System::EventHandler(this, &Dialog::textBoxTextChanged);
+			this->textBox5->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &Dialog::textBoxKeyDown);
+			this->textBox5->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &Dialog::textBoxKeyPress);
+			// 
+			// confirmButton
+			// 
+			this->confirmButton->FlatStyle = System::Windows::Forms::FlatStyle::System;
+			this->confirmButton->Font = (gcnew System::Drawing::Font(L"Arial", 9, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(204)));
+			this->confirmButton->Location = System::Drawing::Point(15, 88);
+			this->confirmButton->Name = L"confirmButton";
+			this->confirmButton->Size = System::Drawing::Size(138, 17);
+			this->confirmButton->TabIndex = 10;
+			this->confirmButton->Text = L"применить";
+			this->confirmButton->UseVisualStyleBackColor = true;
+			this->confirmButton->Click += gcnew System::EventHandler(this, &Dialog::confirmButtonClick);
+			// 
+			// trackBar1
+			// 
+			this->trackBar1->AutoSize = false;
+			this->trackBar1->Location = System::Drawing::Point(90, 9);
+			this->trackBar1->Maximum = 255;
+			this->trackBar1->Name = L"trackBar1";
+			this->trackBar1->Size = System::Drawing::Size(148, 15);
+			this->trackBar1->TabIndex = 12;
+			this->trackBar1->TickStyle = System::Windows::Forms::TickStyle::None;
+			this->trackBar1->ValueChanged += gcnew System::EventHandler(this, &Dialog::trackBarValueChanged);
+			// 
+			// trackBar2
+			// 
+			this->trackBar2->AutoSize = false;
+			this->trackBar2->Location = System::Drawing::Point(90, 24);
+			this->trackBar2->Maximum = 255;
+			this->trackBar2->Name = L"trackBar2";
+			this->trackBar2->Size = System::Drawing::Size(148, 15);
+			this->trackBar2->TabIndex = 13;
+			this->trackBar2->TickStyle = System::Windows::Forms::TickStyle::None;
+			this->trackBar2->ValueChanged += gcnew System::EventHandler(this, &Dialog::trackBarValueChanged);
+			// 
+			// trackBar3
+			// 
+			this->trackBar3->AutoSize = false;
+			this->trackBar3->Location = System::Drawing::Point(90, 39);
+			this->trackBar3->Maximum = 255;
+			this->trackBar3->Name = L"trackBar3";
+			this->trackBar3->Size = System::Drawing::Size(148, 15);
+			this->trackBar3->TabIndex = 14;
+			this->trackBar3->TickStyle = System::Windows::Forms::TickStyle::None;
+			this->trackBar3->ValueChanged += gcnew System::EventHandler(this, &Dialog::trackBarValueChanged);
+			// 
+			// trackBar4
+			// 
+			this->trackBar4->AutoSize = false;
+			this->trackBar4->LargeChange = 25;
+			this->trackBar4->Location = System::Drawing::Point(90, 54);
+			this->trackBar4->Maximum = 400;
+			this->trackBar4->Name = L"trackBar4";
+			this->trackBar4->Size = System::Drawing::Size(148, 15);
+			this->trackBar4->TabIndex = 15;
+			this->trackBar4->TickStyle = System::Windows::Forms::TickStyle::None;
+			this->trackBar4->ValueChanged += gcnew System::EventHandler(this, &Dialog::trackBarValueChanged);
+			// 
+			// trackBar5
+			// 
+			this->trackBar5->AutoSize = false;
+			this->trackBar5->LargeChange = 25;
+			this->trackBar5->Location = System::Drawing::Point(90, 69);
+			this->trackBar5->Maximum = 400;
+			this->trackBar5->Name = L"trackBar5";
+			this->trackBar5->Size = System::Drawing::Size(148, 15);
+			this->trackBar5->TabIndex = 16;
+			this->trackBar5->TickStyle = System::Windows::Forms::TickStyle::None;
+			this->trackBar5->ValueChanged += gcnew System::EventHandler(this, &Dialog::trackBarValueChanged);
+			// 
+			// Dialog
+			// 
+			this->AutoScaleDimensions = System::Drawing::SizeF(6, 13);
+			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
+			this->BackColor = System::Drawing::Color::FromArgb(static_cast<System::Int32>(static_cast<System::Byte>(45)), static_cast<System::Int32>(static_cast<System::Byte>(43)),
+				static_cast<System::Int32>(static_cast<System::Byte>(45)));
+			this->ClientSize = System::Drawing::Size(242, 110);
+			this->Controls->Add(this->trackBar5);
+			this->Controls->Add(this->trackBar4);
+			this->Controls->Add(this->trackBar3);
+			this->Controls->Add(this->trackBar2);
+			this->Controls->Add(this->trackBar1);
+			this->Controls->Add(this->confirmButton);
+			this->Controls->Add(this->textBox5);
+			this->Controls->Add(this->textBox4);
+			this->Controls->Add(this->textBox3);
+			this->Controls->Add(this->textBox2);
+			this->Controls->Add(this->textBox1);
+			this->Controls->Add(this->label5);
+			this->Controls->Add(this->label4);
+			this->Controls->Add(this->label3);
+			this->Controls->Add(this->label2);
+			this->Controls->Add(this->label1);
+			this->FormBorderStyle = System::Windows::Forms::FormBorderStyle::FixedToolWindow;
+			this->Name = L"Dialog";
+			this->StartPosition = System::Windows::Forms::FormStartPosition::CenterScreen;
+			this->Text = L"Dialog";
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->trackBar1))->EndInit();
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->trackBar2))->EndInit();
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->trackBar3))->EndInit();
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->trackBar4))->EndInit();
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->trackBar5))->EndInit();
+			this->ResumeLayout(false);
+			this->PerformLayout();
 
-			 void InitializeComponent(int type)
-			 {
-				 switch (type) {
-				 case 1:
-					 label1 = (gcnew System::Windows::Forms::Label());
-					 label2 = (gcnew System::Windows::Forms::Label());
-					 label3 = (gcnew System::Windows::Forms::Label());
-					 textBox1 = (gcnew System::Windows::Forms::TextBox());
-					 textBox2 = (gcnew System::Windows::Forms::TextBox());
-					 textBox3 = (gcnew System::Windows::Forms::TextBox());
-					 trackBar1 = (gcnew System::Windows::Forms::TrackBar());
-					 trackBar2 = (gcnew System::Windows::Forms::TrackBar());
-					 trackBar3 = (gcnew System::Windows::Forms::TrackBar());
-					 (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(trackBar1))->BeginInit();
-					 (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(trackBar2))->BeginInit();
-					 (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(trackBar3))->BeginInit();
-					 SuspendLayout();
-					 // 
-					 // label1
-					 // 
-					 label1->AutoSize = true;
-					 label1->Font = (gcnew System::Drawing::Font(L"Arial", 9, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
-						 static_cast<System::Byte>(204)));
-					 label1->ForeColor = System::Drawing::SystemColors::Window;
-					 label1->Location = System::Drawing::Point(12, 9);
-					 label1->Margin = System::Windows::Forms::Padding(3, 0, 3, 3);
-					 label1->Name = L"label1";
-					 label1->Size = System::Drawing::Size(58, 15);
-					 label1->TabIndex = 0;
-					 label1->TextAlign = ContentAlignment::MiddleRight;
-					 label1->Text = L"Порог (t):";
-					 // 
-					 // label2
-					 // 
-					 label2->AutoSize = true;
-					 label2->Font = (gcnew System::Drawing::Font(L"Arial", 9, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
-						 static_cast<System::Byte>(204)));
-					 label2->ForeColor = System::Drawing::SystemColors::Window;
-					 label2->Location = System::Drawing::Point(46, 24);
-					 label2->Margin = System::Windows::Forms::Padding(3);
-					 label2->Name = L"label2";
-					 label2->Size = System::Drawing::Size(24, 15);
-					 label2->TabIndex = 1;
-					 label2->TextAlign = ContentAlignment::MiddleRight;
-					 label2->Text = L"b0:";
-					 // 
-					 // label3
-					 // 
-					 label3->AutoSize = true;
-					 label3->Font = (gcnew System::Drawing::Font(L"Arial", 9, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
-						 static_cast<System::Byte>(204)));
-					 label3->ForeColor = System::Drawing::SystemColors::Window;
-					 label3->Location = System::Drawing::Point(46, 39);
-					 label3->Margin = System::Windows::Forms::Padding(3);
-					 label3->Name = L"label3";
-					 label3->Size = System::Drawing::Size(24, 15);
-					 label3->TabIndex = 2;
-					 label3->TextAlign = ContentAlignment::MiddleRight;
-					 label3->Text = L"b1:";
-					 // 
-					 // textBox1
-					 // 
-					 textBox1->BackColor = System::Drawing::SystemColors::WindowFrame;
-					 textBox1->BorderStyle = System::Windows::Forms::BorderStyle::None;
-					 textBox1->Font = (gcnew System::Drawing::Font(L"Arial", 9, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
-						 static_cast<System::Byte>(204)));
-					 textBox1->ForeColor = System::Drawing::SystemColors::Window;
-					 textBox1->Location = System::Drawing::Point(76, 10);
-					 textBox1->MaxLength = 3;
-					 textBox1->Name = L"textBox1";
-					 textBox1->Size = System::Drawing::Size(41, 14);
-					 textBox1->Text = L"1";
-					 textBox1->TabIndex = 3;
-					 textBox1->TextAlign = System::Windows::Forms::HorizontalAlignment::Center;
-					 textBox1->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &Dialog::textBox1_KeyDown);
-					 textBox1->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &Dialog::textBox_KeyPressInt);
-					 // 
-					 // textBox2
-					 // 
-					 textBox2->BackColor = System::Drawing::SystemColors::WindowFrame;
-					 textBox2->BorderStyle = System::Windows::Forms::BorderStyle::None;
-					 textBox2->Font = (gcnew System::Drawing::Font(L"Arial", 9, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
-						 static_cast<System::Byte>(204)));
-					 textBox2->ForeColor = System::Drawing::SystemColors::Window;
-					 textBox2->Location = System::Drawing::Point(76, 25);
-					 textBox2->MaxLength = 3;
-					 textBox2->Name = L"textBox2";
-					 textBox2->Size = System::Drawing::Size(41, 14);
-					 textBox2->Text = L"1";
-					 textBox2->TabIndex = 4;
-					 textBox2->TextAlign = System::Windows::Forms::HorizontalAlignment::Center;
-					 textBox2->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &Dialog::textBox2_KeyDown);
-					 textBox2->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &Dialog::textBox_KeyPressInt);
-					 // 
-					 // textBox3
-					 // 
-					 textBox3->BackColor = System::Drawing::SystemColors::WindowFrame;
-					 textBox3->BorderStyle = System::Windows::Forms::BorderStyle::None;
-					 textBox3->Font = (gcnew System::Drawing::Font(L"Arial", 9, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
-						 static_cast<System::Byte>(204)));
-					 textBox3->ForeColor = System::Drawing::SystemColors::Window;
-					 textBox3->Location = System::Drawing::Point(76, 40);
-					 textBox3->MaxLength = 3;
-					 textBox3->Name = L"textBox3";
-					 textBox3->Size = System::Drawing::Size(41, 14);
-					 textBox3->Text = L"1";
-					 textBox3->TabIndex = 5;
-					 textBox3->TextAlign = System::Windows::Forms::HorizontalAlignment::Center;
-					 textBox3->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &Dialog::textBox3_KeyDown);
-					 textBox3->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &Dialog::textBox_KeyPressInt);
-					 // 
-					 // trackBar1
-					 // 
-					 trackBar1->AutoSize = false;
-					 trackBar1->Location = System::Drawing::Point(123, 10);
-					 trackBar1->Margin = System::Windows::Forms::Padding(0);
-					 trackBar1->Maximum = 255;
-					 trackBar1->Name = L"trackBar1";
-					 trackBar1->Size = System::Drawing::Size(137, 15);
-					 trackBar1->TabIndex = 6;
-					 trackBar1->TickStyle = System::Windows::Forms::TickStyle::None;
-					 trackBar1->ValueChanged += gcnew System::EventHandler(this, &Dialog::trackBar1_ValueChanged);
-					 // 
-					 // trackBar2
-					 // 
-					 trackBar2->AutoSize = false;
-					 trackBar2->Location = System::Drawing::Point(123, 25);
-					 trackBar2->Margin = System::Windows::Forms::Padding(0);
-					 trackBar2->Maximum = 255;
-					 trackBar2->Name = L"trackBar2";
-					 trackBar2->Size = System::Drawing::Size(137, 15);
-					 trackBar2->TabIndex = 7;
-					 trackBar2->TickStyle = System::Windows::Forms::TickStyle::None;
-					 trackBar2->ValueChanged += gcnew System::EventHandler(this, &Dialog::trackBar2_ValueChanged);
-					 // 
-					 // trackBar3
-					 // 
-					 trackBar3->AutoSize = false;
-					 trackBar3->Location = System::Drawing::Point(123, 40);
-					 trackBar3->Margin = System::Windows::Forms::Padding(0);
-					 trackBar3->Maximum = 255;
-					 trackBar3->Name = L"trackBar3";
-					 trackBar3->Size = System::Drawing::Size(137, 15);
-					 trackBar3->TabIndex = 8;
-					 trackBar3->TickStyle = System::Windows::Forms::TickStyle::None;
-					 trackBar3->ValueChanged += gcnew System::EventHandler(this, &Dialog::trackBar3_ValueChanged);
-					 // 
-					 // Dialog
-					 // 
-					 AutoScaleDimensions = System::Drawing::SizeF(6, 13);
-					 AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
-					 BackColor = System::Drawing::Color::FromArgb(static_cast<System::Int32>(static_cast<System::Byte>(45)), static_cast<System::Int32>(static_cast<System::Byte>(43)),
-						 static_cast<System::Int32>(static_cast<System::Byte>(45)));
-					 ClientSize = System::Drawing::Size(273, 62);
-					 Controls->Add(trackBar3);
-					 Controls->Add(trackBar2);
-					 Controls->Add(trackBar1);
-					 Controls->Add(textBox3);
-					 Controls->Add(textBox2);
-					 Controls->Add(textBox1);
-					 Controls->Add(label3);
-					 Controls->Add(label2);
-					 Controls->Add(label1);
-					 FormBorderStyle = System::Windows::Forms::FormBorderStyle::FixedToolWindow;
-					 MaximumSize = System::Drawing::Size(289, 101);
-					 MinimumSize = System::Drawing::Size(289, 101);
-					 Name = L"Dialog";
-					 StartPosition = System::Windows::Forms::FormStartPosition::CenterScreen;
-					 Text = L"Бинаризация";
-					 (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(trackBar1))->EndInit();
-					 (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(trackBar2))->EndInit();
-					 (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(trackBar3))->EndInit();
-					 ResumeLayout(false);
-					 PerformLayout();
-					 break;
-				 case 2:
-					 label1 = (gcnew System::Windows::Forms::Label());
-					 label2 = (gcnew System::Windows::Forms::Label());
-					 textBox1 = (gcnew System::Windows::Forms::TextBox());
-					 textBox2 = (gcnew System::Windows::Forms::TextBox());
-					 trackBar1 = (gcnew System::Windows::Forms::TrackBar());
-					 trackBar2 = (gcnew System::Windows::Forms::TrackBar());
-					 (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(trackBar1))->BeginInit();
-					 (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(trackBar2))->BeginInit();
-					 SuspendLayout();
-					 // 
-					 // label1
-					 // 
-					 label1->AutoSize = true;
-					 label1->Font = (gcnew System::Drawing::Font(L"Arial", 9, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
-						 static_cast<System::Byte>(204)));
-					 label1->ForeColor = System::Drawing::SystemColors::Window;
-					 label1->Location = System::Drawing::Point(12, 9);
-					 label1->Margin = System::Windows::Forms::Padding(3, 0, 3, 3);
-					 label1->Name = L"label1";
-					 label1->Size = System::Drawing::Size(58, 15);
-					 label1->TabIndex = 0;
-					 label1->Text = L"C:";
-					 label1->TextAlign = ContentAlignment::MiddleRight;
-					 // 
-					 // label2
-					 // 
-					 label2->AutoSize = true;
-					 label2->Font = (gcnew System::Drawing::Font(L"Arial", 9, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
-						 static_cast<System::Byte>(204)));
-					 label2->ForeColor = System::Drawing::SystemColors::Window;
-					 label2->Location = System::Drawing::Point(12, 24);
-					 label2->Margin = System::Windows::Forms::Padding(3);
-					 label2->Name = L"label2";
-					 label2->Size = System::Drawing::Size(58, 15);
-					 label2->TabIndex = 1;
-					 label2->TextAlign = ContentAlignment::MiddleRight;
-					 label2->Text = L"Gamma:";
-					 // 
-					 // textBox1
-					 // 
-					 textBox1->BackColor = System::Drawing::SystemColors::WindowFrame;
-					 textBox1->BorderStyle = System::Windows::Forms::BorderStyle::None;
-					 textBox1->Font = (gcnew System::Drawing::Font(L"Arial", 9, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
-						 static_cast<System::Byte>(204)));
-					 textBox1->ForeColor = System::Drawing::SystemColors::Window;
-					 textBox1->Location = System::Drawing::Point(76, 10);
-					 textBox1->MaxLength = 3;
-					 textBox1->Name = L"textBox1";
-					 textBox1->Size = System::Drawing::Size(41, 14);
-					 textBox1->TabIndex = 3;
-					 textBox1->TextAlign = System::Windows::Forms::HorizontalAlignment::Center;
-					 textBox1->Text = L"1";
-					 textBox1->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &Dialog::textBox1_KeyDown);
-					 textBox1->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &Dialog::textBox_KeyPressDouble);
-					 // 
-					 // textBox2
-					 // 
-					 textBox2->BackColor = System::Drawing::SystemColors::WindowFrame;
-					 textBox2->BorderStyle = System::Windows::Forms::BorderStyle::None;
-					 textBox2->Font = (gcnew System::Drawing::Font(L"Arial", 9, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
-						 static_cast<System::Byte>(204)));
-					 textBox2->ForeColor = System::Drawing::SystemColors::Window;
-					 textBox2->Location = System::Drawing::Point(76, 25);
-					 textBox2->MaxLength = 3;
-					 textBox2->Name = L"textBox2";
-					 textBox2->Size = System::Drawing::Size(41, 14);
-					 textBox2->TabIndex = 4;
-					 textBox2->TextAlign = System::Windows::Forms::HorizontalAlignment::Center;
-					 textBox2->Text = L"1";
-					 textBox2->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &Dialog::textBox2_KeyDown);
-					 textBox2->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &Dialog::textBox_KeyPressDouble);
-					 // 
-					 // trackBar1
-					 // 
-					 trackBar1->AutoSize = false;
-					 trackBar1->Location = System::Drawing::Point(123, 10);
-					 trackBar1->Margin = System::Windows::Forms::Padding(0);
-					 trackBar1->Maximum = 50;
-					 trackBar1->Name = L"trackBar1";
-					 trackBar1->Size = System::Drawing::Size(137, 15);
-					 trackBar1->TabIndex = 6;
-					 trackBar1->TickStyle = System::Windows::Forms::TickStyle::None;
-					 trackBar1->ValueChanged += gcnew System::EventHandler(this, &Dialog::trackBar1_ValueChanged);
-					 trackBar1->Value = 25;
-					 // 
-					 // trackBar2
-					 // 
-					 trackBar2->AutoSize = false;
-					 trackBar2->Location = System::Drawing::Point(123, 25);
-					 trackBar2->Margin = System::Windows::Forms::Padding(0);
-					 trackBar2->Maximum = 50;
-					 trackBar2->Name = L"trackBar2";
-					 trackBar2->Size = System::Drawing::Size(137, 15);
-					 trackBar2->TabIndex = 7;
-					 trackBar2->TickStyle = System::Windows::Forms::TickStyle::None;
-					 trackBar2->ValueChanged += gcnew System::EventHandler(this, &Dialog::trackBar2_ValueChanged);
-					 trackBar2->Value = 25;
-					 // 
-					 // Dialog
-					 // 
-					 AutoScaleDimensions = System::Drawing::SizeF(6, 13);
-					 AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
-					 BackColor = System::Drawing::Color::FromArgb(static_cast<System::Int32>(static_cast<System::Byte>(45)), static_cast<System::Int32>(static_cast<System::Byte>(43)),
-						 static_cast<System::Int32>(static_cast<System::Byte>(45)));
-					 ClientSize = System::Drawing::Size(273, 62);
-					 Controls->Add(trackBar2);
-					 Controls->Add(trackBar1);
-					 Controls->Add(textBox2);
-					 Controls->Add(textBox1);
-					 Controls->Add(label2);
-					 Controls->Add(label1);
-					 FormBorderStyle = System::Windows::Forms::FormBorderStyle::FixedToolWindow;
-					 MaximumSize = System::Drawing::Size(289, 88);
-					 MinimumSize = System::Drawing::Size(289, 88);
-					 Name = L"Dialog";
-					 StartPosition = System::Windows::Forms::FormStartPosition::CenterScreen;
-					 Text = L"Степенное";
-					 FormClosing += gcnew System::Windows::Forms::FormClosingEventHandler(this, &ImageEditor::Dialog::OnFormClosing);
-					 (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(trackBar1))->EndInit();
-					 (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(trackBar2))->EndInit();
-					 ResumeLayout(false);
-					 PerformLayout();
-					 break;
-				 }
-
-			 }
+		}
 #pragma endregion
 	private: 
-		Void textBox1_KeyDown(Object^, KeyEventArgs^);
-		Void textBox2_KeyDown(Object^, KeyEventArgs^);
-		Void textBox3_KeyDown(Object^, KeyEventArgs^);
-		Void textBox_KeyPressInt(Object^, KeyPressEventArgs^);
-		Void textBox_KeyPressDouble(Object^, KeyPressEventArgs^);
-		Void trackBar1_ValueChanged(Object^, EventArgs^);
-		Void trackBar2_ValueChanged(Object^, EventArgs^);
-		Void trackBar3_ValueChanged(Object^, EventArgs^);
-		Void OnFormClosing(Object^, FormClosingEventArgs^);
+		Void textBoxKeyDown(Object^, System::Windows::Forms::KeyEventArgs^);
+		Void textBoxKeyPress(Object^, System::Windows::Forms::KeyPressEventArgs^);
+		Void textBoxTextChanged(Object^, EventArgs^);
+		Void trackBarValueChanged(Object^, EventArgs^);
+		Void confirmButtonClick(Object^, EventArgs^);
 	};
 }

@@ -46,14 +46,13 @@ namespace ImageEditor {
 		Windows::Forms::ListBox^  logBox;
 		System::ComponentModel::Container^ components;
 		System::IO::Stream^ iconStream, ^bmpStream;
-		Assembly^ myAssembly;
-		array<Bitmap^>^ images;
-		array<Entry^>^ log;
-		String^ fileName;
-		int size, logsize, current, curBP, sFDindex, t, b0, b1;
-		double c, g;
-		Thread^ transformThread;
-
+		Assembly^ myAssembly = nullptr;
+		array<Bitmap^>^ images = nullptr;
+		array<Entry^>^ log = nullptr;
+		String^ fileName = nullptr;
+		int size = 0, logsize = 0, current = 0, curBP = 0, sFDindex = 2, t = 0, b0 = 0, b1 = 0;
+		double c = 0.0, g = 0.0;
+		Thread^ transformThread = nullptr;
 	public:
 		MainForm(void);
 	protected:
@@ -334,21 +333,23 @@ namespace ImageEditor {
 			this->powerButton->UseVisualStyleBackColor = false;
 			this->powerButton->Click += gcnew System::EventHandler(this, &MainForm::powerButtonClick);
 			this->powerBoxTrackBar2->AutoSize = false;
+			this->powerBoxTrackBar2->LargeChange = 25;
 			this->powerBoxTrackBar2->Location = System::Drawing::Point(63, 33);
 			this->powerBoxTrackBar2->Maximum = 400;
 			this->powerBoxTrackBar2->Name = L"powerBoxTrackBar2";
 			this->powerBoxTrackBar2->Size = System::Drawing::Size(115, 15);
 			this->powerBoxTrackBar2->TabIndex = 9;
 			this->powerBoxTrackBar2->TickStyle = System::Windows::Forms::TickStyle::None;
-			this->powerBoxTrackBar2->ValueChanged += gcnew System::EventHandler(this, &MainForm::powerBoxTrackBar2ValueChanged);
+			this->powerBoxTrackBar2->ValueChanged += gcnew System::EventHandler(this, &MainForm::toolPanelTrackBarValueChanged);
 			this->powerBoxTrackBar1->AutoSize = false;
+			this->powerBoxTrackBar1->LargeChange = 25;
 			this->powerBoxTrackBar1->Location = System::Drawing::Point(63, 17);
 			this->powerBoxTrackBar1->Maximum = 400;
 			this->powerBoxTrackBar1->Name = L"powerBoxTrackBar1";
 			this->powerBoxTrackBar1->Size = System::Drawing::Size(115, 15);
 			this->powerBoxTrackBar1->TabIndex = 8;
 			this->powerBoxTrackBar1->TickStyle = System::Windows::Forms::TickStyle::None;
-			this->powerBoxTrackBar1->ValueChanged += gcnew System::EventHandler(this, &MainForm::powerBoxTrackBar1ValueChanged);
+			this->powerBoxTrackBar1->ValueChanged += gcnew System::EventHandler(this, &MainForm::toolPanelTrackBarValueChanged);
 			this->powerBoxTextBox2->BackColor = System::Drawing::SystemColors::WindowFrame;
 			this->powerBoxTextBox2->BorderStyle = System::Windows::Forms::BorderStyle::None;
 			this->powerBoxTextBox2->Font = (gcnew System::Drawing::Font(L"Arial", 9, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
@@ -360,9 +361,9 @@ namespace ImageEditor {
 			this->powerBoxTextBox2->Size = System::Drawing::Size(31, 14);
 			this->powerBoxTextBox2->TabIndex = 6;
 			this->powerBoxTextBox2->TextAlign = System::Windows::Forms::HorizontalAlignment::Center;
-			this->powerBoxTextBox2->TextChanged += gcnew System::EventHandler(this, &MainForm::powerBoxTextBox2TextChanged);
-			this->powerBoxTextBox2->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &MainForm::powerBoxTextBox2KeyDown);
-			this->powerBoxTextBox2->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &MainForm::textBox_KeyPressDouble);
+			this->powerBoxTextBox2->TextChanged += gcnew System::EventHandler(this, &MainForm::toolPanelTextBoxTextChanged);
+			this->powerBoxTextBox2->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &MainForm::toolPanelTextBoxKeyDown);
+			this->powerBoxTextBox2->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &MainForm::toolPanelTextBoxKeyPress);
 			this->powerBoxTextBox1->BackColor = System::Drawing::SystemColors::WindowFrame;
 			this->powerBoxTextBox1->BorderStyle = System::Windows::Forms::BorderStyle::None;
 			this->powerBoxTextBox1->Font = (gcnew System::Drawing::Font(L"Arial", 9, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
@@ -374,9 +375,9 @@ namespace ImageEditor {
 			this->powerBoxTextBox1->Size = System::Drawing::Size(31, 14);
 			this->powerBoxTextBox1->TabIndex = 5;
 			this->powerBoxTextBox1->TextAlign = System::Windows::Forms::HorizontalAlignment::Center;
-			this->powerBoxTextBox1->TextChanged += gcnew System::EventHandler(this, &MainForm::powerBoxTextBox1TextChanged);
-			this->powerBoxTextBox1->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &MainForm::powerBoxTextBox1KeyDown);
-			this->powerBoxTextBox1->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &MainForm::textBox_KeyPressDouble);
+			this->powerBoxTextBox1->TextChanged += gcnew System::EventHandler(this, &MainForm::toolPanelTextBoxTextChanged);
+			this->powerBoxTextBox1->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &MainForm::toolPanelTextBoxKeyDown);
+			this->powerBoxTextBox1->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &MainForm::toolPanelTextBoxKeyPress);
 			this->label3_2->AutoSize = true;
 			this->label3_2->ForeColor = System::Drawing::SystemColors::Window;
 			this->label3_2->Location = System::Drawing::Point(5, 33);
@@ -443,7 +444,7 @@ namespace ImageEditor {
 			this->binaryBoxTrackBar3->Size = System::Drawing::Size(115, 15);
 			this->binaryBoxTrackBar3->TabIndex = 10;
 			this->binaryBoxTrackBar3->TickStyle = System::Windows::Forms::TickStyle::None;
-			this->binaryBoxTrackBar3->ValueChanged += gcnew System::EventHandler(this, &MainForm::binaryBoxTrackBar3ValueChanged);
+			this->binaryBoxTrackBar3->ValueChanged += gcnew System::EventHandler(this, &MainForm::toolPanelTrackBarValueChanged);
 			this->binaryBoxTrackBar2->Anchor = static_cast<System::Windows::Forms::AnchorStyles>((((System::Windows::Forms::AnchorStyles::Top | System::Windows::Forms::AnchorStyles::Bottom)
 				| System::Windows::Forms::AnchorStyles::Left)
 				| System::Windows::Forms::AnchorStyles::Right));
@@ -454,7 +455,7 @@ namespace ImageEditor {
 			this->binaryBoxTrackBar2->Size = System::Drawing::Size(115, 15);
 			this->binaryBoxTrackBar2->TabIndex = 9;
 			this->binaryBoxTrackBar2->TickStyle = System::Windows::Forms::TickStyle::None;
-			this->binaryBoxTrackBar2->ValueChanged += gcnew System::EventHandler(this, &MainForm::binaryBoxTrackBar2ValueChanged);
+			this->binaryBoxTrackBar2->ValueChanged += gcnew System::EventHandler(this, &MainForm::toolPanelTrackBarValueChanged);
 			this->binaryBoxTrackBar1->Anchor = static_cast<System::Windows::Forms::AnchorStyles>((((System::Windows::Forms::AnchorStyles::Top | System::Windows::Forms::AnchorStyles::Bottom)
 				| System::Windows::Forms::AnchorStyles::Left)
 				| System::Windows::Forms::AnchorStyles::Right));
@@ -465,7 +466,7 @@ namespace ImageEditor {
 			this->binaryBoxTrackBar1->Size = System::Drawing::Size(115, 15);
 			this->binaryBoxTrackBar1->TabIndex = 8;
 			this->binaryBoxTrackBar1->TickStyle = System::Windows::Forms::TickStyle::None;
-			this->binaryBoxTrackBar1->ValueChanged += gcnew System::EventHandler(this, &MainForm::binaryBoxTrackBar1ValueChanged);
+			this->binaryBoxTrackBar1->ValueChanged += gcnew System::EventHandler(this, &MainForm::toolPanelTrackBarValueChanged);
 			this->binaryBoxTextBox3->BackColor = System::Drawing::SystemColors::WindowFrame;
 			this->binaryBoxTextBox3->BorderStyle = System::Windows::Forms::BorderStyle::None;
 			this->binaryBoxTextBox3->Font = (gcnew System::Drawing::Font(L"Arial", 9, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
@@ -477,9 +478,9 @@ namespace ImageEditor {
 			this->binaryBoxTextBox3->Size = System::Drawing::Size(31, 14);
 			this->binaryBoxTextBox3->TabIndex = 7;
 			this->binaryBoxTextBox3->TextAlign = System::Windows::Forms::HorizontalAlignment::Center;
-			this->binaryBoxTextBox3->TextChanged += gcnew System::EventHandler(this, &MainForm::binaryBoxTextBox3TextChanged);
-			this->binaryBoxTextBox3->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &MainForm::binaryBoxTextBox3KeyDown);
-			this->binaryBoxTextBox3->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &MainForm::textBox_KeyPressInt);
+			this->binaryBoxTextBox3->TextChanged += gcnew System::EventHandler(this, &MainForm::toolPanelTextBoxTextChanged);
+			this->binaryBoxTextBox3->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &MainForm::toolPanelTextBoxKeyDown);
+			this->binaryBoxTextBox3->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &MainForm::toolPanelTextBoxKeyPress);
 			this->binaryBoxTextBox2->BackColor = System::Drawing::SystemColors::WindowFrame;
 			this->binaryBoxTextBox2->BorderStyle = System::Windows::Forms::BorderStyle::None;
 			this->binaryBoxTextBox2->Font = (gcnew System::Drawing::Font(L"Arial", 9, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
@@ -491,9 +492,9 @@ namespace ImageEditor {
 			this->binaryBoxTextBox2->Size = System::Drawing::Size(31, 14);
 			this->binaryBoxTextBox2->TabIndex = 6;
 			this->binaryBoxTextBox2->TextAlign = System::Windows::Forms::HorizontalAlignment::Center;
-			this->binaryBoxTextBox2->TextChanged += gcnew System::EventHandler(this, &MainForm::binaryBoxTextBox2TextChanged);
-			this->binaryBoxTextBox2->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &MainForm::binaryBoxTextBox2KeyDown);
-			this->binaryBoxTextBox2->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &MainForm::textBox_KeyPressInt);
+			this->binaryBoxTextBox2->TextChanged += gcnew System::EventHandler(this, &MainForm::toolPanelTextBoxTextChanged);
+			this->binaryBoxTextBox2->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &MainForm::toolPanelTextBoxKeyDown);
+			this->binaryBoxTextBox2->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &MainForm::toolPanelTextBoxKeyPress);
 			this->binaryBoxTextBox1->BackColor = System::Drawing::SystemColors::WindowFrame;
 			this->binaryBoxTextBox1->BorderStyle = System::Windows::Forms::BorderStyle::None;
 			this->binaryBoxTextBox1->Font = (gcnew System::Drawing::Font(L"Arial", 9, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
@@ -505,9 +506,9 @@ namespace ImageEditor {
 			this->binaryBoxTextBox1->Size = System::Drawing::Size(31, 14);
 			this->binaryBoxTextBox1->TabIndex = 5;
 			this->binaryBoxTextBox1->TextAlign = System::Windows::Forms::HorizontalAlignment::Center;
-			this->binaryBoxTextBox1->TextChanged += gcnew System::EventHandler(this, &MainForm::binaryBoxTextBox1TextChanged);
-			this->binaryBoxTextBox1->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &MainForm::binaryBoxTextBox1KeyDown);
-			this->binaryBoxTextBox1->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &MainForm::textBox_KeyPressInt);
+			this->binaryBoxTextBox1->TextChanged += gcnew System::EventHandler(this, &MainForm::toolPanelTextBoxTextChanged);
+			this->binaryBoxTextBox1->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &MainForm::toolPanelTextBoxKeyDown);
+			this->binaryBoxTextBox1->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &MainForm::toolPanelTextBoxKeyPress);
 			this->label2_3->AutoSize = true;
 			this->label2_3->ForeColor = System::Drawing::SystemColors::Window;
 			this->label2_3->Location = System::Drawing::Point(5, 49);
@@ -640,6 +641,7 @@ namespace ImageEditor {
 			this->progressBar->Style = System::Windows::Forms::ProgressBarStyle::Continuous;
 			this->progressBar->TabIndex = 1;
 			this->progressBar->Visible = false;
+			this->progressBar->SizeChanged += gcnew System::EventHandler(this, &MainForm::progressBarSizeChanged);
 			this->AutoScaleDimensions = System::Drawing::SizeF(6, 13);
 			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
 			this->BackColor = System::Drawing::Color::FromArgb(static_cast<System::Int32>(static_cast<System::Byte>(45)), static_cast<System::Int32>(static_cast<System::Byte>(43)),
@@ -691,34 +693,21 @@ namespace ImageEditor {
 		Void bright—orrectClick(Object^, EventArgs^);
 		Void undoClick(Object^, EventArgs^);
 		Void redoClick(Object^, EventArgs^);
-		Void binaryButtonClick(Object^, EventArgs^);
-		Void powerButtonClick(Object^, EventArgs^);
-		Void fixButtonClick(Object^, EventArgs^);
 		Void negative();
 		Void halftone();
 		Void binar();
 		Void power();
 		Void brightCorrect();
+		Void binaryButtonClick(Object^, EventArgs^);
+		Void powerButtonClick(Object^, EventArgs^);
+		Void fixButtonClick(Object^, EventArgs^);
 		Void toolPanelShowHide(Object^, EventArgs^);
-		Void progressBar_SizeChanged(Object^, EventArgs^);
-		Void buttonsEnable(bool);
-		Void binaryBoxTextBox1KeyDown(Object^, KeyEventArgs^);
-		Void binaryBoxTextBox2KeyDown(Object^, KeyEventArgs^);
-		Void binaryBoxTextBox3KeyDown(Object^, KeyEventArgs^);
-		Void powerBoxTextBox1KeyDown(Object^, KeyEventArgs^);
-		Void powerBoxTextBox2KeyDown(Object^, KeyEventArgs^);
-		Void binaryBoxTextBox1TextChanged(Object^, EventArgs^);
-		Void binaryBoxTextBox2TextChanged(Object^, EventArgs^);
-		Void binaryBoxTextBox3TextChanged(Object^, EventArgs^);
-		Void powerBoxTextBox1TextChanged(Object^, EventArgs^);
-		Void powerBoxTextBox2TextChanged(Object^, EventArgs^);
-		Void textBox_KeyPressInt(Object^, KeyPressEventArgs^);
-		Void textBox_KeyPressDouble(Object^, KeyPressEventArgs^);
-		Void binaryBoxTrackBar1ValueChanged(Object^, EventArgs^);
-		Void binaryBoxTrackBar2ValueChanged(Object^, EventArgs^);
-		Void binaryBoxTrackBar3ValueChanged(Object^, EventArgs^);
-		Void powerBoxTrackBar1ValueChanged(Object^, EventArgs^);
-		Void powerBoxTrackBar2ValueChanged(Object^, EventArgs^);
+		Void progressBarSizeChanged(Object^, EventArgs^);
+		Void controlsEnabled(bool);
+		Void toolPanelTextBoxKeyDown(Object^, KeyEventArgs^);
+		Void toolPanelTextBoxTextChanged(Object^, EventArgs^);
+		Void toolPanelTextBoxKeyPress(Object^, KeyPressEventArgs^);
+		Void toolPanelTrackBarValueChanged(Object^, EventArgs^);
 		delegate Bitmap^ GetCurrentImage();
 		Bitmap^ getCurrentImage();
 		delegate Void PictureBoxChangeImage(Bitmap^ image);
