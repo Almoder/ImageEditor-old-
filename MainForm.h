@@ -12,6 +12,7 @@ namespace ImageEditor {
 
 	ref class MainForm;
 	ref class Entry;
+	ref class Obj;
 
 	public ref class Entry {
 	public: 
@@ -20,39 +21,52 @@ namespace ImageEditor {
 		Entry(void);
 		Entry(int);
 		Entry(int, int, int, int);
+		Entry(int, float, float);
 		Entry(int, double, double);
 	private: 
 		void initData(int);
+	};
+
+	public ref class Obj {
+	public:
+		int width, height;
+		array<array<Point^>^>^ dots = nullptr;
+		Obj(void);
+		bool contain(Point^);
 	};
 
 	public ref class MainForm : public System::Windows::Forms::Form	{
 	private: 
 		Windows::Forms::MenuStrip^  menuStrip;
 		Windows::Forms::ToolStripMenuItem^  fileMI, ^openMI, ^saveMI, ^saveAsMI, ^exitMI;
-		Windows::Forms::ToolStripMenuItem^  actionsMI, ^transformMI, ^binarMI;
-		Windows::Forms::ToolStripMenuItem^  powerMI, ^negativeMI, ^halftoneMI;
-		Windows::Forms::ToolStripMenuItem^  viewMI, ^toolpanelMI, ^bright—orrectMI, ^aboutMI;
+		Windows::Forms::ToolStripMenuItem^  actionsMI, ^transformMI, ^binarMI, ^adaptiveBinarMI;
+		Windows::Forms::ToolStripMenuItem^  powerMI, ^negativeMI, ^halftoneMI, ^linearTensionMI, ^ stretchContrastMI;
+		Windows::Forms::ToolStripMenuItem^  viewMI, ^toolpanelMI, ^secondPictureMI, ^aboutMI;
 		Windows::Forms::ToolStripMenuItem^  undoMI, ^redoMI;
 		Windows::Forms::TabControl^  tabControl;
-		Windows::Forms::TabPage^  editorPage, ^logPage;
-	    Windows::Forms::Panel^  editorPanel, ^toolPanel;
-		Windows::Forms::PictureBox^  pictureBox;
+		Windows::Forms::TabPage^  editorPage, ^logPage, ^objectPage;
+	    Windows::Forms::Panel^  editorPanel1, ^ editorPanel2, ^toolPanel;
+		Windows::Forms::PictureBox^  pictureBox1, ^pictureBox2;
 		Windows::Forms::ProgressBar^  progressBar;
-		Windows::Forms::GroupBox^  transformBox, ^binaryBox, ^powerBox;
+		Windows::Forms::GroupBox^  transformBox, ^binaryBox, ^powerBox, ^ findClassBox;
 		Windows::Forms::Label^  toolboxTitle, ^label1_1, ^label1_2, ^label2_1, ^label2_2, ^label2_3, ^label3_1, ^label3_2;
-		Windows::Forms::Button^  negativeButton, ^halftoneButton, ^powerButton, ^binaryButton, ^powerFixButton, ^binaryFixButton;
+		Windows::Forms::Button^  negativeButton, ^halftoneButton, ^powerButton, ^binaryButton, ^powerFixButton, ^binaryFixButton, ^ findClassButton;
 		Windows::Forms::TextBox^  binaryBoxTextBox1, ^binaryBoxTextBox2, ^binaryBoxTextBox3, ^powerBoxTextBox1, ^powerBoxTextBox2;
 		Windows::Forms::TrackBar^  binaryBoxTrackBar1, ^binaryBoxTrackBar2, ^binaryBoxTrackBar3, ^powerBoxTrackBar1, ^powerBoxTrackBar2;
 		Windows::Forms::ListBox^  logBox;
+		Windows::Forms::StatusStrip^  statusStrip;
+		Windows::Forms::ToolStripStatusLabel^  statusSize, ^statusCurrent, ^statusCurBP, ^statusLogsize;
 		System::ComponentModel::Container^ components;
 		System::IO::Stream^ iconStream, ^bmpStream;
 		Assembly^ myAssembly = nullptr;
 		array<Bitmap^>^ images = nullptr;
+		array<Bitmap^>^ classes = nullptr;
 		array<Entry^>^ log = nullptr;
+		array<Obj^>^ objects = nullptr;
 		String^ fileName = nullptr;
-		int size = 0, logsize = 0, current = 0, curBP = 0, sFDindex = 2, t = 0, b0 = 0, b1 = 0;
+		int size = 0, objsize = 0, logsize = 0, current = 0, cur2 = 0, curBP = 0, sFDindex = 2, t = 0, b0 = 0, b1 = 0, activePB = 1;
 		double c = 0.0, g = 0.0;
-		Thread^ transformThread = nullptr;
+		   Thread^ transformThread = nullptr;
 	public:
 		MainForm(void);
 	protected:
@@ -61,7 +75,7 @@ namespace ImageEditor {
 #pragma region Windows Form Designer generated code
 
 		void InitializeComponent(void) {
-			System::ComponentModel::ComponentResourceManager^  resources = (gcnew System::ComponentModel::ComponentResourceManager(MainForm::typeid));
+			System::ComponentModel::ComponentResourceManager^ resources = (gcnew System::ComponentModel::ComponentResourceManager(MainForm::typeid));
 			this->menuStrip = (gcnew System::Windows::Forms::MenuStrip());
 			this->fileMI = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->openMI = (gcnew System::Windows::Forms::ToolStripMenuItem());
@@ -72,16 +86,21 @@ namespace ImageEditor {
 			this->negativeMI = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->halftoneMI = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->binarMI = (gcnew System::Windows::Forms::ToolStripMenuItem());
+			this->adaptiveBinarMI = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->powerMI = (gcnew System::Windows::Forms::ToolStripMenuItem());
-			this->bright—orrectMI = (gcnew System::Windows::Forms::ToolStripMenuItem());
+			this->linearTensionMI = (gcnew System::Windows::Forms::ToolStripMenuItem());
+			this->stretchContrastMI = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->undoMI = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->redoMI = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->viewMI = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->toolpanelMI = (gcnew System::Windows::Forms::ToolStripMenuItem());
+			this->secondPictureMI = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->aboutMI = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->tabControl = (gcnew System::Windows::Forms::TabControl());
 			this->editorPage = (gcnew System::Windows::Forms::TabPage());
 			this->toolPanel = (gcnew System::Windows::Forms::Panel());
+			this->findClassBox = (gcnew System::Windows::Forms::GroupBox());
+			this->findClassButton = (gcnew System::Windows::Forms::Button());
 			this->powerBox = (gcnew System::Windows::Forms::GroupBox());
 			this->powerFixButton = (gcnew System::Windows::Forms::Button());
 			this->powerButton = (gcnew System::Windows::Forms::Button());
@@ -109,15 +128,24 @@ namespace ImageEditor {
 			this->label1_2 = (gcnew System::Windows::Forms::Label());
 			this->label1_1 = (gcnew System::Windows::Forms::Label());
 			this->toolboxTitle = (gcnew System::Windows::Forms::Label());
-			this->editorPanel = (gcnew System::Windows::Forms::Panel());
-			this->pictureBox = (gcnew System::Windows::Forms::PictureBox());
+			this->editorPanel1 = (gcnew System::Windows::Forms::Panel());
+			this->pictureBox1 = (gcnew System::Windows::Forms::PictureBox());
+			this->editorPanel2 = (gcnew System::Windows::Forms::Panel());
+			this->pictureBox2 = (gcnew System::Windows::Forms::PictureBox());
 			this->logPage = (gcnew System::Windows::Forms::TabPage());
 			this->logBox = (gcnew System::Windows::Forms::ListBox());
+			this->objectPage = (gcnew System::Windows::Forms::TabPage());
 			this->progressBar = (gcnew System::Windows::Forms::ProgressBar());
+			this->statusStrip = (gcnew System::Windows::Forms::StatusStrip());
+			this->statusSize = (gcnew System::Windows::Forms::ToolStripStatusLabel());
+			this->statusCurrent = (gcnew System::Windows::Forms::ToolStripStatusLabel());
+			this->statusCurBP = (gcnew System::Windows::Forms::ToolStripStatusLabel());
+			this->statusLogsize = (gcnew System::Windows::Forms::ToolStripStatusLabel());
 			this->menuStrip->SuspendLayout();
 			this->tabControl->SuspendLayout();
 			this->editorPage->SuspendLayout();
 			this->toolPanel->SuspendLayout();
+			this->findClassBox->SuspendLayout();
 			this->powerBox->SuspendLayout();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->powerBoxTrackBar2))->BeginInit();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->powerBoxTrackBar1))->BeginInit();
@@ -126,9 +154,12 @@ namespace ImageEditor {
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->binaryBoxTrackBar2))->BeginInit();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->binaryBoxTrackBar1))->BeginInit();
 			this->transformBox->SuspendLayout();
-			this->editorPanel->SuspendLayout();
-			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->pictureBox))->BeginInit();
+			this->editorPanel1->SuspendLayout();
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->pictureBox1))->BeginInit();
+			this->editorPanel2->SuspendLayout();
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->pictureBox2))->BeginInit();
 			this->logPage->SuspendLayout();
+			this->statusStrip->SuspendLayout();
 			this->SuspendLayout();
 			this->menuStrip->BackColor = System::Drawing::Color::FromArgb(static_cast<System::Int32>(static_cast<System::Byte>(45)), static_cast<System::Int32>(static_cast<System::Byte>(43)),
 				static_cast<System::Int32>(static_cast<System::Byte>(45)));
@@ -183,9 +214,9 @@ namespace ImageEditor {
 			this->exitMI->Size = System::Drawing::Size(229, 22);
 			this->exitMI->Text = L"¬˚ıÓ‰";
 			this->exitMI->Click += gcnew System::EventHandler(this, &MainForm::exitMIClick);
-			this->actionsMI->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(7) {
+			this->actionsMI->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(9) {
 				this->negativeMI, this->halftoneMI,
-					this->binarMI, this->powerMI, this->bright—orrectMI, this->undoMI, this->redoMI
+					this->binarMI, this->adaptiveBinarMI, this->powerMI, this->linearTensionMI, this->stretchContrastMI, this->undoMI, this->redoMI
 			});
 			this->actionsMI->Name = L"actionsMI";
 			this->actionsMI->Size = System::Drawing::Size(72, 20);
@@ -194,62 +225,87 @@ namespace ImageEditor {
 				static_cast<System::Int32>(static_cast<System::Byte>(45)));
 			this->negativeMI->ForeColor = System::Drawing::SystemColors::Window;
 			this->negativeMI->Name = L"negativeMI";
-			this->negativeMI->Size = System::Drawing::Size(184, 22);
+			this->negativeMI->Size = System::Drawing::Size(324, 22);
 			this->negativeMI->Text = L"ÕÂ„‡ÚË‚";
 			this->negativeMI->Click += gcnew System::EventHandler(this, &MainForm::negativeClick);
 			this->halftoneMI->BackColor = System::Drawing::Color::FromArgb(static_cast<System::Int32>(static_cast<System::Byte>(45)), static_cast<System::Int32>(static_cast<System::Byte>(43)),
 				static_cast<System::Int32>(static_cast<System::Byte>(45)));
 			this->halftoneMI->ForeColor = System::Drawing::SystemColors::Window;
 			this->halftoneMI->Name = L"halftoneMI";
-			this->halftoneMI->Size = System::Drawing::Size(184, 22);
+			this->halftoneMI->Size = System::Drawing::Size(324, 22);
 			this->halftoneMI->Text = L"œÓÎÛÚÓÌÓ‚ÓÂ";
 			this->halftoneMI->Click += gcnew System::EventHandler(this, &MainForm::halftoneClick);
 			this->binarMI->BackColor = System::Drawing::Color::FromArgb(static_cast<System::Int32>(static_cast<System::Byte>(45)), static_cast<System::Int32>(static_cast<System::Byte>(43)),
 				static_cast<System::Int32>(static_cast<System::Byte>(45)));
 			this->binarMI->ForeColor = System::Drawing::SystemColors::Window;
 			this->binarMI->Name = L"binarMI";
-			this->binarMI->Size = System::Drawing::Size(184, 22);
+			this->binarMI->Size = System::Drawing::Size(324, 22);
 			this->binarMI->Text = L"¡ËÌ‡ÌÓÂ";
 			this->binarMI->Click += gcnew System::EventHandler(this, &MainForm::binarClick);
+			this->adaptiveBinarMI->BackColor = System::Drawing::Color::FromArgb(static_cast<System::Int32>(static_cast<System::Byte>(45)), static_cast<System::Int32>(static_cast<System::Byte>(43)),
+				static_cast<System::Int32>(static_cast<System::Byte>(45)));
+			this->adaptiveBinarMI->ForeColor = System::Drawing::SystemColors::Window;
+			this->adaptiveBinarMI->Name = L"adaptiveBinarMI";
+			this->adaptiveBinarMI->Size = System::Drawing::Size(324, 22);
+			this->adaptiveBinarMI->Text = L"¡ËÌ‡ÌÓÂ (‡‰‡ÔÚË‚ÌÓÂ)";
+			this->adaptiveBinarMI->Click += gcnew System::EventHandler(this, &MainForm::adaptiveBinarClick);
 			this->powerMI->BackColor = System::Drawing::Color::FromArgb(static_cast<System::Int32>(static_cast<System::Byte>(45)), static_cast<System::Int32>(static_cast<System::Byte>(43)),
 				static_cast<System::Int32>(static_cast<System::Byte>(45)));
 			this->powerMI->ForeColor = System::Drawing::SystemColors::Window;
 			this->powerMI->Name = L"powerMI";
-			this->powerMI->Size = System::Drawing::Size(184, 22);
+			this->powerMI->Size = System::Drawing::Size(324, 22);
 			this->powerMI->Text = L"—ÚÂÔÂÌÌÓÂ";
 			this->powerMI->Click += gcnew System::EventHandler(this, &MainForm::powerClick);
-			this->bright—orrectMI->BackColor = System::Drawing::Color::FromArgb(static_cast<System::Int32>(static_cast<System::Byte>(45)), static_cast<System::Int32>(static_cast<System::Byte>(43)),
+			this->linearTensionMI->BackColor = System::Drawing::Color::FromArgb(static_cast<System::Int32>(static_cast<System::Byte>(45)), static_cast<System::Int32>(static_cast<System::Byte>(43)),
 				static_cast<System::Int32>(static_cast<System::Byte>(45)));
-			this->bright—orrectMI->ForeColor = System::Drawing::SystemColors::Window;
-			this->bright—orrectMI->Name = L"bright—orrectMI";
-			this->bright—orrectMI->Size = System::Drawing::Size(184, 22);
-			this->bright—orrectMI->Text = L" ÓÂÍˆËˇ ˇÍÓÒÚË";
-			this->bright—orrectMI->Click += gcnew System::EventHandler(this, &MainForm::bright—orrectClick);
+			this->linearTensionMI->ForeColor = System::Drawing::SystemColors::Window;
+			this->linearTensionMI->Name = L"linearTensionMI";
+			this->linearTensionMI->Size = System::Drawing::Size(324, 22);
+			this->linearTensionMI->Text = L"KÓÂÍˆËˇ ˇÍÓÒÚË (ÎËÌÂÈÌÓÂ ‡ÒÚˇÊÂÌËÂ)";
+			this->linearTensionMI->Click += gcnew System::EventHandler(this, &MainForm::linearTensionClick);
+			this->stretchContrastMI->BackColor = System::Drawing::Color::FromArgb(static_cast<System::Int32>(static_cast<System::Byte>(45)),
+				static_cast<System::Int32>(static_cast<System::Byte>(43)), static_cast<System::Int32>(static_cast<System::Byte>(45)));
+			this->stretchContrastMI->ForeColor = System::Drawing::SystemColors::Window;
+			this->stretchContrastMI->Name = L"stretchContrastMI";
+			this->stretchContrastMI->Size = System::Drawing::Size(324, 22);
+			this->stretchContrastMI->Text = L"–‡ÒÚˇÊÂÌËÂ ÍÓÌÚ‡ÒÚÌÓÒÚË";
+			this->stretchContrastMI->Click += gcnew System::EventHandler(this, &MainForm::stretchContrastClick);
 			this->undoMI->Name = L"undoMI";
 			this->undoMI->ShortcutKeys = static_cast<System::Windows::Forms::Keys>((System::Windows::Forms::Keys::Control | System::Windows::Forms::Keys::Z));
-			this->undoMI->Size = System::Drawing::Size(184, 22);
+			this->undoMI->Size = System::Drawing::Size(324, 22);
 			this->undoMI->Text = L"Undo";
 			this->undoMI->Visible = false;
 			this->undoMI->Click += gcnew System::EventHandler(this, &MainForm::undoClick);
 			this->redoMI->Name = L"redoMI";
 			this->redoMI->ShortcutKeys = static_cast<System::Windows::Forms::Keys>((System::Windows::Forms::Keys::Control | System::Windows::Forms::Keys::X));
-			this->redoMI->Size = System::Drawing::Size(184, 22);
+			this->redoMI->Size = System::Drawing::Size(324, 22);
 			this->redoMI->Text = L"Redo";
 			this->redoMI->Visible = false;
 			this->redoMI->Click += gcnew System::EventHandler(this, &MainForm::redoClick);
-			this->viewMI->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(1) { this->toolpanelMI });
+			this->viewMI->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(2) { this->toolpanelMI, this->secondPictureMI });
 			this->viewMI->Name = L"viewMI";
 			this->viewMI->Size = System::Drawing::Size(41, 20);
 			this->viewMI->Text = L"¬Ë‰";
 			this->toolpanelMI->BackColor = System::Drawing::Color::FromArgb(static_cast<System::Int32>(static_cast<System::Byte>(45)), static_cast<System::Int32>(static_cast<System::Byte>(43)),
 				static_cast<System::Int32>(static_cast<System::Byte>(45)));
+			this->toolpanelMI->Checked = true;
 			this->toolpanelMI->CheckOnClick = true;
+			this->toolpanelMI->CheckState = System::Windows::Forms::CheckState::Checked;
 			this->toolpanelMI->ForeColor = System::Drawing::SystemColors::Window;
 			this->toolpanelMI->Name = L"toolpanelMI";
 			this->toolpanelMI->ShortcutKeys = static_cast<System::Windows::Forms::Keys>((System::Windows::Forms::Keys::Alt | System::Windows::Forms::Keys::T));
 			this->toolpanelMI->Size = System::Drawing::Size(233, 22);
 			this->toolpanelMI->Text = L"œ‡ÌÂÎ¸ ËÌÒÚÛÏÂÌÚÓ‚";
 			this->toolpanelMI->Click += gcnew System::EventHandler(this, &MainForm::toolPanelShowHide);
+			this->secondPictureMI->BackColor = System::Drawing::Color::FromArgb(static_cast<System::Int32>(static_cast<System::Byte>(45)), static_cast<System::Int32>(static_cast<System::Byte>(43)),
+				static_cast<System::Int32>(static_cast<System::Byte>(45)));
+			this->secondPictureMI->CheckOnClick = true;
+			this->secondPictureMI->ForeColor = System::Drawing::SystemColors::Window;
+			this->secondPictureMI->Name = L"secondPictureMI";
+			this->secondPictureMI->ShortcutKeys = static_cast<System::Windows::Forms::Keys>((System::Windows::Forms::Keys::Alt | System::Windows::Forms::Keys::D));
+			this->secondPictureMI->Size = System::Drawing::Size(233, 22);
+			this->secondPictureMI->Text = L"ƒ‚‡ ËÁÓ·‡ÊÂÌËˇ";
+			this->secondPictureMI->Click += gcnew System::EventHandler(this, &MainForm::secondPictureShowHide);
 			this->aboutMI->Name = L"aboutMI";
 			this->aboutMI->Size = System::Drawing::Size(68, 20);
 			this->aboutMI->Text = L"—Ô‡‚Í‡";
@@ -266,24 +322,26 @@ namespace ImageEditor {
 			this->tabControl->Margin = System::Windows::Forms::Padding(5, 0, 5, 5);
 			this->tabControl->Name = L"tabControl";
 			this->tabControl->SelectedIndex = 0;
-			this->tabControl->Size = System::Drawing::Size(724, 390);
+			this->tabControl->Size = System::Drawing::Size(724, 368);
 			this->tabControl->SizeMode = System::Windows::Forms::TabSizeMode::FillToRight;
 			this->tabControl->TabIndex = 2;
 			this->editorPage->BackColor = System::Drawing::Color::FromArgb(static_cast<System::Int32>(static_cast<System::Byte>(45)), static_cast<System::Int32>(static_cast<System::Byte>(43)),
 				static_cast<System::Int32>(static_cast<System::Byte>(45)));
 			this->editorPage->Controls->Add(this->toolPanel);
-			this->editorPage->Controls->Add(this->editorPanel);
+			this->editorPage->Controls->Add(this->editorPanel1);
+			this->editorPage->Controls->Add(this->editorPanel2);
 			this->editorPage->ForeColor = System::Drawing::SystemColors::Window;
 			this->editorPage->Location = System::Drawing::Point(4, 24);
 			this->editorPage->Name = L"editorPage";
 			this->editorPage->Padding = System::Windows::Forms::Padding(3);
-			this->editorPage->Size = System::Drawing::Size(716, 362);
+			this->editorPage->Size = System::Drawing::Size(716, 340);
 			this->editorPage->TabIndex = 0;
 			this->editorPage->Text = L"–Â‰‡ÍÚÓ";
 			this->toolPanel->AutoScroll = true;
 			this->toolPanel->BackColor = System::Drawing::Color::FromArgb(static_cast<System::Int32>(static_cast<System::Byte>(45)), static_cast<System::Int32>(static_cast<System::Byte>(43)),
 				static_cast<System::Int32>(static_cast<System::Byte>(45)));
 			this->toolPanel->BorderStyle = System::Windows::Forms::BorderStyle::Fixed3D;
+			this->toolPanel->Controls->Add(this->findClassBox);
 			this->toolPanel->Controls->Add(this->powerBox);
 			this->toolPanel->Controls->Add(this->binaryBox);
 			this->toolPanel->Controls->Add(this->transformBox);
@@ -291,8 +349,27 @@ namespace ImageEditor {
 			this->toolPanel->Dock = System::Windows::Forms::DockStyle::Right;
 			this->toolPanel->Location = System::Drawing::Point(529, 3);
 			this->toolPanel->Name = L"toolPanel";
-			this->toolPanel->Size = System::Drawing::Size(184, 356);
+			this->toolPanel->Size = System::Drawing::Size(184, 334);
 			this->toolPanel->TabIndex = 3;
+			this->findClassBox->Controls->Add(this->findClassButton);
+			this->findClassBox->ForeColor = System::Drawing::SystemColors::InactiveCaption;
+			this->findClassBox->Location = System::Drawing::Point(-2, 244);
+			this->findClassBox->Name = L"findClassBox";
+			this->findClassBox->Size = System::Drawing::Size(178, 83);
+			this->findClassBox->TabIndex = 4;
+			this->findClassBox->TabStop = false;
+			this->findClassBox->Text = L"÷‚ÂÚÓ‚‡ˇ ÍÓÂÍˆËˇ";
+			this->findClassBox->Visible = false;
+			this->findClassButton->FlatStyle = System::Windows::Forms::FlatStyle::System;
+			this->findClassButton->Font = (gcnew System::Drawing::Font(L"Arial", 8));
+			this->findClassButton->ForeColor = System::Drawing::SystemColors::WindowFrame;
+			this->findClassButton->Location = System::Drawing::Point(8, 60);
+			this->findClassButton->Name = L"findClassButton";
+			this->findClassButton->Size = System::Drawing::Size(164, 17);
+			this->findClassButton->TabIndex = 0;
+			this->findClassButton->Text = L"Õ‡ÈÚË Ó·˙ÂÍÚ˚";
+			this->findClassButton->UseVisualStyleBackColor = true;
+			this->findClassButton->Click += gcnew System::EventHandler(this, &MainForm::findClassButtonClick);
 			this->powerBox->Anchor = static_cast<System::Windows::Forms::AnchorStyles>(((System::Windows::Forms::AnchorStyles::Top | System::Windows::Forms::AnchorStyles::Left)
 				| System::Windows::Forms::AnchorStyles::Right));
 			this->powerBox->Controls->Add(this->powerFixButton);
@@ -306,11 +383,12 @@ namespace ImageEditor {
 			this->powerBox->ForeColor = System::Drawing::SystemColors::InactiveCaption;
 			this->powerBox->Location = System::Drawing::Point(-2, 168);
 			this->powerBox->Name = L"powerBox";
-			this->powerBox->Size = System::Drawing::Size(184, 74);
+			this->powerBox->Size = System::Drawing::Size(178, 74);
 			this->powerBox->TabIndex = 3;
 			this->powerBox->TabStop = false;
 			this->powerBox->Text = L"—ÚÂÔÂÌÌÓÂ";
 			this->powerFixButton->BackColor = System::Drawing::SystemColors::ButtonFace;
+			this->powerFixButton->BackgroundImage = (cli::safe_cast<System::Drawing::Image^>(resources->GetObject(L"powerFixButton.BackgroundImage")));
 			this->powerFixButton->BackgroundImageLayout = System::Windows::Forms::ImageLayout::Stretch;
 			this->powerFixButton->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
 			this->powerFixButton->Location = System::Drawing::Point(153, 49);
@@ -337,7 +415,7 @@ namespace ImageEditor {
 			this->powerBoxTrackBar2->Location = System::Drawing::Point(63, 33);
 			this->powerBoxTrackBar2->Maximum = 400;
 			this->powerBoxTrackBar2->Name = L"powerBoxTrackBar2";
-			this->powerBoxTrackBar2->Size = System::Drawing::Size(115, 15);
+			this->powerBoxTrackBar2->Size = System::Drawing::Size(113, 15);
 			this->powerBoxTrackBar2->TabIndex = 9;
 			this->powerBoxTrackBar2->TickStyle = System::Windows::Forms::TickStyle::None;
 			this->powerBoxTrackBar2->ValueChanged += gcnew System::EventHandler(this, &MainForm::toolPanelTrackBarValueChanged);
@@ -346,7 +424,7 @@ namespace ImageEditor {
 			this->powerBoxTrackBar1->Location = System::Drawing::Point(63, 17);
 			this->powerBoxTrackBar1->Maximum = 400;
 			this->powerBoxTrackBar1->Name = L"powerBoxTrackBar1";
-			this->powerBoxTrackBar1->Size = System::Drawing::Size(115, 15);
+			this->powerBoxTrackBar1->Size = System::Drawing::Size(113, 15);
 			this->powerBoxTrackBar1->TabIndex = 8;
 			this->powerBoxTrackBar1->TickStyle = System::Windows::Forms::TickStyle::None;
 			this->powerBoxTrackBar1->ValueChanged += gcnew System::EventHandler(this, &MainForm::toolPanelTrackBarValueChanged);
@@ -410,11 +488,12 @@ namespace ImageEditor {
 			this->binaryBox->ForeColor = System::Drawing::SystemColors::InactiveCaption;
 			this->binaryBox->Location = System::Drawing::Point(-2, 76);
 			this->binaryBox->Name = L"binaryBox";
-			this->binaryBox->Size = System::Drawing::Size(184, 90);
+			this->binaryBox->Size = System::Drawing::Size(178, 90);
 			this->binaryBox->TabIndex = 2;
 			this->binaryBox->TabStop = false;
 			this->binaryBox->Text = L"¡ËÌ‡ËÁ‡ˆËˇ";
 			this->binaryFixButton->BackColor = System::Drawing::SystemColors::ButtonFace;
+			this->binaryFixButton->BackgroundImage = (cli::safe_cast<System::Drawing::Image^>(resources->GetObject(L"binaryFixButton.BackgroundImage")));
 			this->binaryFixButton->BackgroundImageLayout = System::Windows::Forms::ImageLayout::Stretch;
 			this->binaryFixButton->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
 			this->binaryFixButton->Location = System::Drawing::Point(153, 65);
@@ -441,7 +520,7 @@ namespace ImageEditor {
 			this->binaryBoxTrackBar3->Location = System::Drawing::Point(63, 49);
 			this->binaryBoxTrackBar3->Maximum = 255;
 			this->binaryBoxTrackBar3->Name = L"binaryBoxTrackBar3";
-			this->binaryBoxTrackBar3->Size = System::Drawing::Size(115, 15);
+			this->binaryBoxTrackBar3->Size = System::Drawing::Size(113, 15);
 			this->binaryBoxTrackBar3->TabIndex = 10;
 			this->binaryBoxTrackBar3->TickStyle = System::Windows::Forms::TickStyle::None;
 			this->binaryBoxTrackBar3->ValueChanged += gcnew System::EventHandler(this, &MainForm::toolPanelTrackBarValueChanged);
@@ -452,7 +531,7 @@ namespace ImageEditor {
 			this->binaryBoxTrackBar2->Location = System::Drawing::Point(63, 33);
 			this->binaryBoxTrackBar2->Maximum = 255;
 			this->binaryBoxTrackBar2->Name = L"binaryBoxTrackBar2";
-			this->binaryBoxTrackBar2->Size = System::Drawing::Size(115, 15);
+			this->binaryBoxTrackBar2->Size = System::Drawing::Size(113, 15);
 			this->binaryBoxTrackBar2->TabIndex = 9;
 			this->binaryBoxTrackBar2->TickStyle = System::Windows::Forms::TickStyle::None;
 			this->binaryBoxTrackBar2->ValueChanged += gcnew System::EventHandler(this, &MainForm::toolPanelTrackBarValueChanged);
@@ -463,7 +542,7 @@ namespace ImageEditor {
 			this->binaryBoxTrackBar1->Location = System::Drawing::Point(63, 17);
 			this->binaryBoxTrackBar1->Maximum = 255;
 			this->binaryBoxTrackBar1->Name = L"binaryBoxTrackBar1";
-			this->binaryBoxTrackBar1->Size = System::Drawing::Size(115, 15);
+			this->binaryBoxTrackBar1->Size = System::Drawing::Size(113, 15);
 			this->binaryBoxTrackBar1->TabIndex = 8;
 			this->binaryBoxTrackBar1->TickStyle = System::Windows::Forms::TickStyle::None;
 			this->binaryBoxTrackBar1->ValueChanged += gcnew System::EventHandler(this, &MainForm::toolPanelTrackBarValueChanged);
@@ -541,7 +620,7 @@ namespace ImageEditor {
 			this->transformBox->ForeColor = System::Drawing::SystemColors::InactiveCaption;
 			this->transformBox->Location = System::Drawing::Point(-2, 18);
 			this->transformBox->Name = L"transformBox";
-			this->transformBox->Size = System::Drawing::Size(184, 58);
+			this->transformBox->Size = System::Drawing::Size(178, 58);
 			this->transformBox->TabIndex = 1;
 			this->transformBox->TabStop = false;
 			this->transformBox->Text = L"œÂÓ·‡ÁÓ‚‡ÌËˇ";
@@ -592,23 +671,37 @@ namespace ImageEditor {
 			this->toolboxTitle->Size = System::Drawing::Size(180, 18);
 			this->toolboxTitle->TabIndex = 0;
 			this->toolboxTitle->Text = L"»ÌÒÚÛÏÂÌÚ˚";
-			this->editorPanel->Anchor = static_cast<System::Windows::Forms::AnchorStyles>((((System::Windows::Forms::AnchorStyles::Top | System::Windows::Forms::AnchorStyles::Bottom)
-				| System::Windows::Forms::AnchorStyles::Left)
-				| System::Windows::Forms::AnchorStyles::Right));
-			this->editorPanel->AutoScroll = true;
-			this->editorPanel->BackgroundImageLayout = System::Windows::Forms::ImageLayout::Stretch;
-			this->editorPanel->Controls->Add(this->pictureBox);
-			this->editorPanel->Location = System::Drawing::Point(3, 3);
-			this->editorPanel->Name = L"editorPanel";
-			this->editorPanel->Size = System::Drawing::Size(522, 356);
-			this->editorPanel->TabIndex = 1;
-			this->pictureBox->Location = System::Drawing::Point(0, 0);
-			this->pictureBox->Margin = System::Windows::Forms::Padding(5);
-			this->pictureBox->Name = L"pictureBox";
-			this->pictureBox->Size = System::Drawing::Size(1, 1);
-			this->pictureBox->SizeMode = System::Windows::Forms::PictureBoxSizeMode::AutoSize;
-			this->pictureBox->TabIndex = 0;
-			this->pictureBox->TabStop = false;
+			this->editorPanel1->AutoScroll = true;
+			this->editorPanel1->BackgroundImageLayout = System::Windows::Forms::ImageLayout::Stretch;
+			this->editorPanel1->Controls->Add(this->pictureBox1);
+			this->editorPanel1->Location = System::Drawing::Point(3, 3);
+			this->editorPanel1->Name = L"editorPanel1";
+			this->editorPanel1->Size = System::Drawing::Size(522, 334);
+			this->editorPanel1->TabIndex = 1;
+			this->pictureBox1->Location = System::Drawing::Point(0, 0);
+			this->pictureBox1->Margin = System::Windows::Forms::Padding(5);
+			this->pictureBox1->Name = L"pictureBox1";
+			this->pictureBox1->Size = System::Drawing::Size(1, 1);
+			this->pictureBox1->SizeMode = System::Windows::Forms::PictureBoxSizeMode::AutoSize;
+			this->pictureBox1->TabIndex = 0;
+			this->pictureBox1->TabStop = false;
+			this->pictureBox1->Click += gcnew System::EventHandler(this, &MainForm::pictureBoxClick);
+			this->editorPanel2->AutoScroll = true;
+			this->editorPanel2->BackgroundImageLayout = System::Windows::Forms::ImageLayout::Stretch;
+			this->editorPanel2->Controls->Add(this->pictureBox2);
+			this->editorPanel2->Location = System::Drawing::Point(3, 3);
+			this->editorPanel2->Name = L"editorPanel2";
+			this->editorPanel2->Size = System::Drawing::Size(522, 334);
+			this->editorPanel2->TabIndex = 2;
+			this->editorPanel2->Visible = false;
+			this->pictureBox2->Location = System::Drawing::Point(0, 0);
+			this->pictureBox2->Margin = System::Windows::Forms::Padding(5);
+			this->pictureBox2->Name = L"pictureBox2";
+			this->pictureBox2->Size = System::Drawing::Size(1, 1);
+			this->pictureBox2->SizeMode = System::Windows::Forms::PictureBoxSizeMode::AutoSize;
+			this->pictureBox2->TabIndex = 1;
+			this->pictureBox2->TabStop = false;
+			this->pictureBox2->Click += gcnew System::EventHandler(this, &MainForm::pictureBoxClick);
 			this->logPage->BackColor = System::Drawing::Color::FromArgb(static_cast<System::Int32>(static_cast<System::Byte>(45)), static_cast<System::Int32>(static_cast<System::Byte>(43)),
 				static_cast<System::Int32>(static_cast<System::Byte>(45)));
 			this->logPage->Controls->Add(this->logBox);
@@ -616,7 +709,7 @@ namespace ImageEditor {
 			this->logPage->Location = System::Drawing::Point(4, 24);
 			this->logPage->Name = L"logPage";
 			this->logPage->Padding = System::Windows::Forms::Padding(3);
-			this->logPage->Size = System::Drawing::Size(716, 362);
+			this->logPage->Size = System::Drawing::Size(716, 340);
 			this->logPage->TabIndex = 1;
 			this->logPage->Text = L"Log";
 			this->logBox->Anchor = static_cast<System::Windows::Forms::AnchorStyles>((((System::Windows::Forms::AnchorStyles::Top | System::Windows::Forms::AnchorStyles::Bottom)
@@ -633,6 +726,16 @@ namespace ImageEditor {
 			this->logBox->ScrollAlwaysVisible = true;
 			this->logBox->Size = System::Drawing::Size(710, 330);
 			this->logBox->TabIndex = 0;
+			this->objectPage->BackColor = System::Drawing::Color::FromArgb(static_cast<System::Int32>(static_cast<System::Byte>(45)), static_cast<System::Int32>(static_cast<System::Byte>(43)),
+				static_cast<System::Int32>(static_cast<System::Byte>(45)));
+			this->objectPage->ForeColor = System::Drawing::SystemColors::Window;
+			this->objectPage->Location = System::Drawing::Point(4, 24);
+			this->objectPage->Name = L"objectPage";
+			this->objectPage->Padding = System::Windows::Forms::Padding(3);
+			this->objectPage->Size = System::Drawing::Size(716, 340);
+			this->objectPage->TabIndex = 2;
+			this->objectPage->Text = L"Œ·˙ÂÍÚ˚";
+			this->objectPage->Visible = false;
 			this->progressBar->Anchor = static_cast<System::Windows::Forms::AnchorStyles>(((System::Windows::Forms::AnchorStyles::Top | System::Windows::Forms::AnchorStyles::Left)
 				| System::Windows::Forms::AnchorStyles::Right));
 			this->progressBar->Location = System::Drawing::Point(240, 6);
@@ -642,6 +745,39 @@ namespace ImageEditor {
 			this->progressBar->TabIndex = 1;
 			this->progressBar->Visible = false;
 			this->progressBar->SizeChanged += gcnew System::EventHandler(this, &MainForm::progressBarSizeChanged);
+			this->statusStrip->AutoSize = false;
+			this->statusStrip->BackColor = System::Drawing::Color::FromArgb(static_cast<System::Int32>(static_cast<System::Byte>(45)), static_cast<System::Int32>(static_cast<System::Byte>(43)),
+				static_cast<System::Int32>(static_cast<System::Byte>(45)));
+			this->statusStrip->Items->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(4) {
+				this->statusSize, this->statusCurrent,
+					this->statusCurBP, this->statusLogsize
+			});
+			this->statusStrip->Location = System::Drawing::Point(0, 390);
+			this->statusStrip->Name = L"statusStrip";
+			this->statusStrip->Size = System::Drawing::Size(724, 27);
+			this->statusStrip->TabIndex = 0;
+			this->statusSize->Font = (gcnew System::Drawing::Font(L"Arial", 9));
+			this->statusSize->ForeColor = System::Drawing::SystemColors::HighlightText;
+			this->statusSize->Name = L"statusSize";
+			this->statusSize->Size = System::Drawing::Size(43, 22);
+			this->statusSize->Text = L"Size: 0";
+			this->statusCurrent->Font = (gcnew System::Drawing::Font(L"Arial", 9));
+			this->statusCurrent->ForeColor = System::Drawing::SystemColors::HighlightText;
+			this->statusCurrent->Name = L"statusCurrent";
+			this->statusCurrent->Size = System::Drawing::Size(61, 22);
+			this->statusCurrent->Text = L"Current: 0";
+			this->statusCurBP->Font = (gcnew System::Drawing::Font(L"Arial", 9));
+			this->statusCurBP->ForeColor = System::Drawing::SystemColors::HighlightText;
+			this->statusCurBP->Name = L"statusCurBP";
+			this->statusCurBP->Size = System::Drawing::Size(56, 22);
+			this->statusCurBP->Text = L"CurBP: 0";
+			this->statusCurBP->Visible = false;
+			this->statusLogsize->Font = (gcnew System::Drawing::Font(L"Arial", 9));
+			this->statusLogsize->ForeColor = System::Drawing::SystemColors::HighlightText;
+			this->statusLogsize->Name = L"statusLogsize";
+			this->statusLogsize->Size = System::Drawing::Size(63, 22);
+			this->statusLogsize->Text = L"Logsize: 0";
+			this->statusLogsize->Visible = false;
 			this->AutoScaleDimensions = System::Drawing::SizeF(6, 13);
 			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
 			this->BackColor = System::Drawing::Color::FromArgb(static_cast<System::Int32>(static_cast<System::Byte>(45)), static_cast<System::Int32>(static_cast<System::Byte>(43)),
@@ -650,16 +786,20 @@ namespace ImageEditor {
 			this->Controls->Add(this->progressBar);
 			this->Controls->Add(this->tabControl);
 			this->Controls->Add(this->menuStrip);
+			this->Controls->Add(this->statusStrip);
 			this->Icon = (cli::safe_cast<System::Drawing::Icon^>(resources->GetObject(L"$this.Icon")));
 			this->MainMenuStrip = this->menuStrip;
+			this->MinimumSize = System::Drawing::Size(206, 363);
 			this->Name = L"MainForm";
 			this->StartPosition = System::Windows::Forms::FormStartPosition::CenterScreen;
 			this->Text = L"Image Editor";
+			this->SizeChanged += gcnew System::EventHandler(this, &MainForm::mainFormSizeChanged);
 			this->menuStrip->ResumeLayout(false);
 			this->menuStrip->PerformLayout();
 			this->tabControl->ResumeLayout(false);
 			this->editorPage->ResumeLayout(false);
 			this->toolPanel->ResumeLayout(false);
+			this->findClassBox->ResumeLayout(false);
 			this->powerBox->ResumeLayout(false);
 			this->powerBox->PerformLayout();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->powerBoxTrackBar2))->EndInit();
@@ -671,10 +811,15 @@ namespace ImageEditor {
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->binaryBoxTrackBar1))->EndInit();
 			this->transformBox->ResumeLayout(false);
 			this->transformBox->PerformLayout();
-			this->editorPanel->ResumeLayout(false);
-			this->editorPanel->PerformLayout();
-			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->pictureBox))->EndInit();
+			this->editorPanel1->ResumeLayout(false);
+			this->editorPanel1->PerformLayout();
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->pictureBox1))->EndInit();
+			this->editorPanel2->ResumeLayout(false);
+			this->editorPanel2->PerformLayout();
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->pictureBox2))->EndInit();
 			this->logPage->ResumeLayout(false);
+			this->statusStrip->ResumeLayout(false);
+			this->statusStrip->PerformLayout();
 			this->ResumeLayout(false);
 			this->PerformLayout();
 
@@ -689,34 +834,45 @@ namespace ImageEditor {
 		Void negativeClick(Object^, EventArgs^);
 		Void halftoneClick(Object^, EventArgs^);
 		Void binarClick(Object^, EventArgs^);
+		Void adaptiveBinarClick(Object^, EventArgs^);
 		Void powerClick(Object^, EventArgs^);
-		Void bright—orrectClick(Object^, EventArgs^);
+		Void linearTensionClick(Object^, EventArgs^);
+		Void stretchContrastClick(Object^, EventArgs^);
 		Void undoClick(Object^, EventArgs^);
 		Void redoClick(Object^, EventArgs^);
 		Void negative();
 		Void halftone();
 		Void binar();
+		Void adaptiveBinar();
 		Void power();
-		Void brightCorrect();
+		Void linearTension();
+		Void stretchContrast();
 		Void binaryButtonClick(Object^, EventArgs^);
 		Void powerButtonClick(Object^, EventArgs^);
 		Void fixButtonClick(Object^, EventArgs^);
+		Void findClassButtonClick(Object^, EventArgs^);
 		Void toolPanelShowHide(Object^, EventArgs^);
+		Void secondPictureShowHide(Object^, EventArgs^);
 		Void progressBarSizeChanged(Object^, EventArgs^);
 		Void controlsEnabled(bool);
+		Void pictureBoxClick(Object^, EventArgs^);
 		Void toolPanelTextBoxKeyDown(Object^, KeyEventArgs^);
 		Void toolPanelTextBoxTextChanged(Object^, EventArgs^);
 		Void toolPanelTextBoxKeyPress(Object^, KeyPressEventArgs^);
 		Void toolPanelTrackBarValueChanged(Object^, EventArgs^);
 		delegate Bitmap^ GetCurrentImage();
 		Bitmap^ getCurrentImage();
-		delegate Void PictureBoxChangeImage(Bitmap^ image);
+		delegate Void PictureBoxChangeImage(Bitmap^);
 		Void pictureBoxChangeImage(Bitmap^);
-		delegate Void ProgressBarChangeValue(int value);
+		delegate Void ProgressBarChangeValue(int);
 		Void progressBarChangeValue(int);
+		delegate Void LogBoxLinearTension(float, float);
+		Void logBoxLinearTension(float, float);
+		Void binaryBeginInvoke();
 	public:
 		Void dialogBinar(int, int, int);
 		Void dialogPower(double, double);
-		Void backUpFromPictureBox();
-};
+		Void backUpFrompictureBox1();
+		Void mainFormSizeChanged(Object^, EventArgs^);
+	};
 }
