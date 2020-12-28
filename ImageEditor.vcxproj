@@ -82,13 +82,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Class.cpp" />
-    <ClCompile Include="Dialog.cpp" />
+    <ClCompile Include="Engine.cpp" />
+    <ClCompile Include="MainForm%28old%29.cpp" />
     <ClCompile Include="MainForm.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Class.h" />
-    <ClInclude Include="Dialog.h">
+    <ClInclude Include="Engine.h" />
+    <ClInclude Include="MainForm%28old%29.h">
       <FileType>CppForm</FileType>
     </ClInclude>
     <ClInclude Include="MainForm.h">
@@ -96,12 +96,12 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Dialog.resx">
-      <DependentUpon>Dialog.h</DependentUpon>
+    <EmbeddedResource Include="MainForm%28old%29.resx">
+      <DependentUpon>MainForm%28old%29.h</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="MainForm.resx">
       <DependentUpon>MainForm.h</DependentUpon>
-      <SubType>Designer</SubType>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

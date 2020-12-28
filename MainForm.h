@@ -1,878 +1,360 @@
+#include "Engine.h"
+
 namespace ImageEditor {
+
 	using namespace System;
 	using namespace System::ComponentModel;
 	using namespace System::Collections;
 	using namespace System::Windows::Forms;
 	using namespace System::Data;
 	using namespace System::Drawing;
-	using namespace System::Threading;
-	using namespace System::Reflection;
-	using namespace System::Resources;
-	using namespace System::IO;
 
-	ref class MainForm;
-	ref class Entry;
-	ref class Obj;
-
-	public ref class Entry {
-	public: 
-		String^ data;
-		unsigned int type;
-		Entry(void);
-		Entry(int);
-		Entry(int, int, int, int);
-		Entry(int, float, float);
-		Entry(int, double, double);
-	private: 
-		void initData(int);
-	};
-
-	public ref class Obj {
-	public:
-		int width, height;
-		array<array<Point^>^>^ dots = nullptr;
-		Obj(void);
-		bool contain(Point^);
-	};
-
-	public ref class MainForm : public System::Windows::Forms::Form	{
-	private: 
-		Windows::Forms::MenuStrip^  menuStrip;
-		Windows::Forms::ToolStripMenuItem^  fileMI, ^openMI, ^saveMI, ^saveAsMI, ^exitMI;
-		Windows::Forms::ToolStripMenuItem^  actionsMI, ^transformMI, ^binarMI, ^adaptiveBinarMI;
-		Windows::Forms::ToolStripMenuItem^  powerMI, ^negativeMI, ^halftoneMI, ^linearTensionMI, ^ stretchContrastMI;
-		Windows::Forms::ToolStripMenuItem^  viewMI, ^toolpanelMI, ^secondPictureMI, ^aboutMI;
-		Windows::Forms::ToolStripMenuItem^  undoMI, ^redoMI;
-		Windows::Forms::TabControl^  tabControl;
-		Windows::Forms::TabPage^  editorPage, ^logPage, ^objectPage;
-	    Windows::Forms::Panel^  editorPanel1, ^ editorPanel2, ^toolPanel;
-		Windows::Forms::PictureBox^  pictureBox1, ^pictureBox2;
-		Windows::Forms::ProgressBar^  progressBar;
-		Windows::Forms::GroupBox^  transformBox, ^binaryBox, ^powerBox, ^ findClassBox;
-		Windows::Forms::Label^  toolboxTitle, ^label1_1, ^label1_2, ^label2_1, ^label2_2, ^label2_3, ^label3_1, ^label3_2;
-		Windows::Forms::Button^  negativeButton, ^halftoneButton, ^powerButton, ^binaryButton, ^powerFixButton, ^binaryFixButton, ^ findClassButton;
-		Windows::Forms::TextBox^  binaryBoxTextBox1, ^binaryBoxTextBox2, ^binaryBoxTextBox3, ^powerBoxTextBox1, ^powerBoxTextBox2;
-		Windows::Forms::TrackBar^  binaryBoxTrackBar1, ^binaryBoxTrackBar2, ^binaryBoxTrackBar3, ^powerBoxTrackBar1, ^powerBoxTrackBar2;
-		Windows::Forms::ListBox^  logBox;
-		Windows::Forms::StatusStrip^  statusStrip;
-		Windows::Forms::ToolStripStatusLabel^  statusSize, ^statusCurrent, ^statusCurBP, ^statusLogsize;
-		System::ComponentModel::Container^ components;
-		System::IO::Stream^ iconStream, ^bmpStream;
-		Assembly^ myAssembly = nullptr;
-		array<Bitmap^>^ images = nullptr;
-		array<Bitmap^>^ classes = nullptr;
-		array<Entry^>^ log = nullptr;
-		array<Obj^>^ objects = nullptr;
-		String^ fileName = nullptr;
-		int size = 0, objsize = 0, logsize = 0, current = 0, cur2 = 0, curBP = 0, sFDindex = 2, t = 0, b0 = 0, b1 = 0, activePB = 1;
-		double c = 0.0, g = 0.0;
-		   Thread^ transformThread = nullptr;
+	/// <summary>
+	/// Сводка для MainForm1
+	/// </summary>
+	public ref class MainForm : public Form
+	{
+		Engine^ engine = nullptr;
+		PictureBox^ curPictureBox = nullptr;
 	public:
 		MainForm(void);
+
 	protected:
+		/// <summary>
+		/// Освободить все используемые ресурсы.
+		/// </summary>
 		~MainForm();
+	private: System::Windows::Forms::MenuStrip^ menuStrip;
+	protected:
+	private: System::Windows::Forms::ToolStripMenuItem^ fileItem;
+	private: System::Windows::Forms::ToolStripMenuItem^ openItem;
+	private: System::Windows::Forms::ToolStripMenuItem^ saveItem;
+	private: System::Windows::Forms::ToolStripMenuItem^ saveAsItem;
+	private: System::Windows::Forms::ToolStripMenuItem^ undoItem;
+	private: System::Windows::Forms::ToolStripMenuItem^ redoItem;
+	private: System::Windows::Forms::ToolStripMenuItem^ viewItem;
+	private: System::Windows::Forms::ToolStripMenuItem^ doubleItem;
+	private: System::Windows::Forms::TabControl^ tabControl;
+	private: System::Windows::Forms::TabPage^ tabPage1;
+	private: System::Windows::Forms::TabPage^ tabPage2;
+	private: System::Windows::Forms::SplitContainer^ splitContainer;
+	private: System::Windows::Forms::StatusStrip^ statusStrip;
+	private: System::Windows::Forms::ToolStripStatusLabel^ countLabel;
+	private: System::Windows::Forms::ToolStripStatusLabel^ cur1Label;
+	private: System::Windows::Forms::ToolStripStatusLabel^ cur2Label;
+	private: System::Windows::Forms::ToolStripProgressBar^ toolStripProgressBar1;
+	private: System::Windows::Forms::TableLayoutPanel^ tableLayout;
+	private: System::Windows::Forms::PictureBox^ pictureBox1;
+	private: System::Windows::Forms::PictureBox^ pictureBox2;
+
+	private:
+		/// <summary>
+		/// Обязательная переменная конструктора.
+		/// </summary>
+		System::ComponentModel::Container ^components;
 
 #pragma region Windows Form Designer generated code
-
-		void InitializeComponent(void) {
-			System::ComponentModel::ComponentResourceManager^ resources = (gcnew System::ComponentModel::ComponentResourceManager(MainForm::typeid));
+		/// <summary>
+		/// Требуемый метод для поддержки конструктора — не изменяйте 
+		/// содержимое этого метода с помощью редактора кода.
+		/// </summary>
+		void InitializeComponent(void)
+		{
 			this->menuStrip = (gcnew System::Windows::Forms::MenuStrip());
-			this->fileMI = (gcnew System::Windows::Forms::ToolStripMenuItem());
-			this->openMI = (gcnew System::Windows::Forms::ToolStripMenuItem());
-			this->saveMI = (gcnew System::Windows::Forms::ToolStripMenuItem());
-			this->saveAsMI = (gcnew System::Windows::Forms::ToolStripMenuItem());
-			this->exitMI = (gcnew System::Windows::Forms::ToolStripMenuItem());
-			this->actionsMI = (gcnew System::Windows::Forms::ToolStripMenuItem());
-			this->negativeMI = (gcnew System::Windows::Forms::ToolStripMenuItem());
-			this->halftoneMI = (gcnew System::Windows::Forms::ToolStripMenuItem());
-			this->binarMI = (gcnew System::Windows::Forms::ToolStripMenuItem());
-			this->adaptiveBinarMI = (gcnew System::Windows::Forms::ToolStripMenuItem());
-			this->powerMI = (gcnew System::Windows::Forms::ToolStripMenuItem());
-			this->linearTensionMI = (gcnew System::Windows::Forms::ToolStripMenuItem());
-			this->stretchContrastMI = (gcnew System::Windows::Forms::ToolStripMenuItem());
-			this->undoMI = (gcnew System::Windows::Forms::ToolStripMenuItem());
-			this->redoMI = (gcnew System::Windows::Forms::ToolStripMenuItem());
-			this->viewMI = (gcnew System::Windows::Forms::ToolStripMenuItem());
-			this->toolpanelMI = (gcnew System::Windows::Forms::ToolStripMenuItem());
-			this->secondPictureMI = (gcnew System::Windows::Forms::ToolStripMenuItem());
-			this->aboutMI = (gcnew System::Windows::Forms::ToolStripMenuItem());
+			this->fileItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
+			this->openItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
+			this->saveItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
+			this->saveAsItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
+			this->undoItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
+			this->redoItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
+			this->viewItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
+			this->doubleItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->tabControl = (gcnew System::Windows::Forms::TabControl());
-			this->editorPage = (gcnew System::Windows::Forms::TabPage());
-			this->toolPanel = (gcnew System::Windows::Forms::Panel());
-			this->findClassBox = (gcnew System::Windows::Forms::GroupBox());
-			this->findClassButton = (gcnew System::Windows::Forms::Button());
-			this->powerBox = (gcnew System::Windows::Forms::GroupBox());
-			this->powerFixButton = (gcnew System::Windows::Forms::Button());
-			this->powerButton = (gcnew System::Windows::Forms::Button());
-			this->powerBoxTrackBar2 = (gcnew System::Windows::Forms::TrackBar());
-			this->powerBoxTrackBar1 = (gcnew System::Windows::Forms::TrackBar());
-			this->powerBoxTextBox2 = (gcnew System::Windows::Forms::TextBox());
-			this->powerBoxTextBox1 = (gcnew System::Windows::Forms::TextBox());
-			this->label3_2 = (gcnew System::Windows::Forms::Label());
-			this->label3_1 = (gcnew System::Windows::Forms::Label());
-			this->binaryBox = (gcnew System::Windows::Forms::GroupBox());
-			this->binaryFixButton = (gcnew System::Windows::Forms::Button());
-			this->binaryButton = (gcnew System::Windows::Forms::Button());
-			this->binaryBoxTrackBar3 = (gcnew System::Windows::Forms::TrackBar());
-			this->binaryBoxTrackBar2 = (gcnew System::Windows::Forms::TrackBar());
-			this->binaryBoxTrackBar1 = (gcnew System::Windows::Forms::TrackBar());
-			this->binaryBoxTextBox3 = (gcnew System::Windows::Forms::TextBox());
-			this->binaryBoxTextBox2 = (gcnew System::Windows::Forms::TextBox());
-			this->binaryBoxTextBox1 = (gcnew System::Windows::Forms::TextBox());
-			this->label2_3 = (gcnew System::Windows::Forms::Label());
-			this->label2_2 = (gcnew System::Windows::Forms::Label());
-			this->label2_1 = (gcnew System::Windows::Forms::Label());
-			this->transformBox = (gcnew System::Windows::Forms::GroupBox());
-			this->halftoneButton = (gcnew System::Windows::Forms::Button());
-			this->negativeButton = (gcnew System::Windows::Forms::Button());
-			this->label1_2 = (gcnew System::Windows::Forms::Label());
-			this->label1_1 = (gcnew System::Windows::Forms::Label());
-			this->toolboxTitle = (gcnew System::Windows::Forms::Label());
-			this->editorPanel1 = (gcnew System::Windows::Forms::Panel());
+			this->tabPage1 = (gcnew System::Windows::Forms::TabPage());
+			this->tableLayout = (gcnew System::Windows::Forms::TableLayoutPanel());
+			this->splitContainer = (gcnew System::Windows::Forms::SplitContainer());
 			this->pictureBox1 = (gcnew System::Windows::Forms::PictureBox());
-			this->editorPanel2 = (gcnew System::Windows::Forms::Panel());
 			this->pictureBox2 = (gcnew System::Windows::Forms::PictureBox());
-			this->logPage = (gcnew System::Windows::Forms::TabPage());
-			this->logBox = (gcnew System::Windows::Forms::ListBox());
-			this->objectPage = (gcnew System::Windows::Forms::TabPage());
-			this->progressBar = (gcnew System::Windows::Forms::ProgressBar());
+			this->tabPage2 = (gcnew System::Windows::Forms::TabPage());
 			this->statusStrip = (gcnew System::Windows::Forms::StatusStrip());
-			this->statusSize = (gcnew System::Windows::Forms::ToolStripStatusLabel());
-			this->statusCurrent = (gcnew System::Windows::Forms::ToolStripStatusLabel());
-			this->statusCurBP = (gcnew System::Windows::Forms::ToolStripStatusLabel());
-			this->statusLogsize = (gcnew System::Windows::Forms::ToolStripStatusLabel());
+			this->countLabel = (gcnew System::Windows::Forms::ToolStripStatusLabel());
+			this->cur1Label = (gcnew System::Windows::Forms::ToolStripStatusLabel());
+			this->cur2Label = (gcnew System::Windows::Forms::ToolStripStatusLabel());
+			this->toolStripProgressBar1 = (gcnew System::Windows::Forms::ToolStripProgressBar());
 			this->menuStrip->SuspendLayout();
 			this->tabControl->SuspendLayout();
-			this->editorPage->SuspendLayout();
-			this->toolPanel->SuspendLayout();
-			this->findClassBox->SuspendLayout();
-			this->powerBox->SuspendLayout();
-			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->powerBoxTrackBar2))->BeginInit();
-			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->powerBoxTrackBar1))->BeginInit();
-			this->binaryBox->SuspendLayout();
-			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->binaryBoxTrackBar3))->BeginInit();
-			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->binaryBoxTrackBar2))->BeginInit();
-			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->binaryBoxTrackBar1))->BeginInit();
-			this->transformBox->SuspendLayout();
-			this->editorPanel1->SuspendLayout();
+			this->tabPage1->SuspendLayout();
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->splitContainer))->BeginInit();
+			this->splitContainer->Panel1->SuspendLayout();
+			this->splitContainer->Panel2->SuspendLayout();
+			this->splitContainer->SuspendLayout();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->pictureBox1))->BeginInit();
-			this->editorPanel2->SuspendLayout();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->pictureBox2))->BeginInit();
-			this->logPage->SuspendLayout();
 			this->statusStrip->SuspendLayout();
 			this->SuspendLayout();
-			this->menuStrip->BackColor = System::Drawing::Color::FromArgb(static_cast<System::Int32>(static_cast<System::Byte>(45)), static_cast<System::Int32>(static_cast<System::Byte>(43)),
-				static_cast<System::Int32>(static_cast<System::Byte>(45)));
-			this->menuStrip->Font = (gcnew System::Drawing::Font(L"Arial", 9));
-			this->menuStrip->ForeColor = System::Drawing::SystemColors::Window;
-			this->menuStrip->Items->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(4) {
-				this->fileMI, this->actionsMI,
-					this->viewMI, this->aboutMI
-			});
+			// 
+			// menuStrip
+			// 
+			this->menuStrip->Items->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(2) { this->fileItem, this->viewItem });
 			this->menuStrip->Location = System::Drawing::Point(0, 0);
 			this->menuStrip->Name = L"menuStrip";
-			this->menuStrip->Size = System::Drawing::Size(724, 24);
+			this->menuStrip->Size = System::Drawing::Size(524, 24);
 			this->menuStrip->TabIndex = 0;
 			this->menuStrip->Text = L"menuStrip1";
-			this->fileMI->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(4) {
-				this->openMI, this->saveMI,
-					this->saveAsMI, this->exitMI
+			// 
+			// fileItem
+			// 
+			this->fileItem->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(5) {
+				this->openItem, this->saveItem,
+					this->saveAsItem, this->undoItem, this->redoItem
 			});
-			this->fileMI->ForeColor = System::Drawing::SystemColors::Window;
-			this->fileMI->Name = L"fileMI";
-			this->fileMI->Size = System::Drawing::Size(49, 20);
-			this->fileMI->Text = L"Файл";
-			this->openMI->BackColor = System::Drawing::Color::FromArgb(static_cast<System::Int32>(static_cast<System::Byte>(45)), static_cast<System::Int32>(static_cast<System::Byte>(43)),
-				static_cast<System::Int32>(static_cast<System::Byte>(45)));
-			this->openMI->ForeColor = System::Drawing::SystemColors::Window;
-			this->openMI->Name = L"openMI";
-			this->openMI->ShortcutKeys = static_cast<System::Windows::Forms::Keys>((System::Windows::Forms::Keys::Control | System::Windows::Forms::Keys::O));
-			this->openMI->Size = System::Drawing::Size(229, 22);
-			this->openMI->Text = L"Открыть";
-			this->openMI->Click += gcnew System::EventHandler(this, &MainForm::openMIClick);
-			this->saveMI->BackColor = System::Drawing::Color::FromArgb(static_cast<System::Int32>(static_cast<System::Byte>(45)), static_cast<System::Int32>(static_cast<System::Byte>(43)),
-				static_cast<System::Int32>(static_cast<System::Byte>(45)));
-			this->saveMI->ForeColor = System::Drawing::SystemColors::Window;
-			this->saveMI->Name = L"saveMI";
-			this->saveMI->ShortcutKeys = static_cast<System::Windows::Forms::Keys>((System::Windows::Forms::Keys::Control | System::Windows::Forms::Keys::S));
-			this->saveMI->Size = System::Drawing::Size(229, 22);
-			this->saveMI->Text = L"Сохранить";
-			this->saveMI->Click += gcnew System::EventHandler(this, &MainForm::saveMIClick);
-			this->saveAsMI->BackColor = System::Drawing::Color::FromArgb(static_cast<System::Int32>(static_cast<System::Byte>(45)), static_cast<System::Int32>(static_cast<System::Byte>(43)),
-				static_cast<System::Int32>(static_cast<System::Byte>(45)));
-			this->saveAsMI->ForeColor = System::Drawing::SystemColors::Window;
-			this->saveAsMI->Name = L"saveAsMI";
-			this->saveAsMI->ShortcutKeys = static_cast<System::Windows::Forms::Keys>(((System::Windows::Forms::Keys::Control | System::Windows::Forms::Keys::Shift)
+			this->fileItem->Name = L"fileItem";
+			this->fileItem->Size = System::Drawing::Size(37, 20);
+			this->fileItem->Text = L"File";
+			// 
+			// openItem
+			// 
+			this->openItem->Name = L"openItem";
+			this->openItem->ShortcutKeys = static_cast<System::Windows::Forms::Keys>((System::Windows::Forms::Keys::Control | System::Windows::Forms::Keys::O));
+			this->openItem->Size = System::Drawing::Size(183, 22);
+			this->openItem->Text = L"Open";
+			this->openItem->Click += gcnew System::EventHandler(this, &MainForm::openItemClick);
+			// 
+			// saveItem
+			// 
+			this->saveItem->Name = L"saveItem";
+			this->saveItem->ShortcutKeys = static_cast<System::Windows::Forms::Keys>((System::Windows::Forms::Keys::Control | System::Windows::Forms::Keys::S));
+			this->saveItem->Size = System::Drawing::Size(183, 22);
+			this->saveItem->Text = L"Save";
+			this->saveItem->Click += gcnew System::EventHandler(this, &MainForm::saveItemClick);
+			// 
+			// saveAsItem
+			// 
+			this->saveAsItem->Name = L"saveAsItem";
+			this->saveAsItem->ShortcutKeys = static_cast<System::Windows::Forms::Keys>(((System::Windows::Forms::Keys::Control | System::Windows::Forms::Keys::Shift)
 				| System::Windows::Forms::Keys::S));
-			this->saveAsMI->Size = System::Drawing::Size(229, 22);
-			this->saveAsMI->Text = L"Сохранить как";
-			this->saveAsMI->Click += gcnew System::EventHandler(this, &MainForm::saveAsMIClick);
-			this->exitMI->BackColor = System::Drawing::Color::FromArgb(static_cast<System::Int32>(static_cast<System::Byte>(45)), static_cast<System::Int32>(static_cast<System::Byte>(43)),
-				static_cast<System::Int32>(static_cast<System::Byte>(45)));
-			this->exitMI->ForeColor = System::Drawing::SystemColors::Window;
-			this->exitMI->Name = L"exitMI";
-			this->exitMI->Size = System::Drawing::Size(229, 22);
-			this->exitMI->Text = L"Выход";
-			this->exitMI->Click += gcnew System::EventHandler(this, &MainForm::exitMIClick);
-			this->actionsMI->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(9) {
-				this->negativeMI, this->halftoneMI,
-					this->binarMI, this->adaptiveBinarMI, this->powerMI, this->linearTensionMI, this->stretchContrastMI, this->undoMI, this->redoMI
-			});
-			this->actionsMI->Name = L"actionsMI";
-			this->actionsMI->Size = System::Drawing::Size(72, 20);
-			this->actionsMI->Text = L"Действия";
-			this->negativeMI->BackColor = System::Drawing::Color::FromArgb(static_cast<System::Int32>(static_cast<System::Byte>(45)), static_cast<System::Int32>(static_cast<System::Byte>(43)),
-				static_cast<System::Int32>(static_cast<System::Byte>(45)));
-			this->negativeMI->ForeColor = System::Drawing::SystemColors::Window;
-			this->negativeMI->Name = L"negativeMI";
-			this->negativeMI->Size = System::Drawing::Size(324, 22);
-			this->negativeMI->Text = L"Негатив";
-			this->negativeMI->Click += gcnew System::EventHandler(this, &MainForm::negativeClick);
-			this->halftoneMI->BackColor = System::Drawing::Color::FromArgb(static_cast<System::Int32>(static_cast<System::Byte>(45)), static_cast<System::Int32>(static_cast<System::Byte>(43)),
-				static_cast<System::Int32>(static_cast<System::Byte>(45)));
-			this->halftoneMI->ForeColor = System::Drawing::SystemColors::Window;
-			this->halftoneMI->Name = L"halftoneMI";
-			this->halftoneMI->Size = System::Drawing::Size(324, 22);
-			this->halftoneMI->Text = L"Полутоновое";
-			this->halftoneMI->Click += gcnew System::EventHandler(this, &MainForm::halftoneClick);
-			this->binarMI->BackColor = System::Drawing::Color::FromArgb(static_cast<System::Int32>(static_cast<System::Byte>(45)), static_cast<System::Int32>(static_cast<System::Byte>(43)),
-				static_cast<System::Int32>(static_cast<System::Byte>(45)));
-			this->binarMI->ForeColor = System::Drawing::SystemColors::Window;
-			this->binarMI->Name = L"binarMI";
-			this->binarMI->Size = System::Drawing::Size(324, 22);
-			this->binarMI->Text = L"Бинарное";
-			this->binarMI->Click += gcnew System::EventHandler(this, &MainForm::binarClick);
-			this->adaptiveBinarMI->BackColor = System::Drawing::Color::FromArgb(static_cast<System::Int32>(static_cast<System::Byte>(45)), static_cast<System::Int32>(static_cast<System::Byte>(43)),
-				static_cast<System::Int32>(static_cast<System::Byte>(45)));
-			this->adaptiveBinarMI->ForeColor = System::Drawing::SystemColors::Window;
-			this->adaptiveBinarMI->Name = L"adaptiveBinarMI";
-			this->adaptiveBinarMI->Size = System::Drawing::Size(324, 22);
-			this->adaptiveBinarMI->Text = L"Бинарное (адаптивное)";
-			this->adaptiveBinarMI->Click += gcnew System::EventHandler(this, &MainForm::adaptiveBinarClick);
-			this->powerMI->BackColor = System::Drawing::Color::FromArgb(static_cast<System::Int32>(static_cast<System::Byte>(45)), static_cast<System::Int32>(static_cast<System::Byte>(43)),
-				static_cast<System::Int32>(static_cast<System::Byte>(45)));
-			this->powerMI->ForeColor = System::Drawing::SystemColors::Window;
-			this->powerMI->Name = L"powerMI";
-			this->powerMI->Size = System::Drawing::Size(324, 22);
-			this->powerMI->Text = L"Степенное";
-			this->powerMI->Click += gcnew System::EventHandler(this, &MainForm::powerClick);
-			this->linearTensionMI->BackColor = System::Drawing::Color::FromArgb(static_cast<System::Int32>(static_cast<System::Byte>(45)), static_cast<System::Int32>(static_cast<System::Byte>(43)),
-				static_cast<System::Int32>(static_cast<System::Byte>(45)));
-			this->linearTensionMI->ForeColor = System::Drawing::SystemColors::Window;
-			this->linearTensionMI->Name = L"linearTensionMI";
-			this->linearTensionMI->Size = System::Drawing::Size(324, 22);
-			this->linearTensionMI->Text = L"Kоррекция яркости (линейное растяжение)";
-			this->linearTensionMI->Click += gcnew System::EventHandler(this, &MainForm::linearTensionClick);
-			this->stretchContrastMI->BackColor = System::Drawing::Color::FromArgb(static_cast<System::Int32>(static_cast<System::Byte>(45)),
-				static_cast<System::Int32>(static_cast<System::Byte>(43)), static_cast<System::Int32>(static_cast<System::Byte>(45)));
-			this->stretchContrastMI->ForeColor = System::Drawing::SystemColors::Window;
-			this->stretchContrastMI->Name = L"stretchContrastMI";
-			this->stretchContrastMI->Size = System::Drawing::Size(324, 22);
-			this->stretchContrastMI->Text = L"Растяжение контрастности";
-			this->stretchContrastMI->Click += gcnew System::EventHandler(this, &MainForm::stretchContrastClick);
-			this->undoMI->Name = L"undoMI";
-			this->undoMI->ShortcutKeys = static_cast<System::Windows::Forms::Keys>((System::Windows::Forms::Keys::Control | System::Windows::Forms::Keys::Z));
-			this->undoMI->Size = System::Drawing::Size(324, 22);
-			this->undoMI->Text = L"Undo";
-			this->undoMI->Visible = false;
-			this->undoMI->Click += gcnew System::EventHandler(this, &MainForm::undoClick);
-			this->redoMI->Name = L"redoMI";
-			this->redoMI->ShortcutKeys = static_cast<System::Windows::Forms::Keys>((System::Windows::Forms::Keys::Control | System::Windows::Forms::Keys::X));
-			this->redoMI->Size = System::Drawing::Size(324, 22);
-			this->redoMI->Text = L"Redo";
-			this->redoMI->Visible = false;
-			this->redoMI->Click += gcnew System::EventHandler(this, &MainForm::redoClick);
-			this->viewMI->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(2) { this->toolpanelMI, this->secondPictureMI });
-			this->viewMI->Name = L"viewMI";
-			this->viewMI->Size = System::Drawing::Size(41, 20);
-			this->viewMI->Text = L"Вид";
-			this->toolpanelMI->BackColor = System::Drawing::Color::FromArgb(static_cast<System::Int32>(static_cast<System::Byte>(45)), static_cast<System::Int32>(static_cast<System::Byte>(43)),
-				static_cast<System::Int32>(static_cast<System::Byte>(45)));
-			this->toolpanelMI->Checked = true;
-			this->toolpanelMI->CheckOnClick = true;
-			this->toolpanelMI->CheckState = System::Windows::Forms::CheckState::Checked;
-			this->toolpanelMI->ForeColor = System::Drawing::SystemColors::Window;
-			this->toolpanelMI->Name = L"toolpanelMI";
-			this->toolpanelMI->ShortcutKeys = static_cast<System::Windows::Forms::Keys>((System::Windows::Forms::Keys::Alt | System::Windows::Forms::Keys::T));
-			this->toolpanelMI->Size = System::Drawing::Size(233, 22);
-			this->toolpanelMI->Text = L"Панель инструментов";
-			this->toolpanelMI->Click += gcnew System::EventHandler(this, &MainForm::toolPanelShowHide);
-			this->secondPictureMI->BackColor = System::Drawing::Color::FromArgb(static_cast<System::Int32>(static_cast<System::Byte>(45)), static_cast<System::Int32>(static_cast<System::Byte>(43)),
-				static_cast<System::Int32>(static_cast<System::Byte>(45)));
-			this->secondPictureMI->CheckOnClick = true;
-			this->secondPictureMI->ForeColor = System::Drawing::SystemColors::Window;
-			this->secondPictureMI->Name = L"secondPictureMI";
-			this->secondPictureMI->ShortcutKeys = static_cast<System::Windows::Forms::Keys>((System::Windows::Forms::Keys::Alt | System::Windows::Forms::Keys::D));
-			this->secondPictureMI->Size = System::Drawing::Size(233, 22);
-			this->secondPictureMI->Text = L"Два изображения";
-			this->secondPictureMI->Click += gcnew System::EventHandler(this, &MainForm::secondPictureShowHide);
-			this->aboutMI->Name = L"aboutMI";
-			this->aboutMI->Size = System::Drawing::Size(68, 20);
-			this->aboutMI->Text = L"Справка";
+			this->saveAsItem->Size = System::Drawing::Size(183, 22);
+			this->saveAsItem->Text = L"SaveAs";
+			this->saveAsItem->Click += gcnew System::EventHandler(this, &MainForm::saveAsItemClick);
+			// 
+			// undoItem
+			// 
+			this->undoItem->Name = L"undoItem";
+			this->undoItem->ShortcutKeys = static_cast<System::Windows::Forms::Keys>((System::Windows::Forms::Keys::Control | System::Windows::Forms::Keys::Z));
+			this->undoItem->Size = System::Drawing::Size(183, 22);
+			this->undoItem->Text = L"Undo";
+			this->undoItem->Click += gcnew System::EventHandler(this, &MainForm::undoItemClick);
+			// 
+			// redoItem
+			// 
+			this->redoItem->Name = L"redoItem";
+			this->redoItem->ShortcutKeys = static_cast<System::Windows::Forms::Keys>((System::Windows::Forms::Keys::Control | System::Windows::Forms::Keys::X));
+			this->redoItem->Size = System::Drawing::Size(183, 22);
+			this->redoItem->Text = L"Redo";
+			this->redoItem->Click += gcnew System::EventHandler(this, &MainForm::redoItemClick);
+			// 
+			// viewItem
+			// 
+			this->viewItem->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(1) { this->doubleItem });
+			this->viewItem->Name = L"viewItem";
+			this->viewItem->Size = System::Drawing::Size(44, 20);
+			this->viewItem->Text = L"View";
+			// 
+			// doubleItem
+			// 
+			this->doubleItem->Name = L"doubleItem";
+			this->doubleItem->ShortcutKeys = static_cast<System::Windows::Forms::Keys>((System::Windows::Forms::Keys::Control | System::Windows::Forms::Keys::D));
+			this->doubleItem->Size = System::Drawing::Size(194, 22);
+			this->doubleItem->Text = L"Double picture";
+			this->doubleItem->Click += gcnew System::EventHandler(this, &MainForm::doubleItemClick);
+			this->doubleItem->CheckOnClick = true;
+			// 
+			// tabControl
+			// 
 			this->tabControl->Anchor = static_cast<System::Windows::Forms::AnchorStyles>((((System::Windows::Forms::AnchorStyles::Top | System::Windows::Forms::AnchorStyles::Bottom)
 				| System::Windows::Forms::AnchorStyles::Left)
 				| System::Windows::Forms::AnchorStyles::Right));
-			this->tabControl->Controls->Add(this->editorPage);
-			this->tabControl->Controls->Add(this->logPage);
-			this->tabControl->Font = (gcnew System::Drawing::Font(L"Arial", 9, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
-				static_cast<System::Byte>(204)));
-			this->tabControl->ForeColor = System::Drawing::SystemColors::Window;
-			this->tabControl->HotTrack = true;
+			this->tabControl->Appearance = System::Windows::Forms::TabAppearance::FlatButtons;
+			this->tabControl->Controls->Add(this->tabPage1);
+			this->tabControl->Controls->Add(this->tabPage2);
 			this->tabControl->Location = System::Drawing::Point(0, 24);
-			this->tabControl->Margin = System::Windows::Forms::Padding(5, 0, 5, 5);
+			this->tabControl->Margin = System::Windows::Forms::Padding(3, 0, 3, 0);
 			this->tabControl->Name = L"tabControl";
 			this->tabControl->SelectedIndex = 0;
-			this->tabControl->Size = System::Drawing::Size(724, 368);
-			this->tabControl->SizeMode = System::Windows::Forms::TabSizeMode::FillToRight;
-			this->tabControl->TabIndex = 2;
-			this->editorPage->BackColor = System::Drawing::Color::FromArgb(static_cast<System::Int32>(static_cast<System::Byte>(45)), static_cast<System::Int32>(static_cast<System::Byte>(43)),
-				static_cast<System::Int32>(static_cast<System::Byte>(45)));
-			this->editorPage->Controls->Add(this->toolPanel);
-			this->editorPage->Controls->Add(this->editorPanel1);
-			this->editorPage->Controls->Add(this->editorPanel2);
-			this->editorPage->ForeColor = System::Drawing::SystemColors::Window;
-			this->editorPage->Location = System::Drawing::Point(4, 24);
-			this->editorPage->Name = L"editorPage";
-			this->editorPage->Padding = System::Windows::Forms::Padding(3);
-			this->editorPage->Size = System::Drawing::Size(716, 340);
-			this->editorPage->TabIndex = 0;
-			this->editorPage->Text = L"Редактор";
-			this->toolPanel->AutoScroll = true;
-			this->toolPanel->BackColor = System::Drawing::Color::FromArgb(static_cast<System::Int32>(static_cast<System::Byte>(45)), static_cast<System::Int32>(static_cast<System::Byte>(43)),
-				static_cast<System::Int32>(static_cast<System::Byte>(45)));
-			this->toolPanel->BorderStyle = System::Windows::Forms::BorderStyle::Fixed3D;
-			this->toolPanel->Controls->Add(this->findClassBox);
-			this->toolPanel->Controls->Add(this->powerBox);
-			this->toolPanel->Controls->Add(this->binaryBox);
-			this->toolPanel->Controls->Add(this->transformBox);
-			this->toolPanel->Controls->Add(this->toolboxTitle);
-			this->toolPanel->Dock = System::Windows::Forms::DockStyle::Right;
-			this->toolPanel->Location = System::Drawing::Point(529, 3);
-			this->toolPanel->Name = L"toolPanel";
-			this->toolPanel->Size = System::Drawing::Size(184, 334);
-			this->toolPanel->TabIndex = 3;
-			this->findClassBox->Controls->Add(this->findClassButton);
-			this->findClassBox->ForeColor = System::Drawing::SystemColors::InactiveCaption;
-			this->findClassBox->Location = System::Drawing::Point(-2, 244);
-			this->findClassBox->Name = L"findClassBox";
-			this->findClassBox->Size = System::Drawing::Size(178, 83);
-			this->findClassBox->TabIndex = 4;
-			this->findClassBox->TabStop = false;
-			this->findClassBox->Text = L"Цветовая коррекция";
-			this->findClassBox->Visible = false;
-			this->findClassButton->FlatStyle = System::Windows::Forms::FlatStyle::System;
-			this->findClassButton->Font = (gcnew System::Drawing::Font(L"Arial", 8));
-			this->findClassButton->ForeColor = System::Drawing::SystemColors::WindowFrame;
-			this->findClassButton->Location = System::Drawing::Point(8, 60);
-			this->findClassButton->Name = L"findClassButton";
-			this->findClassButton->Size = System::Drawing::Size(164, 17);
-			this->findClassButton->TabIndex = 0;
-			this->findClassButton->Text = L"Найти объекты";
-			this->findClassButton->UseVisualStyleBackColor = true;
-			this->findClassButton->Click += gcnew System::EventHandler(this, &MainForm::findClassButtonClick);
-			this->powerBox->Anchor = static_cast<System::Windows::Forms::AnchorStyles>(((System::Windows::Forms::AnchorStyles::Top | System::Windows::Forms::AnchorStyles::Left)
+			this->tabControl->Size = System::Drawing::Size(524, 258);
+			this->tabControl->TabIndex = 1;
+			// 
+			// tabPage1
+			// 
+			this->tabPage1->Controls->Add(this->tableLayout);
+			this->tabPage1->Controls->Add(this->splitContainer);
+			this->tabPage1->Location = System::Drawing::Point(4, 25);
+			this->tabPage1->Name = L"tabPage1";
+			this->tabPage1->Padding = System::Windows::Forms::Padding(3);
+			this->tabPage1->Size = System::Drawing::Size(516, 229);
+			this->tabPage1->TabIndex = 0;
+			this->tabPage1->Text = L"Editor";
+			this->tabPage1->UseVisualStyleBackColor = true;
+			// 
+			// tableLayout
+			// 
+			this->tableLayout->Anchor = static_cast<System::Windows::Forms::AnchorStyles>(((System::Windows::Forms::AnchorStyles::Top | System::Windows::Forms::AnchorStyles::Bottom)
 				| System::Windows::Forms::AnchorStyles::Right));
-			this->powerBox->Controls->Add(this->powerFixButton);
-			this->powerBox->Controls->Add(this->powerButton);
-			this->powerBox->Controls->Add(this->powerBoxTrackBar2);
-			this->powerBox->Controls->Add(this->powerBoxTrackBar1);
-			this->powerBox->Controls->Add(this->powerBoxTextBox2);
-			this->powerBox->Controls->Add(this->powerBoxTextBox1);
-			this->powerBox->Controls->Add(this->label3_2);
-			this->powerBox->Controls->Add(this->label3_1);
-			this->powerBox->ForeColor = System::Drawing::SystemColors::InactiveCaption;
-			this->powerBox->Location = System::Drawing::Point(-2, 168);
-			this->powerBox->Name = L"powerBox";
-			this->powerBox->Size = System::Drawing::Size(178, 74);
-			this->powerBox->TabIndex = 3;
-			this->powerBox->TabStop = false;
-			this->powerBox->Text = L"Степенное";
-			this->powerFixButton->BackColor = System::Drawing::SystemColors::ButtonFace;
-			this->powerFixButton->BackgroundImage = (cli::safe_cast<System::Drawing::Image^>(resources->GetObject(L"powerFixButton.BackgroundImage")));
-			this->powerFixButton->BackgroundImageLayout = System::Windows::Forms::ImageLayout::Stretch;
-			this->powerFixButton->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
-			this->powerFixButton->Location = System::Drawing::Point(153, 49);
-			this->powerFixButton->Name = L"powerFixButton";
-			this->powerFixButton->Size = System::Drawing::Size(19, 17);
-			this->powerFixButton->TabIndex = 13;
-			this->powerFixButton->UseVisualStyleBackColor = false;
-			this->powerFixButton->Click += gcnew System::EventHandler(this, &MainForm::fixButtonClick);
-			this->powerButton->BackColor = System::Drawing::Color::FromArgb(static_cast<System::Int32>(static_cast<System::Byte>(45)), static_cast<System::Int32>(static_cast<System::Byte>(43)),
-				static_cast<System::Int32>(static_cast<System::Byte>(45)));
-			this->powerButton->FlatStyle = System::Windows::Forms::FlatStyle::System;
-			this->powerButton->Font = (gcnew System::Drawing::Font(L"Arial", 8));
-			this->powerButton->ForeColor = System::Drawing::SystemColors::WindowFrame;
-			this->powerButton->Location = System::Drawing::Point(8, 49);
-			this->powerButton->Margin = System::Windows::Forms::Padding(0, 3, 3, 3);
-			this->powerButton->Name = L"powerButton";
-			this->powerButton->Size = System::Drawing::Size(138, 17);
-			this->powerButton->TabIndex = 12;
-			this->powerButton->Text = L"Применить";
-			this->powerButton->UseVisualStyleBackColor = false;
-			this->powerButton->Click += gcnew System::EventHandler(this, &MainForm::powerButtonClick);
-			this->powerBoxTrackBar2->AutoSize = false;
-			this->powerBoxTrackBar2->LargeChange = 25;
-			this->powerBoxTrackBar2->Location = System::Drawing::Point(63, 33);
-			this->powerBoxTrackBar2->Maximum = 400;
-			this->powerBoxTrackBar2->Name = L"powerBoxTrackBar2";
-			this->powerBoxTrackBar2->Size = System::Drawing::Size(113, 15);
-			this->powerBoxTrackBar2->TabIndex = 9;
-			this->powerBoxTrackBar2->TickStyle = System::Windows::Forms::TickStyle::None;
-			this->powerBoxTrackBar2->ValueChanged += gcnew System::EventHandler(this, &MainForm::toolPanelTrackBarValueChanged);
-			this->powerBoxTrackBar1->AutoSize = false;
-			this->powerBoxTrackBar1->LargeChange = 25;
-			this->powerBoxTrackBar1->Location = System::Drawing::Point(63, 17);
-			this->powerBoxTrackBar1->Maximum = 400;
-			this->powerBoxTrackBar1->Name = L"powerBoxTrackBar1";
-			this->powerBoxTrackBar1->Size = System::Drawing::Size(113, 15);
-			this->powerBoxTrackBar1->TabIndex = 8;
-			this->powerBoxTrackBar1->TickStyle = System::Windows::Forms::TickStyle::None;
-			this->powerBoxTrackBar1->ValueChanged += gcnew System::EventHandler(this, &MainForm::toolPanelTrackBarValueChanged);
-			this->powerBoxTextBox2->BackColor = System::Drawing::SystemColors::WindowFrame;
-			this->powerBoxTextBox2->BorderStyle = System::Windows::Forms::BorderStyle::None;
-			this->powerBoxTextBox2->Font = (gcnew System::Drawing::Font(L"Arial", 9, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
-				static_cast<System::Byte>(204)));
-			this->powerBoxTextBox2->ForeColor = System::Drawing::SystemColors::Window;
-			this->powerBoxTextBox2->Location = System::Drawing::Point(26, 33);
-			this->powerBoxTextBox2->MaxLength = 4;
-			this->powerBoxTextBox2->Name = L"powerBoxTextBox2";
-			this->powerBoxTextBox2->Size = System::Drawing::Size(31, 14);
-			this->powerBoxTextBox2->TabIndex = 6;
-			this->powerBoxTextBox2->TextAlign = System::Windows::Forms::HorizontalAlignment::Center;
-			this->powerBoxTextBox2->TextChanged += gcnew System::EventHandler(this, &MainForm::toolPanelTextBoxTextChanged);
-			this->powerBoxTextBox2->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &MainForm::toolPanelTextBoxKeyDown);
-			this->powerBoxTextBox2->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &MainForm::toolPanelTextBoxKeyPress);
-			this->powerBoxTextBox1->BackColor = System::Drawing::SystemColors::WindowFrame;
-			this->powerBoxTextBox1->BorderStyle = System::Windows::Forms::BorderStyle::None;
-			this->powerBoxTextBox1->Font = (gcnew System::Drawing::Font(L"Arial", 9, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
-				static_cast<System::Byte>(204)));
-			this->powerBoxTextBox1->ForeColor = System::Drawing::SystemColors::Window;
-			this->powerBoxTextBox1->Location = System::Drawing::Point(26, 17);
-			this->powerBoxTextBox1->MaxLength = 4;
-			this->powerBoxTextBox1->Name = L"powerBoxTextBox1";
-			this->powerBoxTextBox1->Size = System::Drawing::Size(31, 14);
-			this->powerBoxTextBox1->TabIndex = 5;
-			this->powerBoxTextBox1->TextAlign = System::Windows::Forms::HorizontalAlignment::Center;
-			this->powerBoxTextBox1->TextChanged += gcnew System::EventHandler(this, &MainForm::toolPanelTextBoxTextChanged);
-			this->powerBoxTextBox1->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &MainForm::toolPanelTextBoxKeyDown);
-			this->powerBoxTextBox1->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &MainForm::toolPanelTextBoxKeyPress);
-			this->label3_2->AutoSize = true;
-			this->label3_2->ForeColor = System::Drawing::SystemColors::Window;
-			this->label3_2->Location = System::Drawing::Point(5, 33);
-			this->label3_2->Name = L"label3_2";
-			this->label3_2->Size = System::Drawing::Size(16, 15);
-			this->label3_2->TabIndex = 3;
-			this->label3_2->Text = L"G";
-			this->label3_1->AutoSize = true;
-			this->label3_1->Font = (gcnew System::Drawing::Font(L"Arial", 9, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
-				static_cast<System::Byte>(204)));
-			this->label3_1->ForeColor = System::Drawing::SystemColors::Window;
-			this->label3_1->Location = System::Drawing::Point(5, 17);
-			this->label3_1->Name = L"label3_1";
-			this->label3_1->Size = System::Drawing::Size(16, 15);
-			this->label3_1->TabIndex = 2;
-			this->label3_1->Text = L"C";
-			this->binaryBox->Anchor = static_cast<System::Windows::Forms::AnchorStyles>(((System::Windows::Forms::AnchorStyles::Top | System::Windows::Forms::AnchorStyles::Left)
-				| System::Windows::Forms::AnchorStyles::Right));
-			this->binaryBox->Controls->Add(this->binaryFixButton);
-			this->binaryBox->Controls->Add(this->binaryButton);
-			this->binaryBox->Controls->Add(this->binaryBoxTrackBar3);
-			this->binaryBox->Controls->Add(this->binaryBoxTrackBar2);
-			this->binaryBox->Controls->Add(this->binaryBoxTrackBar1);
-			this->binaryBox->Controls->Add(this->binaryBoxTextBox3);
-			this->binaryBox->Controls->Add(this->binaryBoxTextBox2);
-			this->binaryBox->Controls->Add(this->binaryBoxTextBox1);
-			this->binaryBox->Controls->Add(this->label2_3);
-			this->binaryBox->Controls->Add(this->label2_2);
-			this->binaryBox->Controls->Add(this->label2_1);
-			this->binaryBox->ForeColor = System::Drawing::SystemColors::InactiveCaption;
-			this->binaryBox->Location = System::Drawing::Point(-2, 76);
-			this->binaryBox->Name = L"binaryBox";
-			this->binaryBox->Size = System::Drawing::Size(178, 90);
-			this->binaryBox->TabIndex = 2;
-			this->binaryBox->TabStop = false;
-			this->binaryBox->Text = L"Бинаризация";
-			this->binaryFixButton->BackColor = System::Drawing::SystemColors::ButtonFace;
-			this->binaryFixButton->BackgroundImage = (cli::safe_cast<System::Drawing::Image^>(resources->GetObject(L"binaryFixButton.BackgroundImage")));
-			this->binaryFixButton->BackgroundImageLayout = System::Windows::Forms::ImageLayout::Stretch;
-			this->binaryFixButton->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
-			this->binaryFixButton->Location = System::Drawing::Point(153, 65);
-			this->binaryFixButton->Name = L"binaryFixButton";
-			this->binaryFixButton->Size = System::Drawing::Size(19, 17);
-			this->binaryFixButton->TabIndex = 12;
-			this->binaryFixButton->UseVisualStyleBackColor = false;
-			this->binaryFixButton->Click += gcnew System::EventHandler(this, &MainForm::fixButtonClick);
-			this->binaryButton->FlatStyle = System::Windows::Forms::FlatStyle::System;
-			this->binaryButton->Font = (gcnew System::Drawing::Font(L"Arial", 8));
-			this->binaryButton->ForeColor = System::Drawing::SystemColors::WindowFrame;
-			this->binaryButton->Location = System::Drawing::Point(8, 65);
-			this->binaryButton->Margin = System::Windows::Forms::Padding(0, 3, 3, 3);
-			this->binaryButton->Name = L"binaryButton";
-			this->binaryButton->Size = System::Drawing::Size(138, 17);
-			this->binaryButton->TabIndex = 11;
-			this->binaryButton->Text = L"Применить";
-			this->binaryButton->UseVisualStyleBackColor = true;
-			this->binaryButton->Click += gcnew System::EventHandler(this, &MainForm::binaryButtonClick);
-			this->binaryBoxTrackBar3->Anchor = static_cast<System::Windows::Forms::AnchorStyles>((((System::Windows::Forms::AnchorStyles::Top | System::Windows::Forms::AnchorStyles::Bottom)
+			this->tableLayout->AutoScroll = true;
+			this->tableLayout->ColumnCount = 1;
+			this->tableLayout->ColumnStyles->Add((gcnew System::Windows::Forms::ColumnStyle(System::Windows::Forms::SizeType::Percent, 100)));
+			this->tableLayout->Location = System::Drawing::Point(363, 3);
+			this->tableLayout->Name = L"tableLayout";
+			this->tableLayout->RowCount = 12;
+			this->tableLayout->RowStyles->Add((gcnew System::Windows::Forms::RowStyle(System::Windows::Forms::SizeType::Absolute, 20)));
+			this->tableLayout->RowStyles->Add((gcnew System::Windows::Forms::RowStyle(System::Windows::Forms::SizeType::Absolute, 20)));
+			this->tableLayout->RowStyles->Add((gcnew System::Windows::Forms::RowStyle(System::Windows::Forms::SizeType::Absolute, 20)));
+			this->tableLayout->RowStyles->Add((gcnew System::Windows::Forms::RowStyle(System::Windows::Forms::SizeType::Absolute, 20)));
+			this->tableLayout->RowStyles->Add((gcnew System::Windows::Forms::RowStyle(System::Windows::Forms::SizeType::Absolute, 20)));
+			this->tableLayout->RowStyles->Add((gcnew System::Windows::Forms::RowStyle(System::Windows::Forms::SizeType::Absolute, 20)));
+			this->tableLayout->RowStyles->Add((gcnew System::Windows::Forms::RowStyle(System::Windows::Forms::SizeType::Absolute, 20)));
+			this->tableLayout->RowStyles->Add((gcnew System::Windows::Forms::RowStyle(System::Windows::Forms::SizeType::Absolute, 20)));
+			this->tableLayout->RowStyles->Add((gcnew System::Windows::Forms::RowStyle(System::Windows::Forms::SizeType::Absolute, 20)));
+			this->tableLayout->RowStyles->Add((gcnew System::Windows::Forms::RowStyle(System::Windows::Forms::SizeType::Absolute, 20)));
+			this->tableLayout->RowStyles->Add((gcnew System::Windows::Forms::RowStyle(System::Windows::Forms::SizeType::Absolute, 20)));
+			this->tableLayout->RowStyles->Add((gcnew System::Windows::Forms::RowStyle(System::Windows::Forms::SizeType::Absolute, 20)));
+			this->tableLayout->Size = System::Drawing::Size(150, 223);
+			this->tableLayout->TabIndex = 1;
+			// 
+			// splitContainer
+			// 
+			this->splitContainer->Anchor = static_cast<System::Windows::Forms::AnchorStyles>((((System::Windows::Forms::AnchorStyles::Top | System::Windows::Forms::AnchorStyles::Bottom)
 				| System::Windows::Forms::AnchorStyles::Left)
 				| System::Windows::Forms::AnchorStyles::Right));
-			this->binaryBoxTrackBar3->AutoSize = false;
-			this->binaryBoxTrackBar3->Location = System::Drawing::Point(63, 49);
-			this->binaryBoxTrackBar3->Maximum = 255;
-			this->binaryBoxTrackBar3->Name = L"binaryBoxTrackBar3";
-			this->binaryBoxTrackBar3->Size = System::Drawing::Size(113, 15);
-			this->binaryBoxTrackBar3->TabIndex = 10;
-			this->binaryBoxTrackBar3->TickStyle = System::Windows::Forms::TickStyle::None;
-			this->binaryBoxTrackBar3->ValueChanged += gcnew System::EventHandler(this, &MainForm::toolPanelTrackBarValueChanged);
-			this->binaryBoxTrackBar2->Anchor = static_cast<System::Windows::Forms::AnchorStyles>((((System::Windows::Forms::AnchorStyles::Top | System::Windows::Forms::AnchorStyles::Bottom)
-				| System::Windows::Forms::AnchorStyles::Left)
-				| System::Windows::Forms::AnchorStyles::Right));
-			this->binaryBoxTrackBar2->AutoSize = false;
-			this->binaryBoxTrackBar2->Location = System::Drawing::Point(63, 33);
-			this->binaryBoxTrackBar2->Maximum = 255;
-			this->binaryBoxTrackBar2->Name = L"binaryBoxTrackBar2";
-			this->binaryBoxTrackBar2->Size = System::Drawing::Size(113, 15);
-			this->binaryBoxTrackBar2->TabIndex = 9;
-			this->binaryBoxTrackBar2->TickStyle = System::Windows::Forms::TickStyle::None;
-			this->binaryBoxTrackBar2->ValueChanged += gcnew System::EventHandler(this, &MainForm::toolPanelTrackBarValueChanged);
-			this->binaryBoxTrackBar1->Anchor = static_cast<System::Windows::Forms::AnchorStyles>((((System::Windows::Forms::AnchorStyles::Top | System::Windows::Forms::AnchorStyles::Bottom)
-				| System::Windows::Forms::AnchorStyles::Left)
-				| System::Windows::Forms::AnchorStyles::Right));
-			this->binaryBoxTrackBar1->AutoSize = false;
-			this->binaryBoxTrackBar1->Location = System::Drawing::Point(63, 17);
-			this->binaryBoxTrackBar1->Maximum = 255;
-			this->binaryBoxTrackBar1->Name = L"binaryBoxTrackBar1";
-			this->binaryBoxTrackBar1->Size = System::Drawing::Size(113, 15);
-			this->binaryBoxTrackBar1->TabIndex = 8;
-			this->binaryBoxTrackBar1->TickStyle = System::Windows::Forms::TickStyle::None;
-			this->binaryBoxTrackBar1->ValueChanged += gcnew System::EventHandler(this, &MainForm::toolPanelTrackBarValueChanged);
-			this->binaryBoxTextBox3->BackColor = System::Drawing::SystemColors::WindowFrame;
-			this->binaryBoxTextBox3->BorderStyle = System::Windows::Forms::BorderStyle::None;
-			this->binaryBoxTextBox3->Font = (gcnew System::Drawing::Font(L"Arial", 9, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
-				static_cast<System::Byte>(204)));
-			this->binaryBoxTextBox3->ForeColor = System::Drawing::SystemColors::Window;
-			this->binaryBoxTextBox3->Location = System::Drawing::Point(26, 49);
-			this->binaryBoxTextBox3->MaxLength = 3;
-			this->binaryBoxTextBox3->Name = L"binaryBoxTextBox3";
-			this->binaryBoxTextBox3->Size = System::Drawing::Size(31, 14);
-			this->binaryBoxTextBox3->TabIndex = 7;
-			this->binaryBoxTextBox3->TextAlign = System::Windows::Forms::HorizontalAlignment::Center;
-			this->binaryBoxTextBox3->TextChanged += gcnew System::EventHandler(this, &MainForm::toolPanelTextBoxTextChanged);
-			this->binaryBoxTextBox3->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &MainForm::toolPanelTextBoxKeyDown);
-			this->binaryBoxTextBox3->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &MainForm::toolPanelTextBoxKeyPress);
-			this->binaryBoxTextBox2->BackColor = System::Drawing::SystemColors::WindowFrame;
-			this->binaryBoxTextBox2->BorderStyle = System::Windows::Forms::BorderStyle::None;
-			this->binaryBoxTextBox2->Font = (gcnew System::Drawing::Font(L"Arial", 9, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
-				static_cast<System::Byte>(204)));
-			this->binaryBoxTextBox2->ForeColor = System::Drawing::SystemColors::Window;
-			this->binaryBoxTextBox2->Location = System::Drawing::Point(26, 33);
-			this->binaryBoxTextBox2->MaxLength = 3;
-			this->binaryBoxTextBox2->Name = L"binaryBoxTextBox2";
-			this->binaryBoxTextBox2->Size = System::Drawing::Size(31, 14);
-			this->binaryBoxTextBox2->TabIndex = 6;
-			this->binaryBoxTextBox2->TextAlign = System::Windows::Forms::HorizontalAlignment::Center;
-			this->binaryBoxTextBox2->TextChanged += gcnew System::EventHandler(this, &MainForm::toolPanelTextBoxTextChanged);
-			this->binaryBoxTextBox2->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &MainForm::toolPanelTextBoxKeyDown);
-			this->binaryBoxTextBox2->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &MainForm::toolPanelTextBoxKeyPress);
-			this->binaryBoxTextBox1->BackColor = System::Drawing::SystemColors::WindowFrame;
-			this->binaryBoxTextBox1->BorderStyle = System::Windows::Forms::BorderStyle::None;
-			this->binaryBoxTextBox1->Font = (gcnew System::Drawing::Font(L"Arial", 9, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
-				static_cast<System::Byte>(204)));
-			this->binaryBoxTextBox1->ForeColor = System::Drawing::SystemColors::Window;
-			this->binaryBoxTextBox1->Location = System::Drawing::Point(26, 17);
-			this->binaryBoxTextBox1->MaxLength = 3;
-			this->binaryBoxTextBox1->Name = L"binaryBoxTextBox1";
-			this->binaryBoxTextBox1->Size = System::Drawing::Size(31, 14);
-			this->binaryBoxTextBox1->TabIndex = 5;
-			this->binaryBoxTextBox1->TextAlign = System::Windows::Forms::HorizontalAlignment::Center;
-			this->binaryBoxTextBox1->TextChanged += gcnew System::EventHandler(this, &MainForm::toolPanelTextBoxTextChanged);
-			this->binaryBoxTextBox1->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &MainForm::toolPanelTextBoxKeyDown);
-			this->binaryBoxTextBox1->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &MainForm::toolPanelTextBoxKeyPress);
-			this->label2_3->AutoSize = true;
-			this->label2_3->ForeColor = System::Drawing::SystemColors::Window;
-			this->label2_3->Location = System::Drawing::Point(5, 49);
-			this->label2_3->Name = L"label2_3";
-			this->label2_3->Size = System::Drawing::Size(21, 15);
-			this->label2_3->TabIndex = 4;
-			this->label2_3->Text = L"b1";
-			this->label2_2->AutoSize = true;
-			this->label2_2->ForeColor = System::Drawing::SystemColors::Window;
-			this->label2_2->Location = System::Drawing::Point(5, 33);
-			this->label2_2->Name = L"label2_2";
-			this->label2_2->Size = System::Drawing::Size(21, 15);
-			this->label2_2->TabIndex = 3;
-			this->label2_2->Text = L"b0";
-			this->label2_1->AutoSize = true;
-			this->label2_1->Font = (gcnew System::Drawing::Font(L"Arial", 9, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
-				static_cast<System::Byte>(204)));
-			this->label2_1->ForeColor = System::Drawing::SystemColors::Window;
-			this->label2_1->Location = System::Drawing::Point(5, 17);
-			this->label2_1->Name = L"label2_1";
-			this->label2_1->Size = System::Drawing::Size(14, 15);
-			this->label2_1->TabIndex = 2;
-			this->label2_1->Text = L"T";
-			this->transformBox->Anchor = static_cast<System::Windows::Forms::AnchorStyles>(((System::Windows::Forms::AnchorStyles::Top | System::Windows::Forms::AnchorStyles::Left)
-				| System::Windows::Forms::AnchorStyles::Right));
-			this->transformBox->Controls->Add(this->halftoneButton);
-			this->transformBox->Controls->Add(this->negativeButton);
-			this->transformBox->Controls->Add(this->label1_2);
-			this->transformBox->Controls->Add(this->label1_1);
-			this->transformBox->ForeColor = System::Drawing::SystemColors::InactiveCaption;
-			this->transformBox->Location = System::Drawing::Point(-2, 18);
-			this->transformBox->Name = L"transformBox";
-			this->transformBox->Size = System::Drawing::Size(178, 58);
-			this->transformBox->TabIndex = 1;
-			this->transformBox->TabStop = false;
-			this->transformBox->Text = L"Преобразования";
-			this->halftoneButton->FlatStyle = System::Windows::Forms::FlatStyle::System;
-			this->halftoneButton->Font = (gcnew System::Drawing::Font(L"Arial", 8, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
-				static_cast<System::Byte>(204)));
-			this->halftoneButton->ForeColor = System::Drawing::SystemColors::WindowFrame;
-			this->halftoneButton->Location = System::Drawing::Point(89, 33);
-			this->halftoneButton->Margin = System::Windows::Forms::Padding(0, 3, 3, 3);
-			this->halftoneButton->Name = L"halftoneButton";
-			this->halftoneButton->Size = System::Drawing::Size(89, 17);
-			this->halftoneButton->TabIndex = 3;
-			this->halftoneButton->Text = L"Применить";
-			this->halftoneButton->UseVisualStyleBackColor = true;
-			this->halftoneButton->Click += gcnew System::EventHandler(this, &MainForm::halftoneClick);
-			this->negativeButton->FlatStyle = System::Windows::Forms::FlatStyle::System;
-			this->negativeButton->Font = (gcnew System::Drawing::Font(L"Arial", 8));
-			this->negativeButton->ForeColor = System::Drawing::SystemColors::WindowFrame;
-			this->negativeButton->Location = System::Drawing::Point(89, 17);
-			this->negativeButton->Margin = System::Windows::Forms::Padding(0, 3, 3, 3);
-			this->negativeButton->Name = L"negativeButton";
-			this->negativeButton->Size = System::Drawing::Size(89, 17);
-			this->negativeButton->TabIndex = 2;
-			this->negativeButton->Text = L"Применить";
-			this->negativeButton->UseVisualStyleBackColor = true;
-			this->negativeButton->Click += gcnew System::EventHandler(this, &MainForm::negativeClick);
-			this->label1_2->AutoSize = true;
-			this->label1_2->ForeColor = System::Drawing::SystemColors::Window;
-			this->label1_2->Location = System::Drawing::Point(5, 33);
-			this->label1_2->Name = L"label1_2";
-			this->label1_2->Size = System::Drawing::Size(81, 15);
-			this->label1_2->TabIndex = 1;
-			this->label1_2->Text = L"Полутоновое";
-			this->label1_1->AutoSize = true;
-			this->label1_1->Font = (gcnew System::Drawing::Font(L"Arial", 9, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
-				static_cast<System::Byte>(204)));
-			this->label1_1->ForeColor = System::Drawing::SystemColors::Window;
-			this->label1_1->Location = System::Drawing::Point(5, 17);
-			this->label1_1->Name = L"label1_1";
-			this->label1_1->Size = System::Drawing::Size(52, 15);
-			this->label1_1->TabIndex = 0;
-			this->label1_1->Text = L"Негатив";
-			this->toolboxTitle->Anchor = static_cast<System::Windows::Forms::AnchorStyles>((System::Windows::Forms::AnchorStyles::Top | System::Windows::Forms::AnchorStyles::Right));
-			this->toolboxTitle->BorderStyle = System::Windows::Forms::BorderStyle::Fixed3D;
-			this->toolboxTitle->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
-			this->toolboxTitle->Location = System::Drawing::Point(0, 0);
-			this->toolboxTitle->Name = L"toolboxTitle";
-			this->toolboxTitle->Size = System::Drawing::Size(180, 18);
-			this->toolboxTitle->TabIndex = 0;
-			this->toolboxTitle->Text = L"Инструменты";
-			this->editorPanel1->AutoScroll = true;
-			this->editorPanel1->BackgroundImageLayout = System::Windows::Forms::ImageLayout::Stretch;
-			this->editorPanel1->Controls->Add(this->pictureBox1);
-			this->editorPanel1->Location = System::Drawing::Point(3, 3);
-			this->editorPanel1->Name = L"editorPanel1";
-			this->editorPanel1->Size = System::Drawing::Size(522, 334);
-			this->editorPanel1->TabIndex = 1;
+			this->splitContainer->Location = System::Drawing::Point(3, 3);
+			this->splitContainer->Margin = System::Windows::Forms::Padding(0);
+			this->splitContainer->Name = L"splitContainer";
+			// 
+			// splitContainer.Panel1
+			// 
+			this->splitContainer->Panel1->AutoScroll = true;
+			this->splitContainer->Panel1->Controls->Add(this->pictureBox1);
+			// 
+			// splitContainer.Panel2
+			// 
+			this->splitContainer->Panel2->AutoScroll = true;
+			this->splitContainer->Panel2->Controls->Add(this->pictureBox2);
+			this->splitContainer->Size = System::Drawing::Size(357, 223);
+			this->splitContainer->SplitterDistance = 180;
+			this->splitContainer->TabIndex = 0;
+			// 
+			// pictureBox1
+			// 
 			this->pictureBox1->Location = System::Drawing::Point(0, 0);
-			this->pictureBox1->Margin = System::Windows::Forms::Padding(5);
 			this->pictureBox1->Name = L"pictureBox1";
-			this->pictureBox1->Size = System::Drawing::Size(1, 1);
+			this->pictureBox1->Size = System::Drawing::Size(100, 50);
 			this->pictureBox1->SizeMode = System::Windows::Forms::PictureBoxSizeMode::AutoSize;
 			this->pictureBox1->TabIndex = 0;
 			this->pictureBox1->TabStop = false;
 			this->pictureBox1->Click += gcnew System::EventHandler(this, &MainForm::pictureBoxClick);
-			this->editorPanel2->AutoScroll = true;
-			this->editorPanel2->BackgroundImageLayout = System::Windows::Forms::ImageLayout::Stretch;
-			this->editorPanel2->Controls->Add(this->pictureBox2);
-			this->editorPanel2->Location = System::Drawing::Point(3, 3);
-			this->editorPanel2->Name = L"editorPanel2";
-			this->editorPanel2->Size = System::Drawing::Size(522, 334);
-			this->editorPanel2->TabIndex = 2;
-			this->editorPanel2->Visible = false;
+			// 
+			// pictureBox2
+			// 
 			this->pictureBox2->Location = System::Drawing::Point(0, 0);
-			this->pictureBox2->Margin = System::Windows::Forms::Padding(5);
 			this->pictureBox2->Name = L"pictureBox2";
-			this->pictureBox2->Size = System::Drawing::Size(1, 1);
+			this->pictureBox2->Size = System::Drawing::Size(100, 50);
 			this->pictureBox2->SizeMode = System::Windows::Forms::PictureBoxSizeMode::AutoSize;
 			this->pictureBox2->TabIndex = 1;
 			this->pictureBox2->TabStop = false;
 			this->pictureBox2->Click += gcnew System::EventHandler(this, &MainForm::pictureBoxClick);
-			this->logPage->BackColor = System::Drawing::Color::FromArgb(static_cast<System::Int32>(static_cast<System::Byte>(45)), static_cast<System::Int32>(static_cast<System::Byte>(43)),
-				static_cast<System::Int32>(static_cast<System::Byte>(45)));
-			this->logPage->Controls->Add(this->logBox);
-			this->logPage->ForeColor = System::Drawing::SystemColors::Window;
-			this->logPage->Location = System::Drawing::Point(4, 24);
-			this->logPage->Name = L"logPage";
-			this->logPage->Padding = System::Windows::Forms::Padding(3);
-			this->logPage->Size = System::Drawing::Size(716, 340);
-			this->logPage->TabIndex = 1;
-			this->logPage->Text = L"Log";
-			this->logBox->Anchor = static_cast<System::Windows::Forms::AnchorStyles>((((System::Windows::Forms::AnchorStyles::Top | System::Windows::Forms::AnchorStyles::Bottom)
-				| System::Windows::Forms::AnchorStyles::Left)
-				| System::Windows::Forms::AnchorStyles::Right));
-			this->logBox->BackColor = System::Drawing::Color::FromArgb(static_cast<System::Int32>(static_cast<System::Byte>(45)), static_cast<System::Int32>(static_cast<System::Byte>(43)),
-				static_cast<System::Int32>(static_cast<System::Byte>(45)));
-			this->logBox->BorderStyle = System::Windows::Forms::BorderStyle::None;
-			this->logBox->ForeColor = System::Drawing::SystemColors::Window;
-			this->logBox->FormattingEnabled = true;
-			this->logBox->ItemHeight = 15;
-			this->logBox->Location = System::Drawing::Point(3, 3);
-			this->logBox->Name = L"logBox";
-			this->logBox->ScrollAlwaysVisible = true;
-			this->logBox->Size = System::Drawing::Size(710, 330);
-			this->logBox->TabIndex = 0;
-			this->objectPage->BackColor = System::Drawing::Color::FromArgb(static_cast<System::Int32>(static_cast<System::Byte>(45)), static_cast<System::Int32>(static_cast<System::Byte>(43)),
-				static_cast<System::Int32>(static_cast<System::Byte>(45)));
-			this->objectPage->ForeColor = System::Drawing::SystemColors::Window;
-			this->objectPage->Location = System::Drawing::Point(4, 24);
-			this->objectPage->Name = L"objectPage";
-			this->objectPage->Padding = System::Windows::Forms::Padding(3);
-			this->objectPage->Size = System::Drawing::Size(716, 340);
-			this->objectPage->TabIndex = 2;
-			this->objectPage->Text = L"Объекты";
-			this->objectPage->Visible = false;
-			this->progressBar->Anchor = static_cast<System::Windows::Forms::AnchorStyles>(((System::Windows::Forms::AnchorStyles::Top | System::Windows::Forms::AnchorStyles::Left)
-				| System::Windows::Forms::AnchorStyles::Right));
-			this->progressBar->Location = System::Drawing::Point(240, 6);
-			this->progressBar->Name = L"progressBar";
-			this->progressBar->Size = System::Drawing::Size(480, 10);
-			this->progressBar->Style = System::Windows::Forms::ProgressBarStyle::Continuous;
-			this->progressBar->TabIndex = 1;
-			this->progressBar->Visible = false;
-			this->progressBar->SizeChanged += gcnew System::EventHandler(this, &MainForm::progressBarSizeChanged);
-			this->statusStrip->AutoSize = false;
-			this->statusStrip->BackColor = System::Drawing::Color::FromArgb(static_cast<System::Int32>(static_cast<System::Byte>(45)), static_cast<System::Int32>(static_cast<System::Byte>(43)),
-				static_cast<System::Int32>(static_cast<System::Byte>(45)));
+			// 
+			// tabPage2
+			// 
+			this->tabPage2->Location = System::Drawing::Point(4, 25);
+			this->tabPage2->Name = L"tabPage2";
+			this->tabPage2->Padding = System::Windows::Forms::Padding(3);
+			this->tabPage2->Size = System::Drawing::Size(499, 229);
+			this->tabPage2->TabIndex = 1;
+			this->tabPage2->Text = L"Log";
+			this->tabPage2->UseVisualStyleBackColor = true;
+			// 
+			// statusStrip
+			// 
 			this->statusStrip->Items->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(4) {
-				this->statusSize, this->statusCurrent,
-					this->statusCurBP, this->statusLogsize
+				this->countLabel, this->cur1Label,
+					this->cur2Label, this->toolStripProgressBar1
 			});
-			this->statusStrip->Location = System::Drawing::Point(0, 390);
+			this->statusStrip->Location = System::Drawing::Point(0, 283);
 			this->statusStrip->Name = L"statusStrip";
-			this->statusStrip->Size = System::Drawing::Size(724, 27);
-			this->statusStrip->TabIndex = 0;
-			this->statusSize->Font = (gcnew System::Drawing::Font(L"Arial", 9));
-			this->statusSize->ForeColor = System::Drawing::SystemColors::HighlightText;
-			this->statusSize->Name = L"statusSize";
-			this->statusSize->Size = System::Drawing::Size(43, 22);
-			this->statusSize->Text = L"Size: 0";
-			this->statusCurrent->Font = (gcnew System::Drawing::Font(L"Arial", 9));
-			this->statusCurrent->ForeColor = System::Drawing::SystemColors::HighlightText;
-			this->statusCurrent->Name = L"statusCurrent";
-			this->statusCurrent->Size = System::Drawing::Size(61, 22);
-			this->statusCurrent->Text = L"Current: 0";
-			this->statusCurBP->Font = (gcnew System::Drawing::Font(L"Arial", 9));
-			this->statusCurBP->ForeColor = System::Drawing::SystemColors::HighlightText;
-			this->statusCurBP->Name = L"statusCurBP";
-			this->statusCurBP->Size = System::Drawing::Size(56, 22);
-			this->statusCurBP->Text = L"CurBP: 0";
-			this->statusCurBP->Visible = false;
-			this->statusLogsize->Font = (gcnew System::Drawing::Font(L"Arial", 9));
-			this->statusLogsize->ForeColor = System::Drawing::SystemColors::HighlightText;
-			this->statusLogsize->Name = L"statusLogsize";
-			this->statusLogsize->Size = System::Drawing::Size(63, 22);
-			this->statusLogsize->Text = L"Logsize: 0";
-			this->statusLogsize->Visible = false;
+			this->statusStrip->Size = System::Drawing::Size(524, 22);
+			this->statusStrip->TabIndex = 2;
+			this->statusStrip->Text = L"statusStrip1";
+			// 
+			// countLabel
+			// 
+			this->countLabel->Name = L"countLabel";
+			this->countLabel->Size = System::Drawing::Size(52, 17);
+			this->countLabel->Text = L"Count: 0";
+			// 
+			// cur1Label
+			// 
+			this->cur1Label->Name = L"cur1Label";
+			this->cur1Label->Size = System::Drawing::Size(44, 17);
+			this->cur1Label->Text = L"Cur1: 0";
+			// 
+			// cur2Label
+			// 
+			this->cur2Label->Name = L"cur2Label";
+			this->cur2Label->Size = System::Drawing::Size(44, 17);
+			this->cur2Label->Text = L"Cur2: 0";
+			this->cur2Label->Visible = false;
+			// 
+			// toolStripProgressBar1
+			// 
+			this->toolStripProgressBar1->Name = L"toolStripProgressBar1";
+			this->toolStripProgressBar1->Size = System::Drawing::Size(300, 16);
+			this->toolStripProgressBar1->Visible = false;
+			// 
+			// MainForm
+			// 
 			this->AutoScaleDimensions = System::Drawing::SizeF(6, 13);
 			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
-			this->BackColor = System::Drawing::Color::FromArgb(static_cast<System::Int32>(static_cast<System::Byte>(45)), static_cast<System::Int32>(static_cast<System::Byte>(43)),
-				static_cast<System::Int32>(static_cast<System::Byte>(45)));
-			this->ClientSize = System::Drawing::Size(724, 417);
-			this->Controls->Add(this->progressBar);
+			this->BackColor = System::Drawing::Color::FromArgb(static_cast<System::Int32>(static_cast<System::Byte>(40)), static_cast<System::Int32>(static_cast<System::Byte>(40)),
+				static_cast<System::Int32>(static_cast<System::Byte>(40)));
+			this->ClientSize = System::Drawing::Size(524, 305);
+			this->Controls->Add(this->statusStrip);
 			this->Controls->Add(this->tabControl);
 			this->Controls->Add(this->menuStrip);
-			this->Controls->Add(this->statusStrip);
-			this->Icon = (cli::safe_cast<System::Drawing::Icon^>(resources->GetObject(L"$this.Icon")));
+			this->ForeColor = System::Drawing::SystemColors::ButtonHighlight;
 			this->MainMenuStrip = this->menuStrip;
-			this->MinimumSize = System::Drawing::Size(206, 363);
 			this->Name = L"MainForm";
-			this->StartPosition = System::Windows::Forms::FormStartPosition::CenterScreen;
-			this->Text = L"Image Editor";
-			this->SizeChanged += gcnew System::EventHandler(this, &MainForm::mainFormSizeChanged);
+			this->ShowIcon = false;
+			this->Text = L"MainForm";
+			this->SizeChanged += gcnew System::EventHandler(this, &MainForm::MainFormSizeChanged);
 			this->menuStrip->ResumeLayout(false);
 			this->menuStrip->PerformLayout();
 			this->tabControl->ResumeLayout(false);
-			this->editorPage->ResumeLayout(false);
-			this->toolPanel->ResumeLayout(false);
-			this->findClassBox->ResumeLayout(false);
-			this->powerBox->ResumeLayout(false);
-			this->powerBox->PerformLayout();
-			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->powerBoxTrackBar2))->EndInit();
-			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->powerBoxTrackBar1))->EndInit();
-			this->binaryBox->ResumeLayout(false);
-			this->binaryBox->PerformLayout();
-			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->binaryBoxTrackBar3))->EndInit();
-			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->binaryBoxTrackBar2))->EndInit();
-			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->binaryBoxTrackBar1))->EndInit();
-			this->transformBox->ResumeLayout(false);
-			this->transformBox->PerformLayout();
-			this->editorPanel1->ResumeLayout(false);
-			this->editorPanel1->PerformLayout();
+			this->tabPage1->ResumeLayout(false);
+			this->splitContainer->Panel1->ResumeLayout(false);
+			this->splitContainer->Panel1->PerformLayout();
+			this->splitContainer->Panel2->ResumeLayout(false);
+			this->splitContainer->Panel2->PerformLayout();
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->splitContainer))->EndInit();
+			this->splitContainer->ResumeLayout(false);
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->pictureBox1))->EndInit();
-			this->editorPanel2->ResumeLayout(false);
-			this->editorPanel2->PerformLayout();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->pictureBox2))->EndInit();
-			this->logPage->ResumeLayout(false);
 			this->statusStrip->ResumeLayout(false);
 			this->statusStrip->PerformLayout();
 			this->ResumeLayout(false);
 			this->PerformLayout();
 
 		}
-
 #pragma endregion
-	private: 
-		Void openMIClick(Object^, EventArgs^);
-		Void saveMIClick(Object^, EventArgs^);
-		Void saveAsMIClick(Object^, EventArgs^);
-		Void exitMIClick(Object^, EventArgs^);
-		Void negativeClick(Object^, EventArgs^);
-		Void halftoneClick(Object^, EventArgs^);
-		Void binarClick(Object^, EventArgs^);
-		Void adaptiveBinarClick(Object^, EventArgs^);
-		Void powerClick(Object^, EventArgs^);
-		Void linearTensionClick(Object^, EventArgs^);
-		Void stretchContrastClick(Object^, EventArgs^);
-		Void undoClick(Object^, EventArgs^);
-		Void redoClick(Object^, EventArgs^);
-		Void negative();
-		Void halftone();
-		Void binar();
-		Void adaptiveBinar();
-		Void power();
-		Void linearTension();
-		Void stretchContrast();
-		Void binaryButtonClick(Object^, EventArgs^);
-		Void powerButtonClick(Object^, EventArgs^);
-		Void fixButtonClick(Object^, EventArgs^);
-		Void findClassButtonClick(Object^, EventArgs^);
-		Void toolPanelShowHide(Object^, EventArgs^);
-		Void secondPictureShowHide(Object^, EventArgs^);
-		Void progressBarSizeChanged(Object^, EventArgs^);
-		Void controlsEnabled(bool);
+
+	private:
+		Void openItemClick(Object^, EventArgs^);
+		Void saveItemClick(Object^, EventArgs^);
+		Void saveAsItemClick(Object^, EventArgs^);
+		Void undoItemClick(Object^, EventArgs^);
+		Void redoItemClick(Object^, EventArgs^);
+		Void doubleItemClick(Object^, EventArgs^);
 		Void pictureBoxClick(Object^, EventArgs^);
-		Void toolPanelTextBoxKeyDown(Object^, KeyEventArgs^);
-		Void toolPanelTextBoxTextChanged(Object^, EventArgs^);
-		Void toolPanelTextBoxKeyPress(Object^, KeyPressEventArgs^);
-		Void toolPanelTrackBarValueChanged(Object^, EventArgs^);
-		delegate Bitmap^ GetCurrentImage();
-		Bitmap^ getCurrentImage();
-		delegate Void PictureBoxChangeImage(Bitmap^);
-		Void pictureBoxChangeImage(Bitmap^);
-		delegate Void ProgressBarChangeValue(int);
-		Void progressBarChangeValue(int);
-		delegate Void LogBoxLinearTension(float, float);
-		Void logBoxLinearTension(float, float);
-		Void binaryBeginInvoke();
-	public:
-		Void dialogBinar(int, int, int);
-		Void dialogPower(double, double);
-		Void backUpFrompictureBox1();
-		Void mainFormSizeChanged(Object^, EventArgs^);
+		Void MainFormSizeChanged(Object^, EventArgs^);
+		Void setColors();
 	};
 }
