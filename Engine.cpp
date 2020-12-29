@@ -119,25 +119,54 @@ void Engine::doPerfectReflect() {
 
 void Engine::doFiltration(int type, int size) {
 	switch (type) {
-	case 0: size == 0 ? 
-			thread = gcnew Thread(gcnew ThreadStart(this, &Engine::filter1)) :
-			thread = gcnew Thread(gcnew ThreadStart(this, &Engine::filter2));
+	case 0: switch (size) {
+		case 0: b0 = 1; b1 = 9; break;
+		case 1:	b0 = 2; b1 = 25; break;
+		}
+		thread = gcnew Thread(gcnew ThreadStart(this, &Engine::filterLF));
 		break;
-	/*
-	case 1: size == 0 ?
-			thread = gcnew Thread(gcnew ThreadStart(this, &Engine::filter3)) :
-			thread = gcnew Thread(gcnew ThreadStart(this, &Engine::filter4));
+	case 1: switch (size) {
+		case 0: t = 1; break;
+		case 1:	t = 2; break;
+		}
+		thread = gcnew Thread(gcnew ThreadStart(this, &Engine::filterRL));
 		break;
-	case 2: size == 0 ?
-			thread = gcnew Thread(gcnew ThreadStart(this, &Engine::filter5)) :
-			thread = gcnew Thread(gcnew ThreadStart(this, &Engine::filter6));
+	case 2: switch (size) {
+		case 0: t = 1; break;
+		case 1:	t = 2; break;
+		}
+		thread = gcnew Thread(gcnew ThreadStart(this, &Engine::filterCS));
 		break;
-	case 3:
-		size == 0 ?
-			thread = gcnew Thread(gcnew ThreadStart(this, &Engine::filter7)) :
-			thread = gcnew Thread(gcnew ThreadStart(this, &Engine::filter8));
+	case 3: switch (size) {
+		case 0: t = 2; break;
+		case 1:	t = 3; break;
+		}
+		thread = gcnew Thread(gcnew ThreadStart(this, &Engine::filterRS));
 		break;
-	*/
+	case 4: switch (size) {
+		case 0: t = 2; break;
+		case 1:	t = 3; break;
+		}
+		thread = gcnew Thread(gcnew ThreadStart(this, &Engine::filterHL));
+		break;
+	case 5: switch (size) {
+		case 0: t = 2; break;
+		case 1:	t = 3; break;
+		}
+		thread = gcnew Thread(gcnew ThreadStart(this, &Engine::filterVL));
+		break;
+	case 6: switch (size) {
+		case 0: t = 2; break;
+		case 1:	t = 3; break;
+		}
+		thread = gcnew Thread(gcnew ThreadStart(this, &Engine::filterD1));
+		break;
+	case 7: switch (size) {
+		case 0: t = 2; break;
+		case 1:	t = 3; break;
+		}
+		thread = gcnew Thread(gcnew ThreadStart(this, &Engine::filterD2));
+		break;
 	default:
 		picturePtr->Invoke(upd);
 		return;
@@ -351,26 +380,13 @@ void Engine::nContrast() {
 	for (int row = 0; row < orig->Width; row++) {
 		for (int col = 0; col < orig->Height; col++) {
 			Color temp2 = orig->GetPixel(row, col);
-			int r = temp2.R;
-			int g = temp2.G;
-			int b = temp2.B;
-			int newr = int(val * Math::Log(1 + r));
-			if (newr > 255)
-				newr = 255;
-			if (newr < 0)
-				newr = 0;
-			int newg = int(val * Math::Log(1 + g));
-			if (newg > 255)
-				newg = 255;
-			if (newg < 0)
-				newg = 0;
-			int newb = int(val * Math::Log(1 + b));
-			if (newb > 255)
-				newb = 255;
-			if (newb < 0)
-				newb = 0;
-
-			ret->SetPixel(row, col, Color::FromArgb(newr, newg, newb));
+			int r = int(val * Math::Log(1 + temp2.R));
+			int g = int(val * Math::Log(1 + temp2.G));
+			int b = int(val * Math::Log(1 + temp2.B));
+			ret->SetPixel(row, col, Color::FromArgb(
+				r < 0 ? 0 : r > 255 ? 255 : r,
+				g < 0 ? 0 : g > 255 ? 255 : g,
+				b < 0 ? 0 : b > 255 ? 255 : b));
 		}
 		progressPtr->Invoke(del);
 	}
@@ -386,12 +402,14 @@ void Engine::autolevels() {
 	for (int row = 0; row < orig->Width; row++) {
 		for (int col = 0; col < orig->Height; col++) {
 			Color a = orig->GetPixel(row, col);
+			
 			a.R < rmin ? rmin = a.R : rmin = rmin;
 			a.R > rmax ? rmax = a.R : rmax = rmax;
 			a.G < gmin ? gmin = a.G : gmin = gmin;
 			a.G > gmax ? gmax = a.G : gmax = gmax;
 			a.B < bmin ? bmin = a.B : bmin = bmin;
 			a.B > bmax ? bmax = a.B : bmax = bmax;
+			
 		}
 		progressPtr->Invoke(del);
 	}
@@ -448,20 +466,21 @@ void Engine::perfectReflect() {
 #pragma endregion
 #pragma region Filters
 
-void Engine::filter1() {
+void Engine::filterLF() {
 	Bitmap^ orig = gcnew Bitmap(data[current]);
 	Bitmap^ ret = gcnew Bitmap(orig->Width, orig->Height);
-	for (int row = 1; row < orig->Width - 1; row++) {
-		for (int col = 1; col < orig->Height - 1; col++) {
+	int sub = b0, div = b1;
+	for (int row = sub; row < orig->Width - sub; row++) {
+		for (int col = sub; col < orig->Height - sub; col++) {
 			Color temp = orig->GetPixel(row, col);
 			int r = 0, g = 0, b = 0;
-			for (int i = row - 1; i <= row + 1; i++) {
-				for (int j = col - 1; j <= col + 1; j++) {
+			for (int i = row - sub; i <= row + sub; i++) {
+				for (int j = col - sub; j <= col + sub; j++) {
 					Color t = orig->GetPixel(i, j);
 					r += t.R; g += t.G; b += t.B;
 				}
 			}
-			r /= 9; g /= 9; b /= 9;
+			r /= div; g /= div; b /= div;
 			ret->SetPixel(row, col, Color::FromArgb(r, g, b));
 		}
 		progressPtr->Invoke(del);
@@ -470,21 +489,22 @@ void Engine::filter1() {
 	picturePtr->Invoke(upd);
 }
 
-void Engine::filter2() {
+void Engine::filterRL() {
 	Bitmap^ orig = gcnew Bitmap(data[current]);
 	Bitmap^ ret = gcnew Bitmap(orig->Width, orig->Height);
-	for (int row = 2; row < orig->Width - 2; row++) {
-		for (int col = 2; col < orig->Height - 2; col++) {
+	Comparison<Color>^ cmp = gcnew Comparison<Color>(this, &Engine::compar);
+	int sub = t;
+	for (int row = sub; row < orig->Width - sub; row++) {
+		for (int col = sub; col < orig->Height - sub; col++) {
 			Color temp = orig->GetPixel(row, col);
-			int r = 0, g = 0, b = 0;
-			for (int i = row - 2; i <= row + 2; i++) {
-				for (int j = col - 2; j <= col + 2; j++) {
-					Color t = orig->GetPixel(i, j);
-					r += t.R; g += t.G; b += t.B;
+			List<Color>^ l = gcnew List<Color>();
+			for (int i = row - sub; i <= row + sub; i++) {
+				for (int j = col - sub; j <= col + sub; j++) {
+					l->Add(orig->GetPixel(i, j));
 				}
 			}
-			r /= 25; g /= 25; b /= 25;
-			ret->SetPixel(row, col, Color::FromArgb(r, g, b));
+			l->Sort(cmp);
+			ret->SetPixel(row, col, l[sub]);
 		}
 		progressPtr->Invoke(del);
 	}
@@ -492,30 +512,71 @@ void Engine::filter2() {
 	picturePtr->Invoke(upd);
 }
 
-void Engine::filter3() {
-	
+void Engine::filterCS() {
+	Bitmap^ orig = gcnew Bitmap(data[current]);
+	Bitmap^ ret = gcnew Bitmap(orig->Width, orig->Height);
+	Comparison<Color>^ cmp = gcnew Comparison<Color>(this, &Engine::compar);
+	int sub = t;
+	for (int row = sub; row < orig->Width - sub; row++) {
+		for (int col = sub; col < orig->Height - sub; col++) {
+			Color temp = orig->GetPixel(row, col);
+			List<Color>^ l = gcnew List<Color>();
+			for (int i1 = row - sub, i2 = col - sub; i1 < row + sub; i1++, i2++) {
+				l->Add(orig->GetPixel(i1, col));
+				if (i2 != row) l->Add(orig->GetPixel(row, i2));
+			}
+			l->Sort(cmp);
+			ret->SetPixel(row, col, l[sub]);
+		}
+		progressPtr->Invoke(del);
+	}
+	addNode(ret);
+	picturePtr->Invoke(upd);
 }
 
-void Engine::filter4() {
+void Engine::filterRS() {
+	Bitmap^ orig = gcnew Bitmap(data[current]);
+	Bitmap^ ret = gcnew Bitmap(orig->Width, orig->Height);
+	Comparison<Color>^ cmp = gcnew Comparison<Color>(this, &Engine::compar);
+	int sub = t;
+	for (int row = sub; row < orig->Width - sub; row++) {
+		for (int col = sub; col < orig->Height - sub; col++) {
+			Color temp = orig->GetPixel(row, col);
+			List<Color>^ l = gcnew List<Color>();
+			for (int i = row - sub, s = 0; i < row + sub; i++, s < sub ? s++ : s--)
+				for (int j = col - s; j < col + s; j++) {
+					l->Add(orig->GetPixel(i, j));
+					Console::WriteLine("i = " + i + "; j = " + j);
+				}
+			l->Sort(cmp);
+			ret->SetPixel(row, col, l[sub]);
+		}
+		progressPtr->Invoke(del);
+	}
+	addNode(ret);
+	picturePtr->Invoke(upd);
+}
+
+void Engine::filterHL() {
 
 }
 
-void Engine::filter5() {
+void Engine::filterVL() {
 
 }
 
-void Engine::filter6() {
+void Engine::filterD1() {
 
 }
 
-void Engine::filter7() {
+void Engine::filterD2() {
 
 }
 
-void Engine::filter8() {
-
+int ImageEditor::Engine::compar(Color x, Color y) {
+	return x.GetBrightness() < y.GetBrightness() ? -1 :
+		x.GetBrightness() == y.GetBrightness() ? 0 : 1;
 }
-
 #pragma endregion
 #pragma endregion
 #pragma endregion

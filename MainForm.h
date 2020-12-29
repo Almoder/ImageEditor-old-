@@ -366,7 +366,7 @@ namespace ImageEditor {
 			this->button11->Location = System::Drawing::Point(2, 460);
 			this->button11->Margin = System::Windows::Forms::Padding(0);
 			this->button11->Name = L"button11";
-			this->button11->Size = System::Drawing::Size(131, 40);
+			this->button11->Size = System::Drawing::Size(131, 20);
 			this->button11->TabIndex = 34;
 			this->button11->Text = L"Perfect reflect";
 			this->button11->TextAlign = System::Drawing::ContentAlignment::MiddleLeft;
@@ -828,7 +828,10 @@ namespace ImageEditor {
 			this->comboBox1->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 8.25F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(204)));
 			this->comboBox1->FormattingEnabled = true;
-			this->comboBox1->Items->AddRange(gcnew cli::array< System::Object^  >(4) { L"Low-frequency", L"Rect", L"Cross", L"Rhombus" });
+			this->comboBox1->Items->AddRange(gcnew cli::array< System::Object^  >(8) {
+				L"Low-frequency", L"Rect", L"Cross", L"Rhombus",
+					L"Vertical lines", L"Horizontal lines", L"Diagonal 45", L"Diagonal 135"
+			});
 			this->comboBox1->Location = System::Drawing::Point(2, 400);
 			this->comboBox1->Margin = System::Windows::Forms::Padding(0);
 			this->comboBox1->Name = L"comboBox1";

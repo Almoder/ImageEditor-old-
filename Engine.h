@@ -12,7 +12,7 @@ namespace ImageEditor {
 		int t, b0, b1;
 		double c, g;
 	public:
-		delegate void Pidor(Bitmap^, Bitmap^);
+		//delegate void Pidor(Bitmap^, Bitmap^);
 		ProgressBar^ progressPtr = nullptr;
 		PictureBox^ picturePtr = nullptr;
 
@@ -58,13 +58,14 @@ namespace ImageEditor {
 		void nContrast();
 		void autolevels();
 		void perfectReflect();
-		void filter1();
-		void filter2();
-		void filter3();
-		void filter4();
-		void filter5();
-		void filter6();
-		void filter7();
-		void filter8();
+		void filterLF();
+		void filterRL();
+		void filterCS();
+		void filterRS();
+		void filterHL();
+		void filterVL();
+		void filterD1();
+		void filterD2();
+		int compar(Color, Color);
 	};
 }

@@ -344,7 +344,7 @@ Void ImageEditor::MainForm::button11Click(Object^, EventArgs^) {
 Void ImageEditor::MainForm::button12Click(Object^, EventArgs^) {
 	if (engine->dataEmpty() || comboBox1->Text == "Type" || comboBox2->Text == "Size") return;
 	progressBar->Value = 0;
-	progressBar->Maximum = engine->getCurrent()->Width * 2;
+	progressBar->Maximum = engine->getCurrent()->Width;
 	progressBar->Visible = true;
 	engine->doFiltration(
 		comboBox1->SelectedIndex, comboBox2->SelectedIndex);
