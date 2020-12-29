@@ -84,6 +84,7 @@ Void MainForm::openItemClick(Object^ sender, EventArgs^ e) {
 			pictureBox2->Image = engine->getCurrent();
 			countLabel->Text = gcnew String("Count: " + engine->count());
 			cur1Label->Text = gcnew String("Cur1: " + engine->current);
+			textBox10->Text = String::Empty;
 			temp->Close();
 		}
 	}
@@ -152,7 +153,8 @@ Void MainForm::pictureBoxClick(Object^ sender, EventArgs^ e) {
 }
 
 Void MainForm::MainFormSizeChanged(Object^ sender, EventArgs^ e) {
-	splitContainer->Size = Drawing::Size(tableLayout->Location.X - 3, splitContainer->Size.Height);
+	splitContainer->Size = Drawing::Size(
+		tableLayout->Location.X - 3, splitContainer->Size.Height);
 }
 
 Void MainForm::setColors() {
@@ -315,7 +317,8 @@ Void MainForm::button8Click(Object^, EventArgs^) {
 }
 
 Void MainForm::button9Click(Object^, EventArgs^) {
-	if (engine->dataEmpty() || textBox9->Text == String::Empty) return;
+	if (engine->dataEmpty() 
+		|| textBox9->Text == String::Empty) return;
 	progressBar->Value = 0;
 	progressBar->Maximum = engine->getCurrent()->Width;
 	progressBar->Visible = true;
@@ -333,11 +336,15 @@ Void MainForm::button10Click(Object^, EventArgs^) {
 }
 
 Void ImageEditor::MainForm::button11Click(Object^, EventArgs^) {
-	if (engine->dataEmpty()) return;
+	if (engine->dataEmpty() || 
+		textBox10->Text == String::Empty || 
+		textBox11->Text == String::Empty) return;
 	progressBar->Value = 0;
-	progressBar->Maximum = engine->getCurrent()->Width * 2;
+	progressBar->Maximum = engine->getCurrent()->Width;
 	progressBar->Visible = true;
-	engine->doPerfectReflect();
+	engine->doFrequencyDomain(
+		Convert::ToInt32(textBox10->Text), 
+		Convert::ToInt32(textBox11->Text));
 	disableControls();
 }
 
@@ -379,7 +386,8 @@ Void MainForm::textBoxKeyDown(Object^ sender, KeyEventArgs^ e) {
 Void MainForm::textBoxKeyPress(Object^ sender, KeyPressEventArgs^ e) {
 	TextBox^ temp = safe_cast<TextBox^>(sender);
 	switch (temp->TabIndex) {
-	case 7:	case 8:	case 9: case 29:
+	case 7:	case 8:	case 9: 
+	case 29: case 39: case 40:
 		if (!Char::IsControl(e->KeyChar) && 
 			!Char::IsDigit(e->KeyChar)) 
 			e->Handled = true;
@@ -410,6 +418,7 @@ Void MainForm::textBoxKeyPress(Object^ sender, KeyPressEventArgs^ e) {
 
 Void MainForm::textBoxTextChanged(Object^ sender, EventArgs^ e) {
 	TextBox^ temp = safe_cast<TextBox^>(sender);
+	int val;
 	switch (temp->TabIndex) {
 	case 21: case 22: case 28:
 		if (temp->Text != String::Empty && temp->Text != "-" &&
@@ -424,6 +433,19 @@ Void MainForm::textBoxTextChanged(Object^ sender, EventArgs^ e) {
 	case 29:
 		if (temp->Text != String::Empty &&
 			Convert::ToInt32(temp->Text) > 300) temp->Text = "300";
+		break;
+	case 39:
+		if (engine->getCurrent() != nullptr) val = Math::Min(
+			engine->getCurrent()->Width, engine->getCurrent()->Height) / 2;
+		else val = 0;
+		if (temp->Text != String::Empty &&
+			Convert::ToInt32(temp->Text) > val) temp->Text = val.ToString();
+		if (temp->Text != String::Empty &&
+			Convert::ToInt32(temp->Text) == 0) temp->Text = "1";
+		break;
+	case 40:
+		if (temp->Text != String::Empty &&
+			Convert::ToInt32(temp->Text) > 16) temp->Text = "16";
 		break;
 	}
 }
