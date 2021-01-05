@@ -11,53 +11,11 @@ namespace ImageEditor {
 		List<Bitmap^>^ data = nullptr;
 		int t, b0, b1;
 		double c, g;
-#pragma region Masks
-
-		int** hl3x3 = new int* [3]{
-			new int[3] {-1,	2, -1},
-			new int[3] {-1, 2, -1},
-			new int[3] {-1, 2, -1} };
-		int** hl5x5 = new int* [5]{
-			new int[5] {-1, -1, 4, -1, -1},
-			new int[5] {-1, -1, 4, -1, -1},
-			new int[5] {-1, -1, 4, -1, -1},
-			new int[5] {-1, -1, 4, -1, -1},
-			new int[5] {-1, -1, 4, -1, -1} };
-		int** vl3x3 = new int*[3] {
-			new int[3] {-1,	-1,	-1},
-			new int[3] {2, 2, 2},
-			new int[3] {-1, -1, -1} };
-		int** vl5x5 = new int* [5]{
-			new int[5] {-1, -1, -1, -1, -1},
-			new int[5] {-1, -1, -1, -1, -1},
-			new int[5] {4, 4, 4, 4, 4},
-			new int[5] {-1, -1, -1, -1, -1},
-			new int[5] {-1, -1, -1, -1, -1} };
-		int** d13x3 = new int* [3]{
-			new int[3] {2, -1, -1},
-			new int[3] {-1, 2, -1},
-			new int[3] {-1, -1, 2} };
-		int** d15x5 = new int* [5]{
-			new int[5] {4, -1, -1, -1, -1},
-			new int[5] {-1, 4, -1, -1, -1},
-			new int[5] {-1, -1, 4, -1, -1},
-			new int[5] {-1, -1, -1, 4, -1},
-			new int[5] {-1, -1, -1, -1, 4} };
-		int** d23x3 = new int* [3]{
-			new int[3] {-1,	-1,	2},
-			new int[3] {-1, 2, -1},
-			new int[3] {2, -1, -1} };
-		int** d25x5 = new int* [5]{
-			new int[5] {-1, -1, -1, -1, 4},
-			new int[5] {-1, -1, -1, 4, -1},
-			new int[5] {-1, -1, 4, -1, -1},
-			new int[5] {-1, 4, -1, -1, -1},
-			new int[5] {4, -1, -1, -1, -1} };
-
-#pragma endregion
+		int* mSize = new int[7]{
+			9, 25, 49, 81, 121, 169, 255};
+		
 
 	public:
-		//delegate void Pidor(Bitmap^, Bitmap^);
 		ProgressBar^ progressPtr = nullptr;
 		PictureBox^ picturePtr = nullptr;
 
@@ -111,6 +69,7 @@ namespace ImageEditor {
 		void filterD1();
 		void filterD2();
 		void frequencyDomain();
+		int** getMask(int);
 		int compar(Color, Color);
 	};
 }

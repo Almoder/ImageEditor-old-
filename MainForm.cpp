@@ -82,6 +82,9 @@ Void MainForm::openItemClick(Object^ sender, EventArgs^ e) {
 			engine->sFDindex = openFileDialog->FilterIndex;
 			pictureBox1->Image = engine->getCurrent();
 			pictureBox2->Image = engine->getCurrent();
+			gallery->Controls->Clear();
+			newPb = Drawing::Point(0, 0);
+			addPB();
 			countLabel->Text = gcnew String("Count: " + engine->count());
 			cur1Label->Text = gcnew String("Cur1: " + engine->current);
 			textBox10->Text = String::Empty;
@@ -144,7 +147,9 @@ Void MainForm::redoItemClick(Object^ sender, EventArgs^ e) {
 
 Void MainForm::doubleItemClick(Object^ sender, EventArgs^ e) {
 	splitContainer->Panel2Collapsed = !splitContainer->Panel2Collapsed;
+	curPictureBox = pictureBox1;
 	cur2Label->Visible = !cur2Label->Visible;
+	curLabel = 0;
 }
 
 Void MainForm::pictureBoxClick(Object^ sender, EventArgs^ e) {
@@ -197,6 +202,25 @@ Void MainForm::setColors() {
 	splitContainer->Panel2->BackColor = back;
 }
 
+Void MainForm::addPB() {
+	PictureBox^ pb = gcnew PictureBox();
+	pb->Location = newPb;
+	pb->Dock = DockStyle::None;
+	pb->Name = gcnew String("pb" + engine->count());
+	pb->SizeMode = PictureBoxSizeMode::StretchImage;
+	pb->Image = engine->getCurrent();
+	pb->Width = 500;
+	pb->Height = pictureBox1->Height * 500;
+	pb->Height /= pictureBox1->Width;
+	pb->TabIndex = engine->count();
+	pb->TabStop = true;
+	if (newPb.X == 0) newPb.X += pb->Width + 5;
+	else {
+		newPb.X = 0; newPb.Y += pb->Height + 5;
+	}
+	this->gallery->Controls->Add(pb);
+}
+
 #pragma endregion
 #pragma region Threading
 
@@ -207,9 +231,11 @@ Void MainForm::progressBarIncValue() {
 Void MainForm::updatePictures() {
 	engine->current = engine->count() - 1;
 	progressBar->Visible = false;
-	pictureBox1->Image = engine->getCurrent();
+	curPictureBox->Image = engine->getCurrent();
+	addPB();
 	countLabel->Text = gcnew String("Count: " + engine->count());
-	cur1Label->Text = gcnew String("Cur1: " + engine->current);
+	if (curLabel == 1) cur1Label->Text = gcnew String("Cur1: " + engine->current);
+	else cur2Label->Text = gcnew String("Cur2: " + engine->current);
 	disableControls();
 }
 
@@ -263,7 +289,7 @@ Void MainForm::button3Click(Object^, EventArgs^) {
 Void MainForm::button4Click(Object^, EventArgs^) {
 	if (engine->dataEmpty()) return;
 	progressBar->Value = 0;
-	progressBar->Maximum = engine->getCurrent()->Width * 4;
+	progressBar->Maximum = engine->getCurrent()->Width * 3;
 	progressBar->Visible = true;
 	engine->doBinarAdaptive();
 	disableControls();
@@ -447,19 +473,6 @@ Void MainForm::textBoxTextChanged(Object^ sender, EventArgs^ e) {
 		if (temp->Text != String::Empty &&
 			Convert::ToInt32(temp->Text) > 16) temp->Text = "16";
 		break;
-	}
-}
-
-Void MainForm::comboBox1SelectedValueChanged(Object^sender , EventArgs^ e) {
-	if (comboBox1->SelectedIndex == 3) {
-		comboBox2->Items[0] = "5x5";
-		comboBox2->Items[1] = "7x7";
-		comboBox2->Text = "Size";
-	}
-	else if (comboBox2->Items[0] == "5x5") {
-		comboBox2->Items[0] = "3x3";
-		comboBox2->Items[1] = "5x5";
-		comboBox2->Text = "Size";
 	}
 }
 
