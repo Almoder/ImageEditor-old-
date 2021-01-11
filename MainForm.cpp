@@ -13,10 +13,9 @@ void main() {
 MainForm::MainForm() {
 	InitializeComponent();
 	engine = gcnew Engine(
-		gcnew Action(this, &MainForm::progressBarIncValue),
-		gcnew Action(this, &MainForm::updatePictures));
-	engine->progressPtr = progressBar;
+		gcnew PbarInc(this, &MainForm::updatePictures));
 	engine->picturePtr = pictureBox1;
+	pbars = gcnew List<ProgressBar^>();
 	tableLayout->AutoScroll = false;
 	tableLayout->HorizontalScroll->Maximum = 0;
 	tableLayout->VerticalScroll->Maximum = 0;
@@ -24,7 +23,8 @@ MainForm::MainForm() {
 	tableLayout->AutoScroll = true;
 	splitContainer->Panel2Collapsed = true;
 	curPictureBox = pictureBox1;
-	progressBar->Visible = false;
+	domainUpDown1->SelectedIndex = 0;
+	domainUpDown2->SelectedIndex = 0;
 	setColors();
 }
 
@@ -84,6 +84,14 @@ Void MainForm::openItemClick(Object^ sender, EventArgs^ e) {
 			pictureBox2->Image = engine->getCurrent();
 			gallery->Controls->Clear();
 			newPb = Drawing::Point(0, 0);
+			PBl = 0; PBn = 4;
+			PBw = engine->getCurrent()->Width;
+			if (PBw >= 450 && PBw < 600) { 
+				PBn = 2; PBw = 450; }
+			else if (PBw >= 300 && PBw <= 450) { 
+				PBn = 3; PBw = 320; }
+			else if (PBw >= 600) { 
+				PBn = 1; PBw = 600; }
 			addPB();
 			countLabel->Text = gcnew String("Count: " + engine->count());
 			cur1Label->Text = gcnew String("Cur1: " + engine->current);
@@ -152,6 +160,18 @@ Void MainForm::doubleItemClick(Object^ sender, EventArgs^ e) {
 	curLabel = 0;
 }
 
+Void MainForm::autoConfigItemClick(Object^ sender, EventArgs^ e) {
+	domainUpDown1->Visible = !domainUpDown1->Visible;
+	domainUpDown2->Visible = !domainUpDown2->Visible;
+}
+
+Void MainForm::permanentClick(Object^ sender, EventArgs^ e) {
+	engine->permanent = !engine->permanent;
+	disableControls(engine->permanent || !engine->works);
+	if (engine->permanent) 
+		engine->current2 = engine->current;
+}
+
 Void MainForm::pictureBoxClick(Object^ sender, EventArgs^ e) {
 	curPictureBox = safe_cast<PictureBox^>(sender);
 	curLabel = curPictureBox->Name->Contains("1") ? 1 : 2;
@@ -185,13 +205,15 @@ Void MainForm::setColors() {
 		var->BackColor = back;
 		var->ForeColor = fore;
 	}
-	for each (Control ^ var in tableLayout->Controls) {
+	for each (Control^ var in tableLayout->Controls) {
 		if (var->Name->Contains("button")) {
 			safe_cast<Button^>(var)->FlatAppearance->BorderSize = 0;
 			safe_cast<Button^>(var)->FlatAppearance->MouseDownBackColor = down;
 			safe_cast<Button^>(var)->FlatAppearance->MouseOverBackColor = over;
 		}
-		if (var->Name->Contains("textBox")) var->BackColor = over;
+		if (var->Name->Contains("textBox")) {
+			var->BackColor = over;
+		}
 		else var->BackColor = back;
 		var->ForeColor = fore;
 	}
@@ -208,35 +230,47 @@ Void MainForm::addPB() {
 	pb->Dock = DockStyle::None;
 	pb->Name = gcnew String("pb" + engine->count());
 	pb->SizeMode = PictureBoxSizeMode::StretchImage;
-	pb->Image = engine->getCurrent();
-	pb->Width = 500;
-	pb->Height = pictureBox1->Height * 500;
+	pb->Image = engine->getLast();
+	pb->Width = PBw;
+	pb->BorderStyle = BorderStyle::None;
+	pb->BackColor = Color::Red;
+	pb->Height = pictureBox1->Height * pb->Width;
 	pb->Height /= pictureBox1->Width;
 	pb->TabIndex = engine->count();
 	pb->TabStop = true;
-	if (newPb.X == 0) newPb.X += pb->Width + 5;
-	else {
-		newPb.X = 0; newPb.Y += pb->Height + 5;
-	}
 	this->gallery->Controls->Add(pb);
+	if (PBl < PBn) {
+		PBl++; newPb.X += PBw + 5;
+	}
+	else {
+		newPb.X = 0; newPb.Y += pb->Height + 5; PBl = 0;
+	}
 }
 
 #pragma endregion
 #pragma region Threading
 
-Void MainForm::progressBarIncValue() {
-	progressBar->Value++;
-}
-
-Void MainForm::updatePictures() {
-	engine->current = engine->count() - 1;
-	progressBar->Visible = false;
-	curPictureBox->Image = engine->getCurrent();
+Void MainForm::updatePictures(ProgressBar^ ptr) {
+	psPanel->Controls->Remove(ptr);
+	pbc--; int i = 0; 
+	engine->works = pbc != 0;
+	if (isPsPanel) psPanel->Height = 7 + (17 * pbc);
+	for each (Control ^ var in psPanel->Controls) {
+		newPs.Y = 7 + (17 * i);
+		var->Location = newPs;
+		i++;
+	}
+	if (engine->permanent) 
+		curPictureBox->Image = engine->getLast();
+	else {
+		engine->current = engine->count() - 1;
+		curPictureBox->Image = engine->getCurrent();
+	}
 	addPB();
 	countLabel->Text = gcnew String("Count: " + engine->count());
-	if (curLabel == 1) cur1Label->Text = gcnew String("Cur1: " + engine->current);
-	else cur2Label->Text = gcnew String("Cur2: " + engine->current);
-	disableControls();
+	if (curLabel == 1) cur1Label->Text = gcnew String("Cur1: " + (engine->count() - 1));
+	else cur2Label->Text = gcnew String("Cur2: " + (engine->count() - 1));
+	disableControls(engine->permanent || !engine->works);
 }
 
 Void MainForm::disableControls() {
@@ -244,9 +278,52 @@ Void MainForm::disableControls() {
 		if (var->Name->Contains("button"))
 			safe_cast<Button^>(var)->Enabled = !safe_cast<Button^>(var)->Enabled;
 	}
-	for each (ToolStripMenuItem ^ var in fileItem->DropDownItems) {
-		var->Enabled = !var->Enabled;
+	if (!engine->works) {
+		for each (ToolStripMenuItem ^ var in fileItem->DropDownItems) {
+			var->Enabled = !var->Enabled;
+		}
 	}
+}
+
+Void MainForm::disableControls(bool val) {
+	for each (Control ^ var in tableLayout->Controls) {
+		if (var->Name->Contains("button"))
+			safe_cast<Button^>(var)->Enabled = val;
+	}
+	if (!engine->works) {
+		for each (ToolStripMenuItem ^ var in fileItem->DropDownItems) {
+			var->Enabled = val;
+		}
+	}
+}
+
+Void MainForm::progressBarInc(ProgressBar^ ptr) {
+	ptr->Value++;
+}
+
+Void MainForm::addProgress(int max) {
+	ProgressBar^ pb = gcnew ProgressBar();
+	newPs.Y = 7 + (17 * pbc);
+	pbc++;
+	if (pbc == 16) disableControls();
+	pb->Name = pbc.ToString();
+	pb->Location = newPs;
+	pb->Size = Drawing::Size(psPanel->Width - 4, 10);
+	pb->Anchor = System::Windows::Forms::AnchorStyles::Top | 
+		System::Windows::Forms::AnchorStyles::Left | 
+		System::Windows::Forms::AnchorStyles::Right;
+	pb->Maximum = max;
+	pb->Value = 0;
+	pb->MouseMove += gcnew MouseEventHandler(
+		this, &MainForm::psPanel_MouseMove);
+	pb->MouseDown += gcnew MouseEventHandler(
+		this, &MainForm::psPanel_MouseDown);
+	psPanel->Controls->Add(pb);
+}
+
+ProgressBar^ MainForm::getLast() {
+	return safe_cast<ProgressBar^>(
+		psPanel->Controls[psPanel->Controls->Count - 1]);
 }
 
 #pragma endregion
@@ -255,20 +332,28 @@ Void MainForm::disableControls() {
 
 Void MainForm::button1Click(Object^, EventArgs^) {
 	if (engine->dataEmpty()) return;
-	progressBar->Value = 0;
-	progressBar->Maximum = engine->getCurrent()->Width;
-	progressBar->Visible = true;
-	engine->doNegative();
-	disableControls();
+	if (!engine->works || engine->permanent) {
+		engine->works = true;
+		addProgress(engine->getCurrent()->Width);
+		engine->preset(gcnew PbarInc(
+			this, &MainForm::progressBarInc), 
+			getLast());
+		engine->doNegative();
+		disableControls(engine->permanent);
+	}
 }
 
 Void MainForm::button2Click(Object^, EventArgs^) {
 	if (engine->dataEmpty()) return;
-	progressBar->Value = 0;
-	progressBar->Maximum = engine->getCurrent()->Width;
-	progressBar->Visible = true;
-	engine->doHalftone();
-	disableControls();
+	if (!engine->works || engine->permanent) {
+		engine->works = true;
+		addProgress(engine->getCurrent()->Width);
+		engine->preset(gcnew PbarInc(
+			this, &MainForm::progressBarInc),
+			getLast());
+		engine->doHalftone();
+		disableControls(engine->permanent);
+	}
 }
 
 Void MainForm::button3Click(Object^, EventArgs^) {
@@ -276,112 +361,164 @@ Void MainForm::button3Click(Object^, EventArgs^) {
 	if (textBox1->Text == String::Empty || 
 		textBox2->Text == String::Empty || 
 		textBox3->Text == String::Empty) return;
-	progressBar->Value = 0;
-	progressBar->Maximum = engine->getCurrent()->Width;
-	progressBar->Visible = true;
-	engine->doBinar(
-		Convert::ToInt32(textBox1->Text),
-		Convert::ToInt32(textBox2->Text),
-		Convert::ToInt32(textBox3->Text));
-	disableControls();
+	if (!engine->works || engine->permanent) {
+		engine->works = true;
+		addProgress(engine->getCurrent()->Width);
+		engine->preset(gcnew PbarInc(
+			this, &MainForm::progressBarInc),
+			getLast());
+		engine->doBinar(
+			Convert::ToInt32(textBox1->Text),
+			Convert::ToInt32(textBox2->Text),
+			Convert::ToInt32(textBox3->Text));
+		disableControls(engine->permanent);
+	}
 }
 
 Void MainForm::button4Click(Object^, EventArgs^) {
 	if (engine->dataEmpty()) return;
-	progressBar->Value = 0;
-	progressBar->Maximum = engine->getCurrent()->Width * 3;
-	progressBar->Visible = true;
-	engine->doBinarAdaptive();
-	disableControls();
+	if (!engine->works || engine->permanent) {
+		engine->works = true;
+		addProgress(engine->getCurrent()->Width * 3);
+		engine->preset(gcnew PbarInc(
+			this, &MainForm::progressBarInc),
+			getLast());
+		engine->doBinarAdaptive();
+		disableControls(engine->permanent);
+	}
 }
 
 Void MainForm::button5Click(Object^, EventArgs^) {
 	if (engine->dataEmpty()) return;
 	if (textBox4->Text == String::Empty ||
 		textBox5->Text == String::Empty) return;
-	double c, g;
-	try {
-		c = Convert::ToDouble(textBox4->Text);
-		g = Convert::ToDouble(textBox5->Text);
+	if (!engine->works || engine->permanent) {
+		double c, g;
+		try {
+			c = Convert::ToDouble(textBox4->Text);
+			g = Convert::ToDouble(textBox5->Text);
+		}
+		catch (System::FormatException^ exc) {
+			delete exc;
+			return;
+		}
+		engine->works = true;
+		addProgress(engine->getCurrent()->Width);
+		engine->preset(gcnew PbarInc(
+			this, &MainForm::progressBarInc),
+			getLast());
+		engine->doPower(c, g);
+		disableControls(engine->permanent);
 	}
-	catch (System::FormatException^ exc) {
-		delete exc;
-		return;
-	}
-	progressBar->Value = 0;
-	progressBar->Maximum = engine->getCurrent()->Width;
-	progressBar->Visible = true;
-	engine->doPower(c, g);
-	disableControls();
 }
 
 Void MainForm::button6Click(Object^, EventArgs^) {
-	if (engine->dataEmpty() || textBox6->Text == String::Empty) return;
-	progressBar->Value = 0;
-	progressBar->Maximum = engine->getCurrent()->Width;
-	progressBar->Visible = true;
-	engine->doLBrightness(Convert::ToInt32(textBox6->Text));
-	disableControls();
+	if (engine->dataEmpty() || 
+		textBox6->Text == String::Empty) return;
+	if (engine->dataEmpty()) return;
+	if (!engine->works || engine->permanent) {
+		engine->works = true;
+		addProgress(engine->getCurrent()->Width);
+		engine->preset(gcnew PbarInc(
+			this, &MainForm::progressBarInc),
+			getLast());
+		engine->doLBrightness(Convert::ToInt32(textBox6->Text));
+		disableControls(engine->permanent);
+	}
 }
 
 Void MainForm::button7Click(Object^, EventArgs^) {
-	if (engine->dataEmpty() || textBox7->Text == String::Empty) return;
-	progressBar->Value = 0;
-	progressBar->Maximum = engine->getCurrent()->Width * 2;
-	progressBar->Visible = true;
-	engine->doLContrast(Convert::ToInt32(textBox7->Text));
-	disableControls();
+	if (engine->dataEmpty() || 
+		textBox7->Text == String::Empty) return;
+	if (engine->dataEmpty()) return;
+	if (!engine->works || engine->permanent) {
+		engine->works = true;
+		addProgress(engine->getCurrent()->Width);
+		engine->preset(gcnew PbarInc(
+			this, &MainForm::progressBarInc),
+			getLast());
+		engine->doLContrast(Convert::ToInt32(textBox7->Text));
+		disableControls(engine->permanent);
+	}
 }
 
 Void MainForm::button8Click(Object^, EventArgs^) {
-	if (engine->dataEmpty() || textBox8->Text == String::Empty) return;
-	progressBar->Value = 0;
-	progressBar->Maximum = engine->getCurrent()->Width;
-	progressBar->Visible = true;
-	engine->doNBrightness(Convert::ToInt32(textBox8->Text));
-	disableControls();
+	if (engine->dataEmpty() || 
+		textBox8->Text == String::Empty) return;
+	if (engine->dataEmpty()) return;
+	if (!engine->works || engine->permanent) {
+		engine->works = true;
+		addProgress(engine->getCurrent()->Width);
+		engine->preset(gcnew PbarInc(
+			this, &MainForm::progressBarInc),
+			getLast());
+		engine->doNBrightness(Convert::ToInt32(textBox8->Text));
+		disableControls(engine->permanent);
+	}
 }
 
 Void MainForm::button9Click(Object^, EventArgs^) {
-	if (engine->dataEmpty() 
-		|| textBox9->Text == String::Empty) return;
-	progressBar->Value = 0;
-	progressBar->Maximum = engine->getCurrent()->Width;
-	progressBar->Visible = true;
-	engine->doNContrast(Convert::ToInt32(textBox9->Text));
-	disableControls();
+	if (engine->dataEmpty() || 
+		textBox9->Text == String::Empty) return;
+	if (engine->dataEmpty()) return;
+	if (!engine->works || engine->permanent) {
+		engine->works = true;
+		addProgress(engine->getCurrent()->Width);
+		engine->preset(gcnew PbarInc(
+			this, &MainForm::progressBarInc),
+			getLast());
+		engine->doNContrast(Convert::ToInt32(textBox9->Text));
+		disableControls(engine->permanent);
+	}
 }
 
 Void MainForm::button10Click(Object^, EventArgs^) {
 	if (engine->dataEmpty()) return;
-	progressBar->Value = 0;
-	progressBar->Maximum = engine->getCurrent()->Width * 2;
-	progressBar->Visible = true;
-	engine->doAutolevels();
-	disableControls();
+	if (!engine->works || engine->permanent) {
+		engine->works = true;
+		addProgress(engine->getCurrent()->Width * 2);
+		engine->preset(gcnew PbarInc(
+			this, &MainForm::progressBarInc),
+			getLast());
+		engine->doAutolevels(
+			domainUpDown1->SelectedIndex,
+			domainUpDown2->SelectedIndex);
+		disableControls(engine->permanent);
+	}
 }
 
-Void ImageEditor::MainForm::button11Click(Object^, EventArgs^) {
+Void MainForm::button11Click(Object^, EventArgs^) {
 	if (engine->dataEmpty() || 
 		textBox10->Text == String::Empty || 
 		textBox11->Text == String::Empty) return;
-	progressBar->Value = 0;
-	progressBar->Maximum = engine->getCurrent()->Width;
-	progressBar->Visible = true;
-	engine->doFrequencyDomain(
-		Convert::ToInt32(textBox10->Text), 
-		Convert::ToInt32(textBox11->Text));
-	disableControls();
+	if (!engine->works || engine->permanent) {
+		engine->works = true;
+		addProgress(engine->getCurrent()->Width);
+		engine->preset(gcnew PbarInc(
+			this, &MainForm::progressBarInc),
+			getLast());
+		engine->doFrequencyDomain(
+			Convert::ToInt32(textBox10->Text), 
+			Convert::ToInt32(textBox11->Text));
+		disableControls(engine->permanent);
+	}
 }
 
-Void ImageEditor::MainForm::button12Click(Object^, EventArgs^) {
-	if (engine->dataEmpty() || comboBox1->Text == "Type" || comboBox2->Text == "Size") return;
-	progressBar->Value = 0;
-	progressBar->Maximum = engine->getCurrent()->Width;
-	progressBar->Visible = true;
-	engine->doFiltration(
-		comboBox1->SelectedIndex, comboBox2->SelectedIndex);
-	disableControls();
+Void MainForm::button12Click(Object^, EventArgs^) {
+	if (engine->dataEmpty() || 
+		comboBox1->Text == "Type" || 
+		comboBox2->Text == "Size") return;
+	if (!engine->works || engine->permanent) {
+		engine->works = true;
+		addProgress(engine->getCurrent()->Width);
+		engine->preset(gcnew PbarInc(
+			this, &MainForm::progressBarInc),
+			getLast());
+		engine->doFiltration(
+			comboBox1->SelectedIndex, 
+			comboBox2->SelectedIndex);
+		disableControls(engine->permanent);
+	}
 }
 
 #pragma endregion
@@ -473,6 +610,24 @@ Void MainForm::textBoxTextChanged(Object^ sender, EventArgs^ e) {
 		if (temp->Text != String::Empty &&
 			Convert::ToInt32(temp->Text) > 16) temp->Text = "16";
 		break;
+	}
+}
+
+Void MainForm::psPanel_MouseMove(Object^ sender, MouseEventArgs^ e) {
+	if (e->Location.X < psPanel->Location.X ||
+		e->Location.X > psPanel->Location.X + psPanel->Width ||
+		e->Location.Y < psPanel->Location.Y ||
+		e->Location.Y > psPanel->Location.Y + psPanel->Height) {
+		psPanel->Height = 24;
+		isPsPanel = false;
+	}
+}
+
+Void MainForm::psPanel_MouseDown(Object^ sender, MouseEventArgs^ e) {
+	if (e->Button == Windows::Forms::MouseButtons::Left &&
+		pbc > 1) {
+		psPanel->Height = 7 + (17 * pbc);
+		isPsPanel = true;
 	}
 }
 

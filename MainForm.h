@@ -16,7 +16,7 @@ namespace ImageEditor {
 	{
 	private: System::Windows::Forms::Button^ button1;
 	private: System::Windows::Forms::Button^ button2;
-	private: System::Windows::Forms::ProgressBar^ progressBar;
+
 		
 	private: System::Windows::Forms::Label^ label1;
 	private: System::Windows::Forms::Label^ label2;
@@ -45,9 +45,6 @@ namespace ImageEditor {
 	private: System::Windows::Forms::Label^ label10;
 	private: System::Windows::Forms::TextBox^ textBox9;
 	private: System::Windows::Forms::Button^ button10;
-	private: System::Windows::Forms::Label^ label11;
-	private: System::Windows::Forms::ComboBox^ comboBox1;
-
 	private: System::Windows::Forms::Button^ button11;
 	private: System::Windows::Forms::Button^ button12;
 	private: System::Windows::Forms::TextBox^ textBox11;
@@ -58,19 +55,24 @@ namespace ImageEditor {
 	
 		Engine^ engine = nullptr;
 		PictureBox^ curPictureBox = nullptr;
+		List<ProgressBar^>^ pbars = nullptr;
 		Drawing::Point newPb = Point(0, 0);
-
-		   int curLabel = 1, filterSize = 3;
+		Drawing::Point newPs = Point(2, 7);
+		bool isPsPanel = false;
+	    int curLabel = 1, filterSize = 3, pbc = 0;
+		int PBn, PBw, PBl = 0;
 	private: System::Windows::Forms::TabPage^ tabPage2;
 	private: System::Windows::Forms::Panel^ gallery;
-
-
 	private: System::Windows::Forms::TableLayoutPanel^ propTable;
 	private: System::Windows::Forms::Label^ typeLabel;
 	private: System::Windows::Forms::Label^ label15;
 	private: System::Windows::Forms::Label^ description;
-
-
+	private: System::Windows::Forms::DomainUpDown^ comboBox1;
+	private: System::Windows::Forms::DomainUpDown^ domainUpDown2;
+	private: System::Windows::Forms::DomainUpDown^ domainUpDown1;
+	private: System::Windows::Forms::ToolStripMenuItem^ autoConfigItem;
+	private: System::Windows::Forms::Panel^ psPanel;
+	private: System::Windows::Forms::ToolStripMenuItem^ permanentItem;
 	private: System::Windows::Forms::DomainUpDown^ comboBox2;
 	public:
 		MainForm(void);
@@ -124,9 +126,15 @@ namespace ImageEditor {
 			this->redoItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->viewItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->doubleItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
+			this->autoConfigItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
+			this->permanentItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->tabControl = (gcnew System::Windows::Forms::TabControl());
 			this->tabPage1 = (gcnew System::Windows::Forms::TabPage());
 			this->tableLayout = (gcnew System::Windows::Forms::TableLayoutPanel());
+			this->domainUpDown2 = (gcnew System::Windows::Forms::DomainUpDown());
+			this->domainUpDown1 = (gcnew System::Windows::Forms::DomainUpDown());
+			this->button10 = (gcnew System::Windows::Forms::Button());
+			this->comboBox1 = (gcnew System::Windows::Forms::DomainUpDown());
 			this->textBox11 = (gcnew System::Windows::Forms::TextBox());
 			this->textBox10 = (gcnew System::Windows::Forms::TextBox());
 			this->label14 = (gcnew System::Windows::Forms::Label());
@@ -134,8 +142,6 @@ namespace ImageEditor {
 			this->label12 = (gcnew System::Windows::Forms::Label());
 			this->button12 = (gcnew System::Windows::Forms::Button());
 			this->button11 = (gcnew System::Windows::Forms::Button());
-			this->label11 = (gcnew System::Windows::Forms::Label());
-			this->button10 = (gcnew System::Windows::Forms::Button());
 			this->textBox9 = (gcnew System::Windows::Forms::TextBox());
 			this->textBox8 = (gcnew System::Windows::Forms::TextBox());
 			this->label10 = (gcnew System::Windows::Forms::Label());
@@ -164,7 +170,6 @@ namespace ImageEditor {
 			this->button1 = (gcnew System::Windows::Forms::Button());
 			this->label1 = (gcnew System::Windows::Forms::Label());
 			this->textBox1 = (gcnew System::Windows::Forms::TextBox());
-			this->comboBox1 = (gcnew System::Windows::Forms::ComboBox());
 			this->comboBox2 = (gcnew System::Windows::Forms::DomainUpDown());
 			this->splitContainer = (gcnew System::Windows::Forms::SplitContainer());
 			this->pictureBox1 = (gcnew System::Windows::Forms::PictureBox());
@@ -172,15 +177,15 @@ namespace ImageEditor {
 			this->tabPage2 = (gcnew System::Windows::Forms::TabPage());
 			this->gallery = (gcnew System::Windows::Forms::Panel());
 			this->propTable = (gcnew System::Windows::Forms::TableLayoutPanel());
+			this->label15 = (gcnew System::Windows::Forms::Label());
+			this->typeLabel = (gcnew System::Windows::Forms::Label());
+			this->description = (gcnew System::Windows::Forms::Label());
 			this->tabPage3 = (gcnew System::Windows::Forms::TabPage());
 			this->statusStrip = (gcnew System::Windows::Forms::StatusStrip());
 			this->countLabel = (gcnew System::Windows::Forms::ToolStripStatusLabel());
 			this->cur1Label = (gcnew System::Windows::Forms::ToolStripStatusLabel());
 			this->cur2Label = (gcnew System::Windows::Forms::ToolStripStatusLabel());
-			this->progressBar = (gcnew System::Windows::Forms::ProgressBar());
-			this->typeLabel = (gcnew System::Windows::Forms::Label());
-			this->description = (gcnew System::Windows::Forms::Label());
-			this->label15 = (gcnew System::Windows::Forms::Label());
+			this->psPanel = (gcnew System::Windows::Forms::Panel());
 			this->menuStrip->SuspendLayout();
 			this->tabControl->SuspendLayout();
 			this->tabPage1->SuspendLayout();
@@ -198,10 +203,14 @@ namespace ImageEditor {
 			// 
 			// menuStrip
 			// 
+			this->menuStrip->Anchor = static_cast<System::Windows::Forms::AnchorStyles>(((System::Windows::Forms::AnchorStyles::Top | System::Windows::Forms::AnchorStyles::Left)
+				| System::Windows::Forms::AnchorStyles::Right));
+			this->menuStrip->AutoSize = false;
+			this->menuStrip->Dock = System::Windows::Forms::DockStyle::None;
 			this->menuStrip->Items->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(2) { this->fileItem, this->viewItem });
 			this->menuStrip->Location = System::Drawing::Point(0, 0);
 			this->menuStrip->Name = L"menuStrip";
-			this->menuStrip->Size = System::Drawing::Size(524, 24);
+			this->menuStrip->Size = System::Drawing::Size(90, 24);
 			this->menuStrip->TabIndex = 0;
 			this->menuStrip->Text = L"menuStrip1";
 			// 
@@ -260,7 +269,10 @@ namespace ImageEditor {
 			// 
 			// viewItem
 			// 
-			this->viewItem->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(1) { this->doubleItem });
+			this->viewItem->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(3) {
+				this->doubleItem,
+					this->autoConfigItem, this->permanentItem
+			});
 			this->viewItem->Name = L"viewItem";
 			this->viewItem->Size = System::Drawing::Size(44, 20);
 			this->viewItem->Text = L"View";
@@ -273,6 +285,24 @@ namespace ImageEditor {
 			this->doubleItem->Size = System::Drawing::Size(194, 22);
 			this->doubleItem->Text = L"Double picture";
 			this->doubleItem->Click += gcnew System::EventHandler(this, &MainForm::doubleItemClick);
+			// 
+			// autoConfigItem
+			// 
+			this->autoConfigItem->Checked = true;
+			this->autoConfigItem->CheckOnClick = true;
+			this->autoConfigItem->CheckState = System::Windows::Forms::CheckState::Checked;
+			this->autoConfigItem->Name = L"autoConfigItem";
+			this->autoConfigItem->Size = System::Drawing::Size(194, 22);
+			this->autoConfigItem->Text = L"Autolevel config";
+			this->autoConfigItem->Click += gcnew System::EventHandler(this, &MainForm::autoConfigItemClick);
+			// 
+			// permanentItem
+			// 
+			this->permanentItem->CheckOnClick = true;
+			this->permanentItem->Name = L"permanentItem";
+			this->permanentItem->Size = System::Drawing::Size(194, 22);
+			this->permanentItem->Text = L"Permanent original";
+			this->permanentItem->Click += gcnew System::EventHandler(this, &MainForm::permanentClick);
 			// 
 			// tabControl
 			// 
@@ -308,15 +338,17 @@ namespace ImageEditor {
 			this->tableLayout->ColumnCount = 2;
 			this->tableLayout->ColumnStyles->Add((gcnew System::Windows::Forms::ColumnStyle(System::Windows::Forms::SizeType::Percent, 50)));
 			this->tableLayout->ColumnStyles->Add((gcnew System::Windows::Forms::ColumnStyle(System::Windows::Forms::SizeType::Percent, 50)));
-			this->tableLayout->Controls->Add(this->textBox11, 1, 25);
-			this->tableLayout->Controls->Add(this->textBox10, 1, 24);
-			this->tableLayout->Controls->Add(this->label14, 0, 25);
-			this->tableLayout->Controls->Add(this->label13, 0, 24);
-			this->tableLayout->Controls->Add(this->label12, 0, 23);
-			this->tableLayout->Controls->Add(this->button12, 0, 22);
-			this->tableLayout->Controls->Add(this->button11, 0, 26);
-			this->tableLayout->Controls->Add(this->label11, 0, 19);
+			this->tableLayout->Controls->Add(this->domainUpDown2, 0, 18);
+			this->tableLayout->Controls->Add(this->domainUpDown1, 0, 18);
 			this->tableLayout->Controls->Add(this->button10, 0, 18);
+			this->tableLayout->Controls->Add(this->comboBox1, 0, 22);
+			this->tableLayout->Controls->Add(this->textBox11, 1, 26);
+			this->tableLayout->Controls->Add(this->textBox10, 1, 25);
+			this->tableLayout->Controls->Add(this->label14, 0, 26);
+			this->tableLayout->Controls->Add(this->label13, 0, 25);
+			this->tableLayout->Controls->Add(this->label12, 0, 24);
+			this->tableLayout->Controls->Add(this->button12, 0, 21);
+			this->tableLayout->Controls->Add(this->button11, 0, 27);
 			this->tableLayout->Controls->Add(this->textBox9, 1, 17);
 			this->tableLayout->Controls->Add(this->textBox8, 1, 16);
 			this->tableLayout->Controls->Add(this->label10, 0, 15);
@@ -345,14 +377,14 @@ namespace ImageEditor {
 			this->tableLayout->Controls->Add(this->button1, 0, 1);
 			this->tableLayout->Controls->Add(this->label1, 0, 0);
 			this->tableLayout->Controls->Add(this->textBox1, 1, 4);
-			this->tableLayout->Controls->Add(this->comboBox1, 0, 20);
-			this->tableLayout->Controls->Add(this->comboBox2, 0, 21);
+			this->tableLayout->Controls->Add(this->comboBox2, 0, 23);
 			this->tableLayout->Dock = System::Windows::Forms::DockStyle::Right;
 			this->tableLayout->ForeColor = System::Drawing::Color::Black;
 			this->tableLayout->Location = System::Drawing::Point(363, 3);
 			this->tableLayout->Name = L"tableLayout";
 			this->tableLayout->Padding = System::Windows::Forms::Padding(2, 0, 0, 0);
-			this->tableLayout->RowCount = 28;
+			this->tableLayout->RowCount = 29;
+			this->tableLayout->RowStyles->Add((gcnew System::Windows::Forms::RowStyle(System::Windows::Forms::SizeType::Absolute, 20)));
 			this->tableLayout->RowStyles->Add((gcnew System::Windows::Forms::RowStyle(System::Windows::Forms::SizeType::Absolute, 20)));
 			this->tableLayout->RowStyles->Add((gcnew System::Windows::Forms::RowStyle(System::Windows::Forms::SizeType::Absolute, 20)));
 			this->tableLayout->RowStyles->Add((gcnew System::Windows::Forms::RowStyle(System::Windows::Forms::SizeType::Absolute, 20)));
@@ -384,121 +416,46 @@ namespace ImageEditor {
 			this->tableLayout->Size = System::Drawing::Size(150, 219);
 			this->tableLayout->TabIndex = 1;
 			// 
-			// textBox11
+			// domainUpDown2
 			// 
-			this->textBox11->BorderStyle = System::Windows::Forms::BorderStyle::FixedSingle;
-			this->textBox11->Dock = System::Windows::Forms::DockStyle::Fill;
-			this->textBox11->Location = System::Drawing::Point(67, 500);
-			this->textBox11->Margin = System::Windows::Forms::Padding(0);
-			this->textBox11->MaxLength = 2;
-			this->textBox11->Name = L"textBox11";
-			this->textBox11->Size = System::Drawing::Size(66, 20);
-			this->textBox11->TabIndex = 40;
-			this->textBox11->TextChanged += gcnew System::EventHandler(this, &MainForm::textBoxTextChanged);
-			this->textBox11->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &MainForm::textBoxKeyDown);
-			this->textBox11->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &MainForm::textBoxKeyPress);
+			this->domainUpDown2->BorderStyle = System::Windows::Forms::BorderStyle::FixedSingle;
+			this->tableLayout->SetColumnSpan(this->domainUpDown2, 2);
+			this->domainUpDown2->Dock = System::Windows::Forms::DockStyle::Fill;
+			this->domainUpDown2->Items->Add(L"3x3");
+			this->domainUpDown2->Items->Add(L"5x5");
+			this->domainUpDown2->Items->Add(L"7x7");
+			this->domainUpDown2->Items->Add(L"9x9");
+			this->domainUpDown2->Items->Add(L"11x11");
+			this->domainUpDown2->Items->Add(L"13x13");
+			this->domainUpDown2->Items->Add(L"15x15");
+			this->domainUpDown2->Location = System::Drawing::Point(2, 400);
+			this->domainUpDown2->Margin = System::Windows::Forms::Padding(0);
+			this->domainUpDown2->Name = L"domainUpDown2";
+			this->domainUpDown2->ReadOnly = true;
+			this->domainUpDown2->Size = System::Drawing::Size(131, 20);
+			this->domainUpDown2->TabIndex = 44;
+			this->domainUpDown2->Text = L"Size";
 			// 
-			// textBox10
+			// domainUpDown1
 			// 
-			this->textBox10->BorderStyle = System::Windows::Forms::BorderStyle::FixedSingle;
-			this->textBox10->Dock = System::Windows::Forms::DockStyle::Fill;
-			this->textBox10->Location = System::Drawing::Point(67, 480);
-			this->textBox10->Margin = System::Windows::Forms::Padding(0);
-			this->textBox10->MaxLength = 4;
-			this->textBox10->Name = L"textBox10";
-			this->textBox10->Size = System::Drawing::Size(66, 20);
-			this->textBox10->TabIndex = 39;
-			this->textBox10->TextChanged += gcnew System::EventHandler(this, &MainForm::textBoxTextChanged);
-			this->textBox10->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &MainForm::textBoxKeyDown);
-			this->textBox10->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &MainForm::textBoxKeyPress);
-			// 
-			// label14
-			// 
-			this->label14->AutoSize = true;
-			this->label14->Dock = System::Windows::Forms::DockStyle::Fill;
-			this->label14->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 8.25F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
-				static_cast<System::Byte>(204)));
-			this->label14->Location = System::Drawing::Point(2, 500);
-			this->label14->Margin = System::Windows::Forms::Padding(0);
-			this->label14->Name = L"label14";
-			this->label14->Size = System::Drawing::Size(65, 20);
-			this->label14->TabIndex = 38;
-			this->label14->Text = L"Order";
-			this->label14->TextAlign = System::Drawing::ContentAlignment::MiddleLeft;
-			// 
-			// label13
-			// 
-			this->label13->AutoSize = true;
-			this->label13->Dock = System::Windows::Forms::DockStyle::Fill;
-			this->label13->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 8.25F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
-				static_cast<System::Byte>(204)));
-			this->label13->Location = System::Drawing::Point(2, 480);
-			this->label13->Margin = System::Windows::Forms::Padding(0);
-			this->label13->Name = L"label13";
-			this->label13->Size = System::Drawing::Size(65, 20);
-			this->label13->TabIndex = 37;
-			this->label13->Text = L"Radius";
-			this->label13->TextAlign = System::Drawing::ContentAlignment::MiddleLeft;
-			// 
-			// label12
-			// 
-			this->label12->AutoSize = true;
-			this->tableLayout->SetColumnSpan(this->label12, 2);
-			this->label12->Dock = System::Windows::Forms::DockStyle::Fill;
-			this->label12->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 8.25F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
-				static_cast<System::Byte>(204)));
-			this->label12->Location = System::Drawing::Point(2, 460);
-			this->label12->Margin = System::Windows::Forms::Padding(0);
-			this->label12->Name = L"label12";
-			this->label12->Size = System::Drawing::Size(131, 20);
-			this->label12->TabIndex = 36;
-			this->label12->Text = L"Frequency domain";
-			this->label12->TextAlign = System::Drawing::ContentAlignment::MiddleLeft;
-			// 
-			// button12
-			// 
-			this->tableLayout->SetColumnSpan(this->button12, 2);
-			this->button12->Dock = System::Windows::Forms::DockStyle::Fill;
-			this->button12->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
-			this->button12->Location = System::Drawing::Point(2, 440);
-			this->button12->Margin = System::Windows::Forms::Padding(0);
-			this->button12->Name = L"button12";
-			this->button12->Size = System::Drawing::Size(131, 20);
-			this->button12->TabIndex = 35;
-			this->button12->Text = L"Confirm";
-			this->button12->TextAlign = System::Drawing::ContentAlignment::MiddleLeft;
-			this->button12->UseVisualStyleBackColor = true;
-			this->button12->Click += gcnew System::EventHandler(this, &MainForm::button12Click);
-			// 
-			// button11
-			// 
-			this->tableLayout->SetColumnSpan(this->button11, 2);
-			this->button11->Dock = System::Windows::Forms::DockStyle::Fill;
-			this->button11->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
-			this->button11->Location = System::Drawing::Point(2, 520);
-			this->button11->Margin = System::Windows::Forms::Padding(0);
-			this->button11->Name = L"button11";
-			this->button11->Size = System::Drawing::Size(131, 20);
-			this->button11->TabIndex = 34;
-			this->button11->Text = L"Confirm";
-			this->button11->TextAlign = System::Drawing::ContentAlignment::MiddleLeft;
-			this->button11->UseVisualStyleBackColor = true;
-			this->button11->Click += gcnew System::EventHandler(this, &MainForm::button11Click);
-			// 
-			// label11
-			// 
-			this->label11->AutoSize = true;
-			this->tableLayout->SetColumnSpan(this->label11, 2);
-			this->label11->Dock = System::Windows::Forms::DockStyle::Fill;
-			this->label11->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 8.25F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
-				static_cast<System::Byte>(204)));
-			this->label11->Location = System::Drawing::Point(2, 380);
-			this->label11->Margin = System::Windows::Forms::Padding(0);
-			this->label11->Name = L"label11";
-			this->label11->Size = System::Drawing::Size(131, 20);
-			this->label11->TabIndex = 31;
-			this->label11->Text = L"Filters";
-			this->label11->TextAlign = System::Drawing::ContentAlignment::MiddleLeft;
+			this->domainUpDown1->BorderStyle = System::Windows::Forms::BorderStyle::FixedSingle;
+			this->tableLayout->SetColumnSpan(this->domainUpDown1, 2);
+			this->domainUpDown1->Dock = System::Windows::Forms::DockStyle::Fill;
+			this->domainUpDown1->Items->Add(L"Low-frequency");
+			this->domainUpDown1->Items->Add(L"Rectangle");
+			this->domainUpDown1->Items->Add(L"Cross");
+			this->domainUpDown1->Items->Add(L"Rhombus");
+			this->domainUpDown1->Items->Add(L"Horizontal lines");
+			this->domainUpDown1->Items->Add(L"Vertical lines");
+			this->domainUpDown1->Items->Add(L"Diagonal (45)");
+			this->domainUpDown1->Items->Add(L"Diagonal (135)");
+			this->domainUpDown1->Location = System::Drawing::Point(2, 380);
+			this->domainUpDown1->Margin = System::Windows::Forms::Padding(0);
+			this->domainUpDown1->Name = L"domainUpDown1";
+			this->domainUpDown1->ReadOnly = true;
+			this->domainUpDown1->Size = System::Drawing::Size(131, 20);
+			this->domainUpDown1->TabIndex = 43;
+			this->domainUpDown1->Text = L"Type";
 			// 
 			// button10
 			// 
@@ -514,6 +471,128 @@ namespace ImageEditor {
 			this->button10->TextAlign = System::Drawing::ContentAlignment::MiddleLeft;
 			this->button10->UseVisualStyleBackColor = true;
 			this->button10->Click += gcnew System::EventHandler(this, &MainForm::button10Click);
+			// 
+			// comboBox1
+			// 
+			this->comboBox1->BorderStyle = System::Windows::Forms::BorderStyle::FixedSingle;
+			this->tableLayout->SetColumnSpan(this->comboBox1, 2);
+			this->comboBox1->Dock = System::Windows::Forms::DockStyle::Fill;
+			this->comboBox1->Items->Add(L"Low-frequency");
+			this->comboBox1->Items->Add(L"Rectangle");
+			this->comboBox1->Items->Add(L"Cross");
+			this->comboBox1->Items->Add(L"Rhombus");
+			this->comboBox1->Items->Add(L"Horizontal lines");
+			this->comboBox1->Items->Add(L"Vertical lines");
+			this->comboBox1->Items->Add(L"Diagonal (45)");
+			this->comboBox1->Items->Add(L"Diagonal (135)");
+			this->comboBox1->Location = System::Drawing::Point(2, 440);
+			this->comboBox1->Margin = System::Windows::Forms::Padding(0);
+			this->comboBox1->Name = L"comboBox1";
+			this->comboBox1->ReadOnly = true;
+			this->comboBox1->Size = System::Drawing::Size(131, 20);
+			this->comboBox1->TabIndex = 42;
+			this->comboBox1->Text = L"Type";
+			// 
+			// textBox11
+			// 
+			this->textBox11->BorderStyle = System::Windows::Forms::BorderStyle::FixedSingle;
+			this->textBox11->Dock = System::Windows::Forms::DockStyle::Fill;
+			this->textBox11->Location = System::Drawing::Point(67, 520);
+			this->textBox11->Margin = System::Windows::Forms::Padding(0);
+			this->textBox11->MaxLength = 2;
+			this->textBox11->Name = L"textBox11";
+			this->textBox11->Size = System::Drawing::Size(66, 20);
+			this->textBox11->TabIndex = 40;
+			this->textBox11->TextChanged += gcnew System::EventHandler(this, &MainForm::textBoxTextChanged);
+			this->textBox11->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &MainForm::textBoxKeyDown);
+			this->textBox11->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &MainForm::textBoxKeyPress);
+			// 
+			// textBox10
+			// 
+			this->textBox10->BorderStyle = System::Windows::Forms::BorderStyle::FixedSingle;
+			this->textBox10->Dock = System::Windows::Forms::DockStyle::Fill;
+			this->textBox10->Location = System::Drawing::Point(67, 500);
+			this->textBox10->Margin = System::Windows::Forms::Padding(0);
+			this->textBox10->MaxLength = 4;
+			this->textBox10->Name = L"textBox10";
+			this->textBox10->Size = System::Drawing::Size(66, 20);
+			this->textBox10->TabIndex = 39;
+			this->textBox10->TextChanged += gcnew System::EventHandler(this, &MainForm::textBoxTextChanged);
+			this->textBox10->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &MainForm::textBoxKeyDown);
+			this->textBox10->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &MainForm::textBoxKeyPress);
+			// 
+			// label14
+			// 
+			this->label14->AutoSize = true;
+			this->label14->Dock = System::Windows::Forms::DockStyle::Fill;
+			this->label14->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 8.25F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(204)));
+			this->label14->Location = System::Drawing::Point(2, 520);
+			this->label14->Margin = System::Windows::Forms::Padding(0);
+			this->label14->Name = L"label14";
+			this->label14->Size = System::Drawing::Size(65, 20);
+			this->label14->TabIndex = 38;
+			this->label14->Text = L"Order";
+			this->label14->TextAlign = System::Drawing::ContentAlignment::MiddleLeft;
+			// 
+			// label13
+			// 
+			this->label13->AutoSize = true;
+			this->label13->Dock = System::Windows::Forms::DockStyle::Fill;
+			this->label13->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 8.25F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(204)));
+			this->label13->Location = System::Drawing::Point(2, 500);
+			this->label13->Margin = System::Windows::Forms::Padding(0);
+			this->label13->Name = L"label13";
+			this->label13->Size = System::Drawing::Size(65, 20);
+			this->label13->TabIndex = 37;
+			this->label13->Text = L"Radius";
+			this->label13->TextAlign = System::Drawing::ContentAlignment::MiddleLeft;
+			// 
+			// label12
+			// 
+			this->label12->AutoSize = true;
+			this->tableLayout->SetColumnSpan(this->label12, 2);
+			this->label12->Dock = System::Windows::Forms::DockStyle::Fill;
+			this->label12->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 8.25F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(204)));
+			this->label12->Location = System::Drawing::Point(2, 480);
+			this->label12->Margin = System::Windows::Forms::Padding(0);
+			this->label12->Name = L"label12";
+			this->label12->Size = System::Drawing::Size(131, 20);
+			this->label12->TabIndex = 36;
+			this->label12->Text = L"Frequency domain";
+			this->label12->TextAlign = System::Drawing::ContentAlignment::MiddleLeft;
+			// 
+			// button12
+			// 
+			this->tableLayout->SetColumnSpan(this->button12, 2);
+			this->button12->Dock = System::Windows::Forms::DockStyle::Fill;
+			this->button12->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
+			this->button12->Location = System::Drawing::Point(2, 420);
+			this->button12->Margin = System::Windows::Forms::Padding(0);
+			this->button12->Name = L"button12";
+			this->button12->Size = System::Drawing::Size(131, 20);
+			this->button12->TabIndex = 35;
+			this->button12->Text = L"Filtration";
+			this->button12->TextAlign = System::Drawing::ContentAlignment::MiddleLeft;
+			this->button12->UseVisualStyleBackColor = true;
+			this->button12->Click += gcnew System::EventHandler(this, &MainForm::button12Click);
+			// 
+			// button11
+			// 
+			this->tableLayout->SetColumnSpan(this->button11, 2);
+			this->button11->Dock = System::Windows::Forms::DockStyle::Fill;
+			this->button11->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
+			this->button11->Location = System::Drawing::Point(2, 540);
+			this->button11->Margin = System::Windows::Forms::Padding(0);
+			this->button11->Name = L"button11";
+			this->button11->Size = System::Drawing::Size(131, 20);
+			this->button11->TabIndex = 34;
+			this->button11->Text = L"Confirm";
+			this->button11->TextAlign = System::Drawing::ContentAlignment::MiddleLeft;
+			this->button11->UseVisualStyleBackColor = true;
+			this->button11->Click += gcnew System::EventHandler(this, &MainForm::button11Click);
 			// 
 			// textBox9
 			// 
@@ -915,28 +994,9 @@ namespace ImageEditor {
 			this->textBox1->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &MainForm::textBoxKeyDown);
 			this->textBox1->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &MainForm::textBoxKeyPress);
 			// 
-			// comboBox1
-			// 
-			this->tableLayout->SetColumnSpan(this->comboBox1, 2);
-			this->comboBox1->Dock = System::Windows::Forms::DockStyle::Fill;
-			this->comboBox1->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
-			this->comboBox1->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 8.25F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
-				static_cast<System::Byte>(204)));
-			this->comboBox1->FormattingEnabled = true;
-			this->comboBox1->Items->AddRange(gcnew cli::array< System::Object^  >(8) {
-				L"Low-frequency", L"Rect", L"Cross", L"Rhombus",
-					L"Horizontal lines", L"Vertical lines", L"Diagonal 45", L"Diagonal 135"
-			});
-			this->comboBox1->Location = System::Drawing::Point(2, 400);
-			this->comboBox1->Margin = System::Windows::Forms::Padding(0);
-			this->comboBox1->Name = L"comboBox1";
-			this->comboBox1->Size = System::Drawing::Size(131, 21);
-			this->comboBox1->TabIndex = 32;
-			this->comboBox1->Text = L"Type";
-			// 
 			// comboBox2
 			// 
-			this->comboBox2->BorderStyle = System::Windows::Forms::BorderStyle::None;
+			this->comboBox2->BorderStyle = System::Windows::Forms::BorderStyle::FixedSingle;
 			this->tableLayout->SetColumnSpan(this->comboBox2, 2);
 			this->comboBox2->Dock = System::Windows::Forms::DockStyle::Fill;
 			this->comboBox2->Items->Add(L"3x3");
@@ -946,11 +1006,11 @@ namespace ImageEditor {
 			this->comboBox2->Items->Add(L"11x11");
 			this->comboBox2->Items->Add(L"13x13");
 			this->comboBox2->Items->Add(L"15x15");
-			this->comboBox2->Location = System::Drawing::Point(2, 420);
+			this->comboBox2->Location = System::Drawing::Point(2, 460);
 			this->comboBox2->Margin = System::Windows::Forms::Padding(0);
 			this->comboBox2->Name = L"comboBox2";
 			this->comboBox2->ReadOnly = true;
-			this->comboBox2->Size = System::Drawing::Size(131, 16);
+			this->comboBox2->Size = System::Drawing::Size(131, 20);
 			this->comboBox2->TabIndex = 41;
 			this->comboBox2->Text = L"Size";
 			// 
@@ -1046,6 +1106,42 @@ namespace ImageEditor {
 			this->propTable->Size = System::Drawing::Size(150, 225);
 			this->propTable->TabIndex = 0;
 			// 
+			// label15
+			// 
+			this->propTable->SetColumnSpan(this->label15, 2);
+			this->label15->Dock = System::Windows::Forms::DockStyle::Bottom;
+			this->label15->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 8.25F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(204)));
+			this->label15->Location = System::Drawing::Point(5, 20);
+			this->label15->Name = L"label15";
+			this->label15->Size = System::Drawing::Size(142, 20);
+			this->label15->TabIndex = 2;
+			this->label15->Text = L"Description";
+			this->label15->TextAlign = System::Drawing::ContentAlignment::MiddleLeft;
+			// 
+			// typeLabel
+			// 
+			this->propTable->SetColumnSpan(this->typeLabel, 2);
+			this->typeLabel->Dock = System::Windows::Forms::DockStyle::Bottom;
+			this->typeLabel->Location = System::Drawing::Point(5, 0);
+			this->typeLabel->Name = L"typeLabel";
+			this->typeLabel->Size = System::Drawing::Size(142, 20);
+			this->typeLabel->TabIndex = 0;
+			this->typeLabel->Text = L"Gallery is empty";
+			this->typeLabel->TextAlign = System::Drawing::ContentAlignment::MiddleLeft;
+			// 
+			// description
+			// 
+			this->description->AutoEllipsis = true;
+			this->propTable->SetColumnSpan(this->description, 2);
+			this->description->Dock = System::Windows::Forms::DockStyle::Fill;
+			this->description->Location = System::Drawing::Point(5, 40);
+			this->description->Name = L"description";
+			this->propTable->SetRowSpan(this->description, 3);
+			this->description->Size = System::Drawing::Size(142, 60);
+			this->description->TabIndex = 1;
+			this->description->Text = L"Empty";
+			// 
 			// tabPage3
 			// 
 			this->tabPage3->Location = System::Drawing::Point(4, 25);
@@ -1086,50 +1182,19 @@ namespace ImageEditor {
 			this->cur2Label->Text = L"Cur2: 0";
 			this->cur2Label->Visible = false;
 			// 
-			// progressBar
+			// psPanel
 			// 
-			this->progressBar->Anchor = static_cast<System::Windows::Forms::AnchorStyles>(((System::Windows::Forms::AnchorStyles::Top | System::Windows::Forms::AnchorStyles::Left)
+			this->psPanel->Anchor = static_cast<System::Windows::Forms::AnchorStyles>(((System::Windows::Forms::AnchorStyles::Top | System::Windows::Forms::AnchorStyles::Left)
 				| System::Windows::Forms::AnchorStyles::Right));
-			this->progressBar->Location = System::Drawing::Point(90, 6);
-			this->progressBar->Name = L"progressBar";
-			this->progressBar->Size = System::Drawing::Size(430, 10);
-			this->progressBar->TabIndex = 3;
-			// 
-			// typeLabel
-			// 
-			this->propTable->SetColumnSpan(this->typeLabel, 2);
-			this->typeLabel->Dock = System::Windows::Forms::DockStyle::Bottom;
-			this->typeLabel->Location = System::Drawing::Point(5, 0);
-			this->typeLabel->Name = L"typeLabel";
-			this->typeLabel->Size = System::Drawing::Size(142, 20);
-			this->typeLabel->TabIndex = 0;
-			this->typeLabel->Text = L"Gallery is empty";
-			this->typeLabel->TextAlign = System::Drawing::ContentAlignment::MiddleLeft;
-			// 
-			// description
-			// 
-			this->description->AutoEllipsis = true;
-			this->propTable->SetColumnSpan(this->description, 2);
-			this->description->Dock = System::Windows::Forms::DockStyle::Fill;
-			this->description->Location = System::Drawing::Point(5, 40);
-			this->description->Name = L"description";
-			this->propTable->SetRowSpan(this->description, 3);
-			this->description->Size = System::Drawing::Size(142, 60);
-			this->description->TabIndex = 1;
-			this->description->Text = L"Empty";
-			// 
-			// label15
-			// 
-			this->propTable->SetColumnSpan(this->label15, 2);
-			this->label15->Dock = System::Windows::Forms::DockStyle::Bottom;
-			this->label15->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 8.25F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
-				static_cast<System::Byte>(204)));
-			this->label15->Location = System::Drawing::Point(5, 20);
-			this->label15->Name = L"label15";
-			this->label15->Size = System::Drawing::Size(142, 20);
-			this->label15->TabIndex = 2;
-			this->label15->Text = L"Description";
-			this->label15->TextAlign = System::Drawing::ContentAlignment::MiddleLeft;
+			this->psPanel->AutoSizeMode = System::Windows::Forms::AutoSizeMode::GrowAndShrink;
+			this->psPanel->Location = System::Drawing::Point(90, 0);
+			this->psPanel->Margin = System::Windows::Forms::Padding(0);
+			this->psPanel->MinimumSize = System::Drawing::Size(434, 24);
+			this->psPanel->Name = L"psPanel";
+			this->psPanel->Size = System::Drawing::Size(434, 24);
+			this->psPanel->TabIndex = 3;
+			this->psPanel->MouseDown += gcnew System::Windows::Forms::MouseEventHandler(this, &MainForm::psPanel_MouseMove);
+			this->psPanel->MouseMove += gcnew System::Windows::Forms::MouseEventHandler(this, &MainForm::psPanel_MouseMove);
 			// 
 			// MainForm
 			// 
@@ -1138,7 +1203,7 @@ namespace ImageEditor {
 			this->BackColor = System::Drawing::Color::FromArgb(static_cast<System::Int32>(static_cast<System::Byte>(40)), static_cast<System::Int32>(static_cast<System::Byte>(40)),
 				static_cast<System::Int32>(static_cast<System::Byte>(40)));
 			this->ClientSize = System::Drawing::Size(524, 301);
-			this->Controls->Add(this->progressBar);
+			this->Controls->Add(this->psPanel);
 			this->Controls->Add(this->statusStrip);
 			this->Controls->Add(this->tabControl);
 			this->Controls->Add(this->menuStrip);
@@ -1147,6 +1212,7 @@ namespace ImageEditor {
 			this->MainMenuStrip = this->menuStrip;
 			this->Name = L"MainForm";
 			this->ShowIcon = false;
+			this->StartPosition = System::Windows::Forms::FormStartPosition::CenterScreen;
 			this->Text = L"MainForm";
 			this->SizeChanged += gcnew System::EventHandler(this, &MainForm::MainFormSizeChanged);
 			this->menuStrip->ResumeLayout(false);
@@ -1180,13 +1246,18 @@ namespace ImageEditor {
 		Void undoItemClick(Object^, EventArgs^);
 		Void redoItemClick(Object^, EventArgs^);
 		Void doubleItemClick(Object^, EventArgs^);
+		Void autoConfigItemClick(Object^, EventArgs^);
+		Void permanentClick(Object^, EventArgs^);
 		Void pictureBoxClick(Object^, EventArgs^);
 		Void MainFormSizeChanged(Object^, EventArgs^);
 		Void setColors();
 		Void addPB();
-		Void progressBarIncValue();
-		Void updatePictures();
+		Void updatePictures(ProgressBar^);
 		Void disableControls();
+		Void disableControls(bool);
+		Void progressBarInc(ProgressBar^);
+		Void addProgress(int);
+		ProgressBar^ getLast();
 		Void button1Click(Object^, EventArgs^);
 		Void button2Click(Object^, EventArgs^);
 		Void button3Click(Object^, EventArgs^);
@@ -1202,5 +1273,7 @@ namespace ImageEditor {
 		Void textBoxKeyDown(Object^, KeyEventArgs^);
 		Void textBoxKeyPress(Object^, KeyPressEventArgs^);
 		Void textBoxTextChanged(Object^, EventArgs^);
+		Void psPanel_MouseMove(Object^, MouseEventArgs^);
+		Void psPanel_MouseDown(Object^, MouseEventArgs^);
 	};
 }
