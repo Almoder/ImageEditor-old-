@@ -10,13 +10,13 @@ namespace ImageEditor {
 
 	public ref class Engine {
 	private:
-		List<Bitmap^>^ data = nullptr;
+		List<Bitmap^>^ data = gcnew List<Bitmap^>();
 		ProgressBar^ progressPtr = nullptr;
 		int t, b0, b1;
 		double c, g;
 		int* mSize = new int[7]{
 			9, 25, 49, 81, 121, 169, 255};
-
+		bool empty = true;
 	public:
 		PictureBox^ picturePtr = nullptr;
 
@@ -39,8 +39,8 @@ namespace ImageEditor {
 		void addNode(Image^);
 		void preset(PbarInc^, ProgressBar^);
 		void clearData();
-		bool dataEmpty() { return data->Count == 0; };
-		int count() { return data->Count; };
+		bool dataEmpty();
+		int count();
 		void doNegative();
 		void doHalftone();
 		void doBinar(int, int, int);

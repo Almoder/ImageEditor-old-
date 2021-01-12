@@ -28,8 +28,7 @@ Image^ Engine::redo() {
 }
 
 Image^ Engine::getCurrent() {
-	if (!dataEmpty()) return data[current];
-	else return nullptr;
+	return data[current];
 }
 
 Image^ Engine::getLast() {
@@ -38,6 +37,7 @@ Image^ Engine::getLast() {
 
 void Engine::addNode(Image^ img) {
 	data->Add(gcnew Bitmap(img));
+	empty = false;
 }
 
 void Engine::preset(PbarInc^ del, ProgressBar^ ptr) {
@@ -47,6 +47,22 @@ void Engine::preset(PbarInc^ del, ProgressBar^ ptr) {
 
 void Engine::clearData() {
 	data->Clear();
+	empty = true;
+}
+
+bool Engine::dataEmpty() {
+	return count() == 0;
+}
+
+int Engine::count() {
+	try {
+		if (data == nullptr) return 0;
+		else return data->Count; 
+	}
+	catch (System::NullReferenceException^ e) {
+		delete e;
+		return 0;
+	}
 }
 
 #pragma endregion
@@ -197,8 +213,8 @@ void Engine::binar() {
 	for (int row = 0; row < orig->Width; row++) {
 		for (int col = 0; col < orig->Height; col++) {
 			Color b = orig->GetPixel(row, col);
-			b.GetBrightness() * 255 <= _t ? 
-				ret->SetPixel(row, col, _b0) : 
+			b.GetBrightness() * 255 <= _t ?
+				ret->SetPixel(row, col, _b0) :
 				ret->SetPixel(row, col, _b1);
 		}
 		pb->Invoke(_del, pb);
@@ -401,7 +417,7 @@ void Engine::autolevels() {
 					}
 				}
 				br /= cdiv;
-				temp->SetPixel(row, col, 
+				temp->SetPixel(row, col,
 					Color::FromArgb(int(br), int(br), int(br)));
 				/*r /= cdiv; g /= cdiv; b /= cdiv;
 				temp->SetPixel(row, col, Color::FromArgb(
@@ -658,8 +674,8 @@ void Engine::filterHL() {
 			}
 			r /= cdiv; g /= cdiv; b /= cdiv;
 			ret->SetPixel(row, col, Color::FromArgb(
-				r < 0 ? 0 : r > 255 ? 255 : r, 
-				g < 0 ? 0 : g > 255 ? 255 : g, 
+				r < 0 ? 0 : r > 255 ? 255 : r,
+				g < 0 ? 0 : g > 255 ? 255 : g,
 				b < 0 ? 0 : b > 255 ? 255 : b));
 		}
 		pb->Invoke(_del, pb);

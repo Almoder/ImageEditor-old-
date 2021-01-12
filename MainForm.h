@@ -14,45 +14,6 @@ namespace ImageEditor {
 	/// </summary>
 	public ref class MainForm : public Form
 	{
-	private: System::Windows::Forms::Button^ button1;
-	private: System::Windows::Forms::Button^ button2;
-
-		
-	private: System::Windows::Forms::Label^ label1;
-	private: System::Windows::Forms::Label^ label2;
-	private: System::Windows::Forms::TextBox^ textBox3;
-	private: System::Windows::Forms::TextBox^ textBox2;
-	private: System::Windows::Forms::Label^ label5;
-	private: System::Windows::Forms::Label^ label4;
-	private: System::Windows::Forms::Label^ label3;
-	private: System::Windows::Forms::TextBox^ textBox1;
-	private: System::Windows::Forms::Button^ button4;
-	private: System::Windows::Forms::Button^ button3;
-	private: System::Windows::Forms::TextBox^ textBox5;
-	private: System::Windows::Forms::TextBox^ textBox4;
-	private: System::Windows::Forms::Label^ label8;
-	private: System::Windows::Forms::Label^ label7;
-	private: System::Windows::Forms::Label^ label6;
-	private: System::Windows::Forms::Button^ button5;
-	private: System::Windows::Forms::Label^ label9;
-	private: System::Windows::Forms::Button^ button9;
-	private: System::Windows::Forms::Button^ button8;
-	private: System::Windows::Forms::Button^ button7;
-	private: System::Windows::Forms::Button^ button6;
-	private: System::Windows::Forms::TextBox^ textBox7;
-	private: System::Windows::Forms::TextBox^ textBox6;
-	private: System::Windows::Forms::TextBox^ textBox8;
-	private: System::Windows::Forms::Label^ label10;
-	private: System::Windows::Forms::TextBox^ textBox9;
-	private: System::Windows::Forms::Button^ button10;
-	private: System::Windows::Forms::Button^ button11;
-	private: System::Windows::Forms::Button^ button12;
-	private: System::Windows::Forms::TextBox^ textBox11;
-	private: System::Windows::Forms::TextBox^ textBox10;
-	private: System::Windows::Forms::Label^ label14;
-	private: System::Windows::Forms::Label^ label13;
-	private: System::Windows::Forms::Label^ label12;
-	
 		Engine^ engine = nullptr;
 		PictureBox^ curPictureBox = nullptr;
 		List<ProgressBar^>^ pbars = nullptr;
@@ -61,19 +22,65 @@ namespace ImageEditor {
 		bool isPsPanel = false;
 	    int curLabel = 1, filterSize = 3, pbc = 0;
 		int PBn, PBw, PBl = 0;
-	private: System::Windows::Forms::TabPage^ tabPage2;
-	private: System::Windows::Forms::Panel^ gallery;
-	private: System::Windows::Forms::TableLayoutPanel^ propTable;
-	private: System::Windows::Forms::Label^ typeLabel;
-	private: System::Windows::Forms::Label^ label15;
-	private: System::Windows::Forms::Label^ description;
-	private: System::Windows::Forms::DomainUpDown^ comboBox1;
-	private: System::Windows::Forms::DomainUpDown^ domainUpDown2;
-	private: System::Windows::Forms::DomainUpDown^ domainUpDown1;
 	private: System::Windows::Forms::ToolStripMenuItem^ autoConfigItem;
 	private: System::Windows::Forms::Panel^ psPanel;
-	private: System::Windows::Forms::ToolStripMenuItem^ permanentItem;
+	private: System::Windows::Forms::TabPage^ tabPage3;
+	private: System::Windows::Forms::DataGridView^ dataGridView;
+
+
+
+
+	private: System::Windows::Forms::TabPage^ tabPage1;
+	private: System::Windows::Forms::TableLayoutPanel^ tableLayout;
+	private: System::Windows::Forms::DomainUpDown^ domainUpDown2;
+	private: System::Windows::Forms::DomainUpDown^ domainUpDown1;
+	private: System::Windows::Forms::Button^ button10;
+	private: System::Windows::Forms::DomainUpDown^ comboBox1;
+	private: System::Windows::Forms::TextBox^ textBox11;
+	private: System::Windows::Forms::TextBox^ textBox10;
+	private: System::Windows::Forms::Label^ label14;
+	private: System::Windows::Forms::Label^ label13;
+	private: System::Windows::Forms::Label^ label12;
+	private: System::Windows::Forms::Button^ button12;
+	private: System::Windows::Forms::Button^ button11;
+	private: System::Windows::Forms::TextBox^ textBox9;
+	private: System::Windows::Forms::TextBox^ textBox8;
+	private: System::Windows::Forms::Label^ label10;
+	private: System::Windows::Forms::Button^ button9;
+	private: System::Windows::Forms::Button^ button8;
+	private: System::Windows::Forms::Button^ button7;
+	private: System::Windows::Forms::Button^ button6;
+	private: System::Windows::Forms::TextBox^ textBox7;
+	private: System::Windows::Forms::TextBox^ textBox6;
+	private: System::Windows::Forms::Label^ label9;
+	private: System::Windows::Forms::Button^ button5;
+	private: System::Windows::Forms::TextBox^ textBox5;
+	private: System::Windows::Forms::TextBox^ textBox4;
+	private: System::Windows::Forms::Label^ label8;
+	private: System::Windows::Forms::Label^ label7;
+	private: System::Windows::Forms::Label^ label6;
+	private: System::Windows::Forms::Button^ button4;
+	private: System::Windows::Forms::Button^ button3;
+	private: System::Windows::Forms::TextBox^ textBox3;
+	private: System::Windows::Forms::TextBox^ textBox2;
+	private: System::Windows::Forms::Label^ label5;
+	private: System::Windows::Forms::Label^ label4;
+	private: System::Windows::Forms::Label^ label3;
+	private: System::Windows::Forms::Label^ label2;
+	private: System::Windows::Forms::Button^ button2;
+	private: System::Windows::Forms::Button^ button1;
+	private: System::Windows::Forms::Label^ label1;
+	private: System::Windows::Forms::TextBox^ textBox1;
 	private: System::Windows::Forms::DomainUpDown^ comboBox2;
+	private: System::Windows::Forms::SplitContainer^ splitContainer;
+	private: System::Windows::Forms::PictureBox^ pictureBox1;
+	private: System::Windows::Forms::PictureBox^ pictureBox2;
+	private: System::Windows::Forms::TabControl^ tabControl;
+	private: System::Windows::Forms::DataGridViewTextBoxColumn^ col1;
+	private: System::Windows::Forms::DataGridViewImageColumn^ col2;
+	private: System::Windows::Forms::DataGridViewTextBoxColumn^ col3;
+	private: System::Windows::Forms::DataGridViewTextBoxColumn^ col4;
+	private: System::Windows::Forms::ToolStripMenuItem^ permanentItem;
 	public:
 		MainForm(void);
 
@@ -92,18 +99,10 @@ namespace ImageEditor {
 	private: System::Windows::Forms::ToolStripMenuItem^ redoItem;
 	private: System::Windows::Forms::ToolStripMenuItem^ viewItem;
 	private: System::Windows::Forms::ToolStripMenuItem^ doubleItem;
-	private: System::Windows::Forms::TabControl^ tabControl;
-	private: System::Windows::Forms::TabPage^ tabPage1;
-	private: System::Windows::Forms::TabPage^ tabPage3;
-	private: System::Windows::Forms::SplitContainer^ splitContainer;
 	private: System::Windows::Forms::StatusStrip^ statusStrip;
 	private: System::Windows::Forms::ToolStripStatusLabel^ countLabel;
 	private: System::Windows::Forms::ToolStripStatusLabel^ cur1Label;
 	private: System::Windows::Forms::ToolStripStatusLabel^ cur2Label;
-	private: System::Windows::Forms::TableLayoutPanel^ tableLayout;
-	private: System::Windows::Forms::PictureBox^ pictureBox1;
-	private: System::Windows::Forms::PictureBox^ pictureBox2;
-
 	private:
 		/// <summary>
 		/// Обязательная переменная конструктора.
@@ -117,6 +116,9 @@ namespace ImageEditor {
 		/// </summary>
 		void InitializeComponent(void)
 		{
+			System::Windows::Forms::DataGridViewCellStyle^ dataGridViewCellStyle1 = (gcnew System::Windows::Forms::DataGridViewCellStyle());
+			System::Windows::Forms::DataGridViewCellStyle^ dataGridViewCellStyle2 = (gcnew System::Windows::Forms::DataGridViewCellStyle());
+			System::Windows::Forms::DataGridViewCellStyle^ dataGridViewCellStyle3 = (gcnew System::Windows::Forms::DataGridViewCellStyle());
 			this->menuStrip = (gcnew System::Windows::Forms::MenuStrip());
 			this->fileItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->openItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
@@ -128,7 +130,13 @@ namespace ImageEditor {
 			this->doubleItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->autoConfigItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->permanentItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
-			this->tabControl = (gcnew System::Windows::Forms::TabControl());
+			this->statusStrip = (gcnew System::Windows::Forms::StatusStrip());
+			this->countLabel = (gcnew System::Windows::Forms::ToolStripStatusLabel());
+			this->cur1Label = (gcnew System::Windows::Forms::ToolStripStatusLabel());
+			this->cur2Label = (gcnew System::Windows::Forms::ToolStripStatusLabel());
+			this->psPanel = (gcnew System::Windows::Forms::Panel());
+			this->tabPage3 = (gcnew System::Windows::Forms::TabPage());
+			this->dataGridView = (gcnew System::Windows::Forms::DataGridView());
 			this->tabPage1 = (gcnew System::Windows::Forms::TabPage());
 			this->tableLayout = (gcnew System::Windows::Forms::TableLayoutPanel());
 			this->domainUpDown2 = (gcnew System::Windows::Forms::DomainUpDown());
@@ -174,20 +182,15 @@ namespace ImageEditor {
 			this->splitContainer = (gcnew System::Windows::Forms::SplitContainer());
 			this->pictureBox1 = (gcnew System::Windows::Forms::PictureBox());
 			this->pictureBox2 = (gcnew System::Windows::Forms::PictureBox());
-			this->tabPage2 = (gcnew System::Windows::Forms::TabPage());
-			this->gallery = (gcnew System::Windows::Forms::Panel());
-			this->propTable = (gcnew System::Windows::Forms::TableLayoutPanel());
-			this->label15 = (gcnew System::Windows::Forms::Label());
-			this->typeLabel = (gcnew System::Windows::Forms::Label());
-			this->description = (gcnew System::Windows::Forms::Label());
-			this->tabPage3 = (gcnew System::Windows::Forms::TabPage());
-			this->statusStrip = (gcnew System::Windows::Forms::StatusStrip());
-			this->countLabel = (gcnew System::Windows::Forms::ToolStripStatusLabel());
-			this->cur1Label = (gcnew System::Windows::Forms::ToolStripStatusLabel());
-			this->cur2Label = (gcnew System::Windows::Forms::ToolStripStatusLabel());
-			this->psPanel = (gcnew System::Windows::Forms::Panel());
+			this->tabControl = (gcnew System::Windows::Forms::TabControl());
+			this->col1 = (gcnew System::Windows::Forms::DataGridViewTextBoxColumn());
+			this->col2 = (gcnew System::Windows::Forms::DataGridViewImageColumn());
+			this->col3 = (gcnew System::Windows::Forms::DataGridViewTextBoxColumn());
+			this->col4 = (gcnew System::Windows::Forms::DataGridViewTextBoxColumn());
 			this->menuStrip->SuspendLayout();
-			this->tabControl->SuspendLayout();
+			this->statusStrip->SuspendLayout();
+			this->tabPage3->SuspendLayout();
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->dataGridView))->BeginInit();
 			this->tabPage1->SuspendLayout();
 			this->tableLayout->SuspendLayout();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->splitContainer))->BeginInit();
@@ -196,9 +199,7 @@ namespace ImageEditor {
 			this->splitContainer->SuspendLayout();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->pictureBox1))->BeginInit();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->pictureBox2))->BeginInit();
-			this->tabPage2->SuspendLayout();
-			this->propTable->SuspendLayout();
-			this->statusStrip->SuspendLayout();
+			this->tabControl->SuspendLayout();
 			this->SuspendLayout();
 			// 
 			// menuStrip
@@ -304,21 +305,118 @@ namespace ImageEditor {
 			this->permanentItem->Text = L"Permanent original";
 			this->permanentItem->Click += gcnew System::EventHandler(this, &MainForm::permanentClick);
 			// 
-			// tabControl
+			// statusStrip
 			// 
-			this->tabControl->Anchor = static_cast<System::Windows::Forms::AnchorStyles>((((System::Windows::Forms::AnchorStyles::Top | System::Windows::Forms::AnchorStyles::Bottom)
+			this->statusStrip->Items->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(3) {
+				this->countLabel, this->cur1Label,
+					this->cur2Label
+			});
+			this->statusStrip->Location = System::Drawing::Point(0, 279);
+			this->statusStrip->Name = L"statusStrip";
+			this->statusStrip->Size = System::Drawing::Size(524, 22);
+			this->statusStrip->TabIndex = 2;
+			this->statusStrip->Text = L"statusStrip1";
+			// 
+			// countLabel
+			// 
+			this->countLabel->Name = L"countLabel";
+			this->countLabel->Size = System::Drawing::Size(52, 17);
+			this->countLabel->Text = L"Count: 0";
+			// 
+			// cur1Label
+			// 
+			this->cur1Label->Name = L"cur1Label";
+			this->cur1Label->Size = System::Drawing::Size(44, 17);
+			this->cur1Label->Text = L"Cur1: 0";
+			// 
+			// cur2Label
+			// 
+			this->cur2Label->Name = L"cur2Label";
+			this->cur2Label->Size = System::Drawing::Size(44, 17);
+			this->cur2Label->Text = L"Cur2: 0";
+			this->cur2Label->Visible = false;
+			// 
+			// psPanel
+			// 
+			this->psPanel->Anchor = static_cast<System::Windows::Forms::AnchorStyles>(((System::Windows::Forms::AnchorStyles::Top | System::Windows::Forms::AnchorStyles::Left)
+				| System::Windows::Forms::AnchorStyles::Right));
+			this->psPanel->AutoSizeMode = System::Windows::Forms::AutoSizeMode::GrowAndShrink;
+			this->psPanel->Location = System::Drawing::Point(90, 0);
+			this->psPanel->Margin = System::Windows::Forms::Padding(0);
+			this->psPanel->MinimumSize = System::Drawing::Size(434, 24);
+			this->psPanel->Name = L"psPanel";
+			this->psPanel->Size = System::Drawing::Size(434, 24);
+			this->psPanel->TabIndex = 3;
+			this->psPanel->MouseDown += gcnew System::Windows::Forms::MouseEventHandler(this, &MainForm::psPanel_MouseMove);
+			this->psPanel->MouseMove += gcnew System::Windows::Forms::MouseEventHandler(this, &MainForm::psPanel_MouseMove);
+			// 
+			// tabPage3
+			// 
+			this->tabPage3->Controls->Add(this->dataGridView);
+			this->tabPage3->Location = System::Drawing::Point(4, 25);
+			this->tabPage3->Name = L"tabPage3";
+			this->tabPage3->Size = System::Drawing::Size(516, 225);
+			this->tabPage3->TabIndex = 1;
+			this->tabPage3->Text = L"Log";
+			this->tabPage3->UseVisualStyleBackColor = true;
+			// 
+			// dataGridView
+			// 
+			this->dataGridView->AllowUserToAddRows = false;
+			this->dataGridView->AllowUserToDeleteRows = false;
+			this->dataGridView->AllowUserToResizeRows = false;
+			this->dataGridView->Anchor = static_cast<System::Windows::Forms::AnchorStyles>((((System::Windows::Forms::AnchorStyles::Top | System::Windows::Forms::AnchorStyles::Bottom)
 				| System::Windows::Forms::AnchorStyles::Left)
 				| System::Windows::Forms::AnchorStyles::Right));
-			this->tabControl->Appearance = System::Windows::Forms::TabAppearance::FlatButtons;
-			this->tabControl->Controls->Add(this->tabPage1);
-			this->tabControl->Controls->Add(this->tabPage2);
-			this->tabControl->Controls->Add(this->tabPage3);
-			this->tabControl->Location = System::Drawing::Point(0, 24);
-			this->tabControl->Margin = System::Windows::Forms::Padding(3, 0, 3, 0);
-			this->tabControl->Name = L"tabControl";
-			this->tabControl->SelectedIndex = 0;
-			this->tabControl->Size = System::Drawing::Size(524, 254);
-			this->tabControl->TabIndex = 1;
+			this->dataGridView->BackgroundColor = System::Drawing::Color::FromArgb(static_cast<System::Int32>(static_cast<System::Byte>(40)),
+				static_cast<System::Int32>(static_cast<System::Byte>(40)), static_cast<System::Int32>(static_cast<System::Byte>(40)));
+			this->dataGridView->BorderStyle = System::Windows::Forms::BorderStyle::None;
+			this->dataGridView->CellBorderStyle = System::Windows::Forms::DataGridViewCellBorderStyle::None;
+			this->dataGridView->ColumnHeadersHeightSizeMode = System::Windows::Forms::DataGridViewColumnHeadersHeightSizeMode::AutoSize;
+			this->dataGridView->Columns->AddRange(gcnew cli::array< System::Windows::Forms::DataGridViewColumn^  >(4) {
+				this->col1, this->col2,
+					this->col3, this->col4
+			});
+			dataGridViewCellStyle1->Alignment = System::Windows::Forms::DataGridViewContentAlignment::MiddleLeft;
+			dataGridViewCellStyle1->BackColor = System::Drawing::Color::FromArgb(static_cast<System::Int32>(static_cast<System::Byte>(40)), static_cast<System::Int32>(static_cast<System::Byte>(40)),
+				static_cast<System::Int32>(static_cast<System::Byte>(40)));
+			dataGridViewCellStyle1->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 8.25F, System::Drawing::FontStyle::Regular,
+				System::Drawing::GraphicsUnit::Point, static_cast<System::Byte>(204)));
+			dataGridViewCellStyle1->ForeColor = System::Drawing::SystemColors::ButtonHighlight;
+			dataGridViewCellStyle1->SelectionBackColor = System::Drawing::Color::FromArgb(static_cast<System::Int32>(static_cast<System::Byte>(64)),
+				static_cast<System::Int32>(static_cast<System::Byte>(64)), static_cast<System::Int32>(static_cast<System::Byte>(64)));
+			dataGridViewCellStyle1->SelectionForeColor = System::Drawing::Color::Aqua;
+			dataGridViewCellStyle1->WrapMode = System::Windows::Forms::DataGridViewTriState::False;
+			this->dataGridView->DefaultCellStyle = dataGridViewCellStyle1;
+			this->dataGridView->EditMode = System::Windows::Forms::DataGridViewEditMode::EditOnEnter;
+			this->dataGridView->Location = System::Drawing::Point(0, 0);
+			this->dataGridView->Name = L"dataGridView";
+			this->dataGridView->ReadOnly = true;
+			dataGridViewCellStyle2->Alignment = System::Windows::Forms::DataGridViewContentAlignment::MiddleLeft;
+			dataGridViewCellStyle2->BackColor = System::Drawing::Color::FromArgb(static_cast<System::Int32>(static_cast<System::Byte>(40)), static_cast<System::Int32>(static_cast<System::Byte>(40)),
+				static_cast<System::Int32>(static_cast<System::Byte>(40)));
+			dataGridViewCellStyle2->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 8.25F, System::Drawing::FontStyle::Regular,
+				System::Drawing::GraphicsUnit::Point, static_cast<System::Byte>(204)));
+			dataGridViewCellStyle2->ForeColor = System::Drawing::Color::White;
+			dataGridViewCellStyle2->SelectionBackColor = System::Drawing::Color::FromArgb(static_cast<System::Int32>(static_cast<System::Byte>(40)),
+				static_cast<System::Int32>(static_cast<System::Byte>(40)), static_cast<System::Int32>(static_cast<System::Byte>(40)));
+			dataGridViewCellStyle2->SelectionForeColor = System::Drawing::Color::Aqua;
+			dataGridViewCellStyle2->WrapMode = System::Windows::Forms::DataGridViewTriState::True;
+			this->dataGridView->RowHeadersDefaultCellStyle = dataGridViewCellStyle2;
+			this->dataGridView->RowHeadersVisible = false;
+			dataGridViewCellStyle3->Alignment = System::Windows::Forms::DataGridViewContentAlignment::TopLeft;
+			dataGridViewCellStyle3->BackColor = System::Drawing::Color::FromArgb(static_cast<System::Int32>(static_cast<System::Byte>(40)), static_cast<System::Int32>(static_cast<System::Byte>(40)),
+				static_cast<System::Int32>(static_cast<System::Byte>(40)));
+			dataGridViewCellStyle3->ForeColor = System::Drawing::Color::White;
+			dataGridViewCellStyle3->SelectionBackColor = System::Drawing::Color::FromArgb(static_cast<System::Int32>(static_cast<System::Byte>(64)),
+				static_cast<System::Int32>(static_cast<System::Byte>(64)), static_cast<System::Int32>(static_cast<System::Byte>(64)));
+			dataGridViewCellStyle3->SelectionForeColor = System::Drawing::Color::Aqua;
+			this->dataGridView->RowsDefaultCellStyle = dataGridViewCellStyle3;
+			this->dataGridView->ScrollBars = System::Windows::Forms::ScrollBars::Vertical;
+			this->dataGridView->SelectionMode = System::Windows::Forms::DataGridViewSelectionMode::FullRowSelect;
+			this->dataGridView->Size = System::Drawing::Size(516, 225);
+			this->dataGridView->TabIndex = 0;
+			this->dataGridView->ColumnWidthChanged += gcnew System::Windows::Forms::DataGridViewColumnEventHandler(this, &MainForm::dataGridView_ColumnWidthChanged);
 			// 
 			// tabPage1
 			// 
@@ -1056,145 +1154,50 @@ namespace ImageEditor {
 			this->pictureBox2->TabStop = false;
 			this->pictureBox2->Click += gcnew System::EventHandler(this, &MainForm::pictureBoxClick);
 			// 
-			// tabPage2
+			// tabControl
 			// 
-			this->tabPage2->Controls->Add(this->gallery);
-			this->tabPage2->Controls->Add(this->propTable);
-			this->tabPage2->Location = System::Drawing::Point(4, 25);
-			this->tabPage2->Name = L"tabPage2";
-			this->tabPage2->Size = System::Drawing::Size(516, 225);
-			this->tabPage2->TabIndex = 2;
-			this->tabPage2->Text = L"Gallery";
-			this->tabPage2->UseVisualStyleBackColor = true;
-			// 
-			// gallery
-			// 
-			this->gallery->AutoScroll = true;
-			this->gallery->AutoSizeMode = System::Windows::Forms::AutoSizeMode::GrowAndShrink;
-			this->gallery->Dock = System::Windows::Forms::DockStyle::Fill;
-			this->gallery->Location = System::Drawing::Point(0, 0);
-			this->gallery->Margin = System::Windows::Forms::Padding(6, 3, 3, 3);
-			this->gallery->Name = L"gallery";
-			this->gallery->Size = System::Drawing::Size(366, 225);
-			this->gallery->TabIndex = 1;
-			// 
-			// propTable
-			// 
-			this->propTable->ColumnCount = 2;
-			this->propTable->ColumnStyles->Add((gcnew System::Windows::Forms::ColumnStyle(System::Windows::Forms::SizeType::Percent, 50)));
-			this->propTable->ColumnStyles->Add((gcnew System::Windows::Forms::ColumnStyle(System::Windows::Forms::SizeType::Percent, 50)));
-			this->propTable->Controls->Add(this->label15, 0, 1);
-			this->propTable->Controls->Add(this->typeLabel, 0, 0);
-			this->propTable->Controls->Add(this->description, 0, 2);
-			this->propTable->Dock = System::Windows::Forms::DockStyle::Right;
-			this->propTable->Location = System::Drawing::Point(366, 0);
-			this->propTable->Name = L"propTable";
-			this->propTable->Padding = System::Windows::Forms::Padding(2, 0, 0, 0);
-			this->propTable->RowCount = 8;
-			this->propTable->RowStyles->Add((gcnew System::Windows::Forms::RowStyle(System::Windows::Forms::SizeType::Absolute, 20)));
-			this->propTable->RowStyles->Add((gcnew System::Windows::Forms::RowStyle(System::Windows::Forms::SizeType::Absolute, 20)));
-			this->propTable->RowStyles->Add((gcnew System::Windows::Forms::RowStyle(System::Windows::Forms::SizeType::Absolute, 20)));
-			this->propTable->RowStyles->Add((gcnew System::Windows::Forms::RowStyle(System::Windows::Forms::SizeType::Absolute, 20)));
-			this->propTable->RowStyles->Add((gcnew System::Windows::Forms::RowStyle(System::Windows::Forms::SizeType::Absolute, 20)));
-			this->propTable->RowStyles->Add((gcnew System::Windows::Forms::RowStyle(System::Windows::Forms::SizeType::Absolute, 20)));
-			this->propTable->RowStyles->Add((gcnew System::Windows::Forms::RowStyle(System::Windows::Forms::SizeType::Absolute, 20)));
-			this->propTable->RowStyles->Add((gcnew System::Windows::Forms::RowStyle(System::Windows::Forms::SizeType::Absolute, 20)));
-			this->propTable->RowStyles->Add((gcnew System::Windows::Forms::RowStyle(System::Windows::Forms::SizeType::Absolute, 20)));
-			this->propTable->RowStyles->Add((gcnew System::Windows::Forms::RowStyle(System::Windows::Forms::SizeType::Absolute, 20)));
-			this->propTable->RowStyles->Add((gcnew System::Windows::Forms::RowStyle(System::Windows::Forms::SizeType::Absolute, 20)));
-			this->propTable->RowStyles->Add((gcnew System::Windows::Forms::RowStyle(System::Windows::Forms::SizeType::Absolute, 20)));
-			this->propTable->Size = System::Drawing::Size(150, 225);
-			this->propTable->TabIndex = 0;
-			// 
-			// label15
-			// 
-			this->propTable->SetColumnSpan(this->label15, 2);
-			this->label15->Dock = System::Windows::Forms::DockStyle::Bottom;
-			this->label15->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 8.25F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
-				static_cast<System::Byte>(204)));
-			this->label15->Location = System::Drawing::Point(5, 20);
-			this->label15->Name = L"label15";
-			this->label15->Size = System::Drawing::Size(142, 20);
-			this->label15->TabIndex = 2;
-			this->label15->Text = L"Description";
-			this->label15->TextAlign = System::Drawing::ContentAlignment::MiddleLeft;
-			// 
-			// typeLabel
-			// 
-			this->propTable->SetColumnSpan(this->typeLabel, 2);
-			this->typeLabel->Dock = System::Windows::Forms::DockStyle::Bottom;
-			this->typeLabel->Location = System::Drawing::Point(5, 0);
-			this->typeLabel->Name = L"typeLabel";
-			this->typeLabel->Size = System::Drawing::Size(142, 20);
-			this->typeLabel->TabIndex = 0;
-			this->typeLabel->Text = L"Gallery is empty";
-			this->typeLabel->TextAlign = System::Drawing::ContentAlignment::MiddleLeft;
-			// 
-			// description
-			// 
-			this->description->AutoEllipsis = true;
-			this->propTable->SetColumnSpan(this->description, 2);
-			this->description->Dock = System::Windows::Forms::DockStyle::Fill;
-			this->description->Location = System::Drawing::Point(5, 40);
-			this->description->Name = L"description";
-			this->propTable->SetRowSpan(this->description, 3);
-			this->description->Size = System::Drawing::Size(142, 60);
-			this->description->TabIndex = 1;
-			this->description->Text = L"Empty";
-			// 
-			// tabPage3
-			// 
-			this->tabPage3->Location = System::Drawing::Point(4, 25);
-			this->tabPage3->Name = L"tabPage3";
-			this->tabPage3->Size = System::Drawing::Size(516, 225);
-			this->tabPage3->TabIndex = 1;
-			this->tabPage3->Text = L"Log";
-			this->tabPage3->UseVisualStyleBackColor = true;
-			// 
-			// statusStrip
-			// 
-			this->statusStrip->Items->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(3) {
-				this->countLabel, this->cur1Label,
-					this->cur2Label
-			});
-			this->statusStrip->Location = System::Drawing::Point(0, 279);
-			this->statusStrip->Name = L"statusStrip";
-			this->statusStrip->Size = System::Drawing::Size(524, 22);
-			this->statusStrip->TabIndex = 2;
-			this->statusStrip->Text = L"statusStrip1";
-			// 
-			// countLabel
-			// 
-			this->countLabel->Name = L"countLabel";
-			this->countLabel->Size = System::Drawing::Size(52, 17);
-			this->countLabel->Text = L"Count: 0";
-			// 
-			// cur1Label
-			// 
-			this->cur1Label->Name = L"cur1Label";
-			this->cur1Label->Size = System::Drawing::Size(44, 17);
-			this->cur1Label->Text = L"Cur1: 0";
-			// 
-			// cur2Label
-			// 
-			this->cur2Label->Name = L"cur2Label";
-			this->cur2Label->Size = System::Drawing::Size(44, 17);
-			this->cur2Label->Text = L"Cur2: 0";
-			this->cur2Label->Visible = false;
-			// 
-			// psPanel
-			// 
-			this->psPanel->Anchor = static_cast<System::Windows::Forms::AnchorStyles>(((System::Windows::Forms::AnchorStyles::Top | System::Windows::Forms::AnchorStyles::Left)
+			this->tabControl->Anchor = static_cast<System::Windows::Forms::AnchorStyles>((((System::Windows::Forms::AnchorStyles::Top | System::Windows::Forms::AnchorStyles::Bottom)
+				| System::Windows::Forms::AnchorStyles::Left)
 				| System::Windows::Forms::AnchorStyles::Right));
-			this->psPanel->AutoSizeMode = System::Windows::Forms::AutoSizeMode::GrowAndShrink;
-			this->psPanel->Location = System::Drawing::Point(90, 0);
-			this->psPanel->Margin = System::Windows::Forms::Padding(0);
-			this->psPanel->MinimumSize = System::Drawing::Size(434, 24);
-			this->psPanel->Name = L"psPanel";
-			this->psPanel->Size = System::Drawing::Size(434, 24);
-			this->psPanel->TabIndex = 3;
-			this->psPanel->MouseDown += gcnew System::Windows::Forms::MouseEventHandler(this, &MainForm::psPanel_MouseMove);
-			this->psPanel->MouseMove += gcnew System::Windows::Forms::MouseEventHandler(this, &MainForm::psPanel_MouseMove);
+			this->tabControl->Appearance = System::Windows::Forms::TabAppearance::FlatButtons;
+			this->tabControl->Controls->Add(this->tabPage1);
+			this->tabControl->Controls->Add(this->tabPage3);
+			this->tabControl->Location = System::Drawing::Point(0, 24);
+			this->tabControl->Margin = System::Windows::Forms::Padding(3, 0, 3, 0);
+			this->tabControl->Name = L"tabControl";
+			this->tabControl->SelectedIndex = 0;
+			this->tabControl->Size = System::Drawing::Size(524, 254);
+			this->tabControl->TabIndex = 1;
+			// 
+			// col1
+			// 
+			this->col1->HeaderText = L"№";
+			this->col1->Name = L"col1";
+			this->col1->ReadOnly = true;
+			this->col1->Resizable = System::Windows::Forms::DataGridViewTriState::False;
+			this->col1->Width = 25;
+			// 
+			// col2
+			// 
+			this->col2->HeaderText = L"Image";
+			this->col2->Name = L"col2";
+			this->col2->ReadOnly = true;
+			this->col2->Resizable = System::Windows::Forms::DataGridViewTriState::True;
+			this->col2->Width = 254;
+			// 
+			// col3
+			// 
+			this->col3->HeaderText = L"Transform";
+			this->col3->Name = L"col3";
+			this->col3->ReadOnly = true;
+			this->col3->Resizable = System::Windows::Forms::DataGridViewTriState::False;
+			// 
+			// col4
+			// 
+			this->col4->AutoSizeMode = System::Windows::Forms::DataGridViewAutoSizeColumnMode::Fill;
+			this->col4->HeaderText = L"Description";
+			this->col4->Name = L"col4";
+			this->col4->ReadOnly = true;
 			// 
 			// MainForm
 			// 
@@ -1217,7 +1220,10 @@ namespace ImageEditor {
 			this->SizeChanged += gcnew System::EventHandler(this, &MainForm::MainFormSizeChanged);
 			this->menuStrip->ResumeLayout(false);
 			this->menuStrip->PerformLayout();
-			this->tabControl->ResumeLayout(false);
+			this->statusStrip->ResumeLayout(false);
+			this->statusStrip->PerformLayout();
+			this->tabPage3->ResumeLayout(false);
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->dataGridView))->EndInit();
 			this->tabPage1->ResumeLayout(false);
 			this->tableLayout->ResumeLayout(false);
 			this->tableLayout->PerformLayout();
@@ -1229,10 +1235,7 @@ namespace ImageEditor {
 			this->splitContainer->ResumeLayout(false);
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->pictureBox1))->EndInit();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->pictureBox2))->EndInit();
-			this->tabPage2->ResumeLayout(false);
-			this->propTable->ResumeLayout(false);
-			this->statusStrip->ResumeLayout(false);
-			this->statusStrip->PerformLayout();
+			this->tabControl->ResumeLayout(false);
 			this->ResumeLayout(false);
 			this->PerformLayout();
 
@@ -1251,8 +1254,8 @@ namespace ImageEditor {
 		Void pictureBoxClick(Object^, EventArgs^);
 		Void MainFormSizeChanged(Object^, EventArgs^);
 		Void setColors();
-		Void addPB();
 		Void updatePictures(ProgressBar^);
+		Void addLogEntry();
 		Void disableControls();
 		Void disableControls(bool);
 		Void progressBarInc(ProgressBar^);
@@ -1275,5 +1278,6 @@ namespace ImageEditor {
 		Void textBoxTextChanged(Object^, EventArgs^);
 		Void psPanel_MouseMove(Object^, MouseEventArgs^);
 		Void psPanel_MouseDown(Object^, MouseEventArgs^);
+		Void dataGridView_ColumnWidthChanged(Object^ sender, DataGridViewColumnEventArgs^ e);
 	};
 }

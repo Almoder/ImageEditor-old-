@@ -82,17 +82,7 @@ Void MainForm::openItemClick(Object^ sender, EventArgs^ e) {
 			engine->sFDindex = openFileDialog->FilterIndex;
 			pictureBox1->Image = engine->getCurrent();
 			pictureBox2->Image = engine->getCurrent();
-			gallery->Controls->Clear();
-			newPb = Drawing::Point(0, 0);
-			PBl = 0; PBn = 4;
-			PBw = engine->getCurrent()->Width;
-			if (PBw >= 450 && PBw < 600) { 
-				PBn = 2; PBw = 450; }
-			else if (PBw >= 300 && PBw <= 450) { 
-				PBn = 3; PBw = 320; }
-			else if (PBw >= 600) { 
-				PBn = 1; PBw = 600; }
-			addPB();
+			addLogEntry();
 			countLabel->Text = gcnew String("Count: " + engine->count());
 			cur1Label->Text = gcnew String("Cur1: " + engine->current);
 			textBox10->Text = String::Empty;
@@ -174,7 +164,16 @@ Void MainForm::permanentClick(Object^ sender, EventArgs^ e) {
 
 Void MainForm::pictureBoxClick(Object^ sender, EventArgs^ e) {
 	curPictureBox = safe_cast<PictureBox^>(sender);
-	curLabel = curPictureBox->Name->Contains("1") ? 1 : 2;
+	if (curPictureBox->Name->Contains("1")) {
+		curLabel = 1;
+		cur1Label->ForeColor = Color::Aqua;
+		cur2Label->ForeColor = Color::White;
+	}
+	else {
+		curLabel = 2;
+		cur1Label->ForeColor = Color::White;
+		cur2Label->ForeColor = Color::Aqua;
+	}
 }
 
 Void MainForm::MainFormSizeChanged(Object^ sender, EventArgs^ e) {
@@ -218,33 +217,11 @@ Void MainForm::setColors() {
 		var->ForeColor = fore;
 	}
 	tabPage1->BackColor = SystemColors::Control;
-	tabPage2->BackColor = back;
+	tabPage3->BackColor = back;
 	splitContainer->BackColor = SystemColors::Control;
 	splitContainer->Panel1->BackColor = back;
 	splitContainer->Panel2->BackColor = back;
-}
-
-Void MainForm::addPB() {
-	PictureBox^ pb = gcnew PictureBox();
-	pb->Location = newPb;
-	pb->Dock = DockStyle::None;
-	pb->Name = gcnew String("pb" + engine->count());
-	pb->SizeMode = PictureBoxSizeMode::StretchImage;
-	pb->Image = engine->getLast();
-	pb->Width = PBw;
-	pb->BorderStyle = BorderStyle::None;
-	pb->BackColor = Color::Red;
-	pb->Height = pictureBox1->Height * pb->Width;
-	pb->Height /= pictureBox1->Width;
-	pb->TabIndex = engine->count();
-	pb->TabStop = true;
-	this->gallery->Controls->Add(pb);
-	if (PBl < PBn) {
-		PBl++; newPb.X += PBw + 5;
-	}
-	else {
-		newPb.X = 0; newPb.Y += pb->Height + 5; PBl = 0;
-	}
+	cur1Label->ForeColor = Color::Aqua;
 }
 
 #pragma endregion
@@ -266,11 +243,20 @@ Void MainForm::updatePictures(ProgressBar^ ptr) {
 		engine->current = engine->count() - 1;
 		curPictureBox->Image = engine->getCurrent();
 	}
-	addPB();
+	addLogEntry();
 	countLabel->Text = gcnew String("Count: " + engine->count());
 	if (curLabel == 1) cur1Label->Text = gcnew String("Cur1: " + (engine->count() - 1));
 	else cur2Label->Text = gcnew String("Cur2: " + (engine->count() - 1));
 	disableControls(engine->permanent || !engine->works);
+}
+
+Void MainForm::addLogEntry() {
+	DataGridViewRowCollection^ row = dataGridView->Rows;
+	row->Add(row->Count.ToString(), engine->getCurrent(), nullptr, nullptr);
+	row[row->Count - 1]->Height =
+		int(float(engine->getCurrent()->Height) * (
+			float(dataGridView->Columns[1]->Width) /
+			float(engine->getCurrent()->Width)));
 }
 
 Void MainForm::disableControls() {
@@ -628,6 +614,15 @@ Void MainForm::psPanel_MouseDown(Object^ sender, MouseEventArgs^ e) {
 		pbc > 1) {
 		psPanel->Height = 7 + (17 * pbc);
 		isPsPanel = true;
+	}
+}
+
+Void MainForm::dataGridView_ColumnWidthChanged(Object^ sender, DataGridViewColumnEventArgs^ e) {
+	int h = int(float(engine->getCurrent()->Height) * (
+		float(dataGridView->Columns[1]->Width) /
+		float(engine->getCurrent()->Width)));
+	for each (DataGridViewRow^ var in dataGridView->Rows) {
+		var->Height = h;
 	}
 }
 
