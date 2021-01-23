@@ -1,3 +1,5 @@
+#include "Entry.h"
+
 namespace ImageEditor {
 
 	using namespace System;
@@ -10,17 +12,17 @@ namespace ImageEditor {
 
 	public ref class Engine {
 	private:
-		List<Bitmap^>^ data = gcnew List<Bitmap^>();
+		List<Bitmap^>^ data = nullptr;
+		List<Entry^>^ log = nullptr;
 		ProgressBar^ progressPtr = nullptr;
 		int t, b0, b1;
 		double c, g;
-		int* mSize = new int[7]{
-			9, 25, 49, 81, 121, 169, 255};
+		int* mSize = new int[9]{
+			9, 25, 49, 81, 121, 169, 255, 289, 361};
 		bool empty = true;
 	public:
 		PictureBox^ picturePtr = nullptr;
-
-		String^ fileName;
+		String^ fileName, ^file;
 		String^ filter = "BMP (*.bmp)|*.bmp|JPEG (*.jpeg), JPG (*.jpg)|*.jpeg; *.jpg|PNG (*.png)|*.png";
 		int current = 0, current2 = 0, sFDindex = 0;
 		bool permanent = false, works = false;
@@ -31,11 +33,11 @@ namespace ImageEditor {
 	public:
 		Engine(PbarInc^ del);
 		~Engine();
-
 		Image^ undo();
 		Image^ redo();
 		Image^ getCurrent();
 		Image^ getLast();
+		Entry^ getLog();
 		void addNode(Image^);
 		void preset(PbarInc^, ProgressBar^);
 		void clearData();

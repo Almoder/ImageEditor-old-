@@ -10,6 +10,7 @@ using namespace ImageEditor;
 
 Engine::Engine(PbarInc^ upd) {
 	data = gcnew List<Bitmap^>();
+	log = gcnew List<Entry^>();
 	this->upd = upd;
 };
 
@@ -28,6 +29,7 @@ Image^ Engine::redo() {
 }
 
 Image^ Engine::getCurrent() {
+	if (dataEmpty()) return nullptr;
 	return data[current];
 }
 
@@ -35,8 +37,14 @@ Image^ Engine::getLast() {
 	return data[data->Count - 1];
 }
 
+Entry^ Engine::getLog() { 
+	return log[log->Count - 1]; 
+};
+
 void Engine::addNode(Image^ img) {
 	data->Add(gcnew Bitmap(img));
+	if (log->Count == 0) log->Add(
+		gcnew Entry("Original", file));
 	empty = false;
 }
 
@@ -174,7 +182,8 @@ void Engine::doFrequencyDomain(int radius, int order) {
 
 void Engine::negative() {
 	ProgressBar^ pb = progressPtr; PbarInc^ _del = del;
-	Bitmap^ orig = gcnew Bitmap(data[current2]);
+	int cur = current;
+	Bitmap^ orig = gcnew Bitmap(data[cur]);
 	Bitmap^ ret = gcnew Bitmap(orig->Width, orig->Height);
 	for (int row = 0; row < orig->Width; row++) {
 		for (int col = 0; col < orig->Height; col++) {
@@ -184,12 +193,14 @@ void Engine::negative() {
 		pb->Invoke(_del, pb);
 	}
 	addNode(ret);
+	log->Add(gcnew Entry("Negative", "Negative of image " + cur));
 	picturePtr->Invoke(upd, pb);
 }
 
 void Engine::halftone() {
 	ProgressBar^ pb = progressPtr; PbarInc^ _del = del;
-	Bitmap^ orig = gcnew Bitmap(data[current2]);
+	int cur = current;
+	Bitmap^ orig = gcnew Bitmap(data[cur]);
 	Bitmap^ ret = gcnew Bitmap(orig->Width, orig->Height);
 	for (int row = 0; row < orig->Width; row++) {
 		for (int col = 0; col < orig->Height; col++) {
@@ -200,16 +211,18 @@ void Engine::halftone() {
 		pb->Invoke(_del, pb);
 	}
 	addNode(ret);
+	log->Add(gcnew Entry("Halftone", "Halftone image " + cur));
 	picturePtr->Invoke(upd, pb);
 }
 
 void Engine::binar() {
 	ProgressBar^ pb = progressPtr; PbarInc^ _del = del;
-	Bitmap^ orig = gcnew Bitmap(data[current]);
+	int cur = current;
+	Bitmap^ orig = gcnew Bitmap(data[cur]);
 	Bitmap^ ret = gcnew Bitmap(orig->Width, orig->Height);
-	int _t = t;
-	Color _b0 = Color::FromArgb(b0, b0, b0);
-	Color _b1 = Color::FromArgb(b1, b1, b1);
+	int _t = t, v1 = b0, v2 = b1;
+	Color _b0 = Color::FromArgb(v1, v1, v1);
+	Color _b1 = Color::FromArgb(v2, v2, v2);
 	for (int row = 0; row < orig->Width; row++) {
 		for (int col = 0; col < orig->Height; col++) {
 			Color b = orig->GetPixel(row, col);
@@ -220,6 +233,7 @@ void Engine::binar() {
 		pb->Invoke(_del, pb);
 	}
 	addNode(ret);
+	log->Add(gcnew Entry(_t, v1, v2));
 	picturePtr->Invoke(upd, pb);
 }
 
@@ -227,6 +241,7 @@ void Engine::binarAdaptive() {
 	ProgressBar^ pb = progressPtr; PbarInc^ _del = del;
 	Bitmap^ dst = gcnew Bitmap(data[current]);
 	Bitmap^ orig = gcnew Bitmap(dst->Width, dst->Height);
+	Bitmap^ ret = gcnew Bitmap(dst->Width, dst->Height);
 	float min = 255.0, max = 0.0, maxSigma = -1;
 	int m = 0, n = 0, threshold = 0, alpha1 = 0, beta1 = 0;
 	for (int row = 0; row < dst->Width; row++) {
@@ -266,33 +281,45 @@ void Engine::binarAdaptive() {
 		}
 	}
 	threshold += (int)min;
-	t = threshold; b0 = 0; b1 = 255;
-	progressPtr = pb;
-	thread = gcnew Thread(gcnew ThreadStart(this, &Engine::binar));
-	thread->Priority = ThreadPriority::Highest;
-	thread->Start();
+	Color _b0 = Color::FromArgb(0, 0, 0);
+	Color _b1 = Color::FromArgb(255, 255, 255);
+	for (int row = 0; row < orig->Width; row++) {
+		for (int col = 0; col < orig->Height; col++) {
+			Color b = orig->GetPixel(row, col);
+			b.GetBrightness() * 255 <= threshold ?
+				ret->SetPixel(row, col, _b0) :
+				ret->SetPixel(row, col, _b1);
+		}
+		pb->Invoke(_del, pb);
+	}
+	addNode(ret);
+	log->Add(gcnew Entry("Adaptive binarization", 
+		String::Join(" ", "Threshold:", threshold,
+			"Value1: 0", "Value2: 255")));
+	picturePtr->Invoke(upd, pb);
 }
 
 void Engine::power() {
 	ProgressBar^ pb = progressPtr; PbarInc^ _del = del;
 	Bitmap^ orig = gcnew Bitmap(data[current]);
 	Bitmap^ ret = gcnew Bitmap(orig->Width, orig->Height);
-	int c = int(this->c), r, g, b;
-	double p = this->g;
+	int r, g, b;
+	double m = c, p = this->g;
 	for (int row = 0; row < orig->Width; row++) {
 		for (int col = 0; col < orig->Height; col++) {
 			Color t = orig->GetPixel(row, col);
 			r = Math::Pow(t.R, p) > 255 ? 255 : int(Math::Pow(t.R, p));
 			g = Math::Pow(t.G, p) > 255 ? 255 : int(Math::Pow(t.G, p));
 			b = Math::Pow(t.B, p) > 255 ? 255 : int(Math::Pow(t.B, p));
-			r = r == 255 ? r : r * c > 255 ? 255 : r * c;
-			g = g == 255 ? g : g * c > 255 ? 255 : g * c;
-			b = b == 255 ? b : b * b > 255 ? 255 : b * c;
+			r = int(r * m) == 255 ? r : int(r * m) > 255 ? 255 : int(r * m);
+			g = int(g * m) == 255 ? g : int(g * m) > 255 ? 255 : int(g * m);
+			b = int(b * m) == 255 ? b : int(b * m) > 255 ? 255 : int(b * m);
 			ret->SetPixel(row, col, Color::FromArgb(r, g, b));
 		}
 		pb->Invoke(_del, pb);
 	}
 	addNode(ret);
+	log->Add(gcnew Entry(m, p));
 	picturePtr->Invoke(upd, pb);
 }
 
@@ -312,6 +339,7 @@ void Engine::lBrightness() {
 		pb->Invoke(_del, pb);
 	}
 	addNode(ret);
+	log->Add(gcnew Entry("Linear", "brightness", val));
 	picturePtr->Invoke(upd, pb);
 }
 
@@ -334,6 +362,7 @@ void Engine::nBrightness() {
 		pb->Invoke(_del, pb);
 	}
 	addNode(ret);
+	log->Add(gcnew Entry("Nonlinear", "brightness", val));
 	picturePtr->Invoke(upd, pb);
 }
 
@@ -365,6 +394,7 @@ void Engine::lContrast() {
 		pb->Invoke(_del, pb);
 	}
 	addNode(ret);
+	log->Add(gcnew Entry("Linear", "contrast", val));
 	picturePtr->Invoke(upd, pb);
 }
 
@@ -387,6 +417,7 @@ void Engine::nContrast() {
 		pb->Invoke(_del, pb);
 	}
 	addNode(ret);
+	log->Add(gcnew Entry("Nonlinear", "contrast", val));
 	picturePtr->Invoke(upd, pb);
 }
 
@@ -549,6 +580,20 @@ void Engine::autolevels() {
 		pb->Invoke(_del, pb);
 	}
 	addNode(ret);
+	String^ f = nullptr;
+	switch (type) {
+	case 0: f = "Low-frequency"; break;
+	case 1: f = "Rectangle"; break;
+	case 2: f = "Cross"; break;
+	case 3: f = "Rhombus"; break;
+	case 4: f = "Horizontal lines"; break;
+	case 5: f = "VerticalLines"; break;
+	case 6: f = "Diagonal 45"; break;
+	case 7: f = "Diagonal 135"; break;
+	}
+	log->Add(gcnew Entry("Autolevels", String::Join(
+		"", "Filtering: ", f, " Mask size: ", 
+		(sub * 2 + 1), "x", (sub * 2 + 1))));
 	picturePtr->Invoke(upd, pb);
 }
 
@@ -579,6 +624,8 @@ void Engine::filterLF() {
 		pb->Invoke(_del, pb);
 	}
 	addNode(ret);
+	log->Add(gcnew Entry(
+		"Low-frequency filtering", (sub * 2 + 1)));
 	picturePtr->Invoke(upd, pb);
 }
 
@@ -603,6 +650,8 @@ void Engine::filterRL() {
 		pb->Invoke(_del, pb);
 	}
 	addNode(ret);
+	log->Add(gcnew Entry(
+		"Median filtering (rect)", (sub * 2 + 1)));
 	picturePtr->Invoke(upd, pb);
 }
 
@@ -626,6 +675,8 @@ void Engine::filterCS() {
 		pb->Invoke(_del, pb);
 	}
 	addNode(ret);
+	log->Add(gcnew Entry(
+		"Median filtering (cross)", (sub * 2 + 1)));
 	picturePtr->Invoke(upd, pb);
 }
 
@@ -649,6 +700,8 @@ void Engine::filterRS() {
 		pb->Invoke(_del, pb);
 	}
 	addNode(ret);
+	log->Add(gcnew Entry(
+		"Median filtering (rhombus)", (sub * 2 + 1)));
 	picturePtr->Invoke(upd, pb);
 }
 
@@ -681,6 +734,8 @@ void Engine::filterHL() {
 		pb->Invoke(_del, pb);
 	}
 	addNode(ret);
+	log->Add(gcnew Entry(
+		"Horizontal lines", (sub * 2 + 1)));
 	picturePtr->Invoke(upd, pb);
 }
 
@@ -713,6 +768,8 @@ void Engine::filterVL() {
 		pb->Invoke(_del, pb);
 	}
 	addNode(ret);
+	log->Add(gcnew Entry(
+		"Vertical lines", (sub * 2 + 1)));
 	picturePtr->Invoke(upd, pb);
 }
 
@@ -745,6 +802,8 @@ void Engine::filterD1() {
 		pb->Invoke(_del, pb);
 	}
 	addNode(ret);
+	log->Add(gcnew Entry(
+		"Diagonal 45 degrees", (sub * 2 + 1)));
 	picturePtr->Invoke(upd, pb);
 }
 
@@ -777,6 +836,8 @@ void Engine::filterD2() {
 		pb->Invoke(_del, pb);
 	}
 	addNode(ret);
+	log->Add(gcnew Entry(
+		"Diagonal 135 degrees", (sub * 2 + 1)));
 	picturePtr->Invoke(upd, pb);
 }
 
@@ -804,6 +865,7 @@ void Engine::frequencyDomain() {
 		pb->Invoke(_del, pb);
 	}
 	addNode(ret);
+	log->Add(gcnew Entry("Frequency domain", "Incorrect!"));
 	picturePtr->Invoke(upd, pb);
 }
 

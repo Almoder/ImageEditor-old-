@@ -68,6 +68,7 @@ Void MainForm::openItemClick(Object^ sender, EventArgs^ e) {
 		if (temp != nullptr) {
 			if (!engine->dataEmpty()) engine->clearData();
 			engine->fileName = nullptr;
+			engine->file = openFileDialog->FileName;
 			engine->current = 0;
 			try {
 				engine->addNode(gcnew Bitmap(temp));
@@ -82,6 +83,7 @@ Void MainForm::openItemClick(Object^ sender, EventArgs^ e) {
 			engine->sFDindex = openFileDialog->FilterIndex;
 			pictureBox1->Image = engine->getCurrent();
 			pictureBox2->Image = engine->getCurrent();
+			dataGridView->Rows->Clear();
 			addLogEntry();
 			countLabel->Text = gcnew String("Count: " + engine->count());
 			cur1Label->Text = gcnew String("Cur1: " + engine->current);
@@ -252,11 +254,12 @@ Void MainForm::updatePictures(ProgressBar^ ptr) {
 
 Void MainForm::addLogEntry() {
 	DataGridViewRowCollection^ row = dataGridView->Rows;
-	row->Add(row->Count.ToString(), engine->getCurrent(), nullptr, nullptr);
-	row[row->Count - 1]->Height =
-		int(float(engine->getCurrent()->Height) * (
-			float(dataGridView->Columns[1]->Width) /
-			float(engine->getCurrent()->Width)));
+	Image^ img = engine->permanent ? engine->getLast() : engine->getCurrent();
+	row->Add(row->Count.ToString(), img, 
+		engine->getLog()->Type(), engine->getLog()->Desc());
+	row[row->Count - 1]->Height = int(float(img->Height) * (
+		float(dataGridView->Columns[1]->Width) /
+		float(img->Width)));
 }
 
 Void MainForm::disableControls() {
@@ -614,15 +617,6 @@ Void MainForm::psPanel_MouseDown(Object^ sender, MouseEventArgs^ e) {
 		pbc > 1) {
 		psPanel->Height = 7 + (17 * pbc);
 		isPsPanel = true;
-	}
-}
-
-Void MainForm::dataGridView_ColumnWidthChanged(Object^ sender, DataGridViewColumnEventArgs^ e) {
-	int h = int(float(engine->getCurrent()->Height) * (
-		float(dataGridView->Columns[1]->Width) /
-		float(engine->getCurrent()->Width)));
-	for each (DataGridViewRow^ var in dataGridView->Rows) {
-		var->Height = h;
 	}
 }
 
